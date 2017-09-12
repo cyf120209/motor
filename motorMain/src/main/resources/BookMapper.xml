@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="mapper.BookMapper" >
+	
+	<resultMap type="entity.Book" id="bookMap">
+		<id property="bid" column="bid" />
+		<result property="bname" column="bname" />
+		
+		<collection  property="categories"  ofType="entity.Category">
+			<id property="cid" column="cid" />
+			<result property="cname" column="cname" />	
+		</collection>
+	</resultMap>
+
+	<select id="queryAll" resultMap="bookMap">
+		select 
+			* 
+		from 
+			book b
+		inner join  
+			middle m
+		on
+			b.bid=m.m_bid
+		inner join
+			category c
+		on
+			m.m_cid=c.cid
+	</select>
+</mapper>

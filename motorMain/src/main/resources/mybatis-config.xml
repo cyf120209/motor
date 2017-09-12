@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE configuration  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>    <!-- 配置别名 -->
+    <settings>
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <setting name="aggressiveLazyLoading" value="false"/>
+        <setting name="logImpl" value="LOG4J"/>
+    </settings>
+    <typeAliases>
+        <typeAlias alias="User" type="entity.User"/>
+        <typeAlias alias="shade" type="entity.Shade"/>
+        <typeAlias alias="shadeMapper" type="mapper.ShadeMapper"/>
+    </typeAliases>     <!-- 数据库配置信息 -->
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="com.mysql.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql://127.0.0.1:3306/motor"/>
+                <property name="username" value="root"/>
+                <property name="password" value="root"/>
+            </dataSource>
+        </environment>
+    </environments>     <!-- 映射文件 -->
+    <mappers>
+        <mapper resource="User.xml"/>
+        <mapper resource="ShadeMapper.xml"/>
+        <mapper resource="GroupMapper.xml"/>
+        <mapper resource="BookMapper.xml" />
+        <mapper resource="CategoryMapper.xml" />
+    </mappers>
+</configuration>

@@ -1,0 +1,16 @@
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="ShadeGroupRelation" table="shadegrouprelation" catalog="motor">
+        <id name="id" type="java.lang.Integer">
+            <column name="id"/>
+            <generator class="assigned"/>
+        </id>
+        <property name="shadeId" type="java.lang.Integer">
+            <column name="shadeId"/>
+        </property>
+        <property name="shadeGroupId" type="java.lang.Integer">
+            <column name="shadeGroupId"/>
+        </property>
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,24 @@
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="ShadeGroup" table="shadeGroup" catalog="motor">
+        <id name="id" type="java.lang.Integer">
+            <column name="id"/>
+            <generator class="assigned"/>
+        </id>
+        <property name="deviceId" type="java.lang.Integer">
+            <column name="deviceID"/>
+        </property>
+        <property name="groupId" type="java.lang.Integer">
+            <column name="groupId"/>
+        </property>
+        <property name="groupName" type="java.lang.String">
+            <column name="groupName"/>
+        </property>
+        <set name="shades" lazy="true" table="shadegrouprelation">
+            <key column="shadeGroupId"></key>
+            <many-to-many column="shadeId" property-ref="shadeId" class="Shade" />
+        </set>
+
+    </class>
+</hibernate-mapping>

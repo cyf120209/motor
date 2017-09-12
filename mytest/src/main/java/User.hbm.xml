@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="User" table="Users">
+        <id name="id" column="id">
+            <!--<generator class="uuid.hex"></generator>-->
+        </id>
+        <property name="userid"/>
+        <property name="username" length="30" />
+        <property name="password" length="92" />
+        <set name="roles" table="user_role">
+            <key column="userid" />
+            <many-to-many column="roleid" class="Role" />
+        </set>
+    </class>
+</hibernate-mapping>

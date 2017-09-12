@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.ShadeMapper">    <!-- 使用sql标签可以将公共的sql提取出来复用 -->
+
+    <sql id="queryFields">
+        id , shadeId , shadeName
+    </sql>
+    <!--<select id="selectByID" parameterType="int" resultType="Shade">select-->
+        <!--<include refid="queryFields"/>-->
+        <!--from `shade` where id = #{id}-->
+    <!--</select>-->
+    <resultMap id="shadeMap" type="entity.Shade">
+        <id property="id" column="id" />
+        <result property="shadeId" column="shadeId" />
+        <result property="shadeName" column="shadeName" />
+        <result property="shadePosition" column="shadePosition" />
+        <result property="shadePriority" column="shadePriority" />
+        <result property="shadeStatus" column="shadeStatus" />
+        <association property="shadeGroups" javaType="java.util.List"
+                     select="selectById" column="shadeId">
+
+        </association>
+        <!--<collection property="shadeGroups" ofType="entity.ShadeGroup">-->
+            <!--<id property="groupId" column="groupId" />-->
+            <!--&lt;!&ndash;<result property="groupId" column="groupId" />&ndash;&gt;-->
+            <!--<result property="groupName" column="groupName" />-->
+        <!--</collection>-->
+    </resultMap>
+
+    <select id="queryAll" resultMap="shadeMap">
+        SELECT * FROM shade
+    </select>
+
+    <select id="selectByShadeId" parameterType="int" resultMap="shadeMap">
+        SELECT * FROM shade WHERE shadeId=#{id}
+    </select>
+    
+    <select id="selectById" parameterType="int" resultType="entity.ShadeGroup">
+        SELECT * FROM shadegrouprelation r INNER JOIN  shadegroup g on r.shadeGroupId=g.groupId
+      WHERE r.shadeId=#{id}
+    </select>
+
+    <insert id="add" parameterType="entity.Shade" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO shade (shadeId,shadeName,shadePosition,shadePriority,shadeStatus) values (#{shadeId},#{shadeName},#{shadePosition},#{shadePriority},#{shadeStatus})
+    </insert>
+
+    <update id="update" parameterType="entity.Shade" >
+        UPDATE shade set shadeId=#{shadeId},shadeName=#{shadeName},shadePosition=#{shadePosition},shadePriority=#{shadePriority},shadeStatus=#{shadeStatus} WHERE id=#{id}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM shade WHERE shadeId=#{shadeId}
+    </delete>
+</mapper>

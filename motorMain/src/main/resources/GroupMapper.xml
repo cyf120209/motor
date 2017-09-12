@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.GroupMapper">    <!-- 使用sql标签可以将公共的sql提取出来复用 -->
+
+    <sql id="queryFields">
+        id , groupId ,deviceId ,groupName
+    </sql>
+    <!--<select id="selectByID" parameterType="int" resultType="Shade">select-->
+        <!--<include refid="queryFields"/>-->
+        <!--from `shade` where id = #{id}-->
+    <!--</select>-->
+    <resultMap id="groupMap" type="entity.ShadeGroup">
+        <id property="id" column="id"/>
+        <result property="groupId" column="groupId" />
+        <result property="deviceId" column="deviceId" />
+        <result property="groupName" column="groupName" />
+        <association property="shades" javaType="java.util.List"
+                     select="selectById" column="id"></association>
+    </resultMap>
+
+    <select id="queryAll"  resultMap="groupMap">
+        SELECT * FROM shadegroup
+    </select>
+
+    <select id="selectByGroupId" parameterType="int" resultMap="groupMap">
+        SELECT * FROM shadegroup WHERE g.id=#{id}
+    </select>
+
+    <select id="selectById" parameterType="int" resultType="entity.Shade">
+        SELECT
+        s.shadeId,s.shadeName,s.shadePosition,s.shadePriority,s.shadeStatus
+        FROM shadegrouprelation r LEFT JOIN  shade s on r.shadeId=s.shadeId
+    WHERE r.shadeGroupId=#{id}
+    </select>
+
+    <insert id="insert" parameterType="entity.ShadeGroup" useGeneratedKeys="true" keyProperty="id">
+      INSERT INTO shadegroup (groupId,deviceId,groupName) values (#{groupId},#{deviceId},#{groupName})
+    </insert>
+
+    <update id="update" parameterType="entity.ShadeGroup" >
+        UPDATE shadegroup set groupId=#{groupId},groupName=#{groupName},deviceId=#{deviceId} WHERE id=#{id}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM shadegroup WHERE id=#{id}
+    </delete>
+</mapper>

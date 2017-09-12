@@ -1,0 +1,34 @@
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="Shade" table="Shade" catalog="motor">
+        <id name="id" type="java.lang.Integer">
+            <column name="id"/>
+            <generator class="assigned"/>
+        </id>
+        <property name="shadeId" type="java.lang.Integer">
+            <column name="shadeId"/>
+        </property>
+        <property name="shadeName" type="java.lang.String">
+            <column name="shadeName"/>
+        </property>
+        <property name="shadePosition" type="java.lang.Integer">
+            <column name="shadePosition"/>
+        </property>
+        <property name="shadePriority" type="java.lang.Integer">
+            <column name="shadePriority"/>
+        </property>
+        <property name="shadeStatus" type="java.lang.String">
+            <column name="shadeStatus"/>
+        </property>
+        <set name="shadeGroups" table="shadegrouprelation">
+            <key column="shadeId"></key>
+            <many-to-many column="groupId" property-ref="groupId" class="ShadeGroup"/>
+        </set>
+        <!--<list name="shadeGroups" table="shadegrouprelation">-->
+            <!--<key></key>-->
+            <!--<many-to-many column="groupId" property-ref="groupId" class="ShadeGroup"></many-to-many>-->
+        <!--</list>-->
+
+    </class>
+</hibernate-mapping>

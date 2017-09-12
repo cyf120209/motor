@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="Role" table="Roles">
+        <id name="id" column="id" >
+            <!--<generator class="uuid.hex"></generator>-->
+        </id>
+        <property name="roleid"/>
+        <property name="rolename" length="30" />
+        <property name="ordernum" />
+        <property name="description" length="200" />
+        <set name="users" table="user_role" inverse="true">
+            <key column="roleid"/>
+            <many-to-many column="userid" class="User" />
+        </set>
+    </class>
+</hibernate-mapping>
