@@ -329,6 +329,9 @@ public class UpdatePresenterImpl implements UpdatePresenter {
         new Thread(new UpdatePresenterImpl.RunUpdateToOne(framefile, localDevice, (mUpdateView.getdevBoxSelectedItem()))).start();
     }
 
+    /**
+     * 升级所有电机
+     */
     @Override
     public void updateButton() {
         try {
@@ -466,8 +469,8 @@ public class UpdatePresenterImpl implements UpdatePresenter {
         public void run() {
             try {
                 Draper.sendIHaveFrame(type, mUpdateView.getMajorNum(), mUpdateView.getMinorNum(), mUpdateView.getPatchNum(), mUpdateView.getTypeNum(), updateFile);
-                //确保升级前找到所有设备，否则不升级,如果升级前找到了所以设备，则升级，否则进入等待
                 Thread.sleep(6000);
+                //确保升级前找到所有设备，否则不升级,如果升级前找到了所有设备，则升级，否则进入等待
                 if (mUpdateView.getOriginalSize() != mUpdateView.getBeforeSize()) {
                     synchronized (lock) {
                         lock.wait();

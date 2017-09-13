@@ -6,14 +6,12 @@ import limitsAndStops.presenter.LimitsAndStopsPresenter;
 import limitsAndStops.presenter.LimitsAndStopsPresenterImpl;
 import model.DraperInformation;
 import rx.functions.Action1;
+import util.Draper;
 import util.RxBus;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
@@ -51,6 +49,16 @@ public class LimitsAndStops extends JFrame implements ActionListener,LimitsAndSt
     JList stopList =new JList();
     JScrollPane deviceSP = new JScrollPane(stopList);
 
+    private final Thread thread;
+    private JTextField jf1 = new JTextField();
+    private JTextField jf2 = new JTextField();
+    private JTextField jf3 = new JTextField();
+    private JTextField jf4 = new JTextField();
+    private JTextField jfTime = new JTextField();
+    private JTextField jfInterval = new JTextField();
+    private JButton jbStart = new JButton("开始");
+    private JLabel jlCount = new JLabel("次数");
+
 
 
     public LimitsAndStops( ) throws HeadlessException {
@@ -85,6 +93,16 @@ public class LimitsAndStops extends JFrame implements ActionListener,LimitsAndSt
         lowLimitLabel.setBounds(120,200,100,20);
         deviceSP.setBounds(120,220,100,100);
 
+
+        jf1.setBounds(250, 220, 200, 20);
+        jf2.setBounds(250, 240, 200, 20);
+        jf3.setBounds(250, 260, 200, 20);
+        jf4.setBounds(250, 280, 200, 20);
+        jfTime.setBounds(470, 220, 100, 20);
+        jfInterval.setBounds(470, 240, 100, 20);
+        jbStart.setBounds(470, 260, 100, 20);
+        jlCount.setBounds(470, 280, 100, 20);
+
         add(devBox);
         add(extended);
         add(stop);
@@ -110,6 +128,16 @@ public class LimitsAndStops extends JFrame implements ActionListener,LimitsAndSt
         add(upLimitLabel);
         add(lowLimitLabel);
         add(deviceSP);
+
+
+        add(jf1);
+        add(jf2);
+        add(jf3);
+        add(jf4);
+        add(jfTime);
+        add(jfInterval);
+        add(jbStart);
+        add(jlCount);
 
         extended.addActionListener(this);
         stop.addActionListener(this);
@@ -142,6 +170,23 @@ public class LimitsAndStops extends JFrame implements ActionListener,LimitsAndSt
                         updateDraperInfomation(draperInformation);
                     }
                 });
+
+        jbStart.addActionListener(this);
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosing(e);
+                isRunning=false;
+            }
+        });
+        thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                send();
+            }
+        });
+        thread.start();
     }
 
     @Override
@@ -173,6 +218,14 @@ public class LimitsAndStops extends JFrame implements ActionListener,LimitsAndSt
             mLimitsAndStopsPresenter.remoteStop();
         }else if(remoteStop.equals(source)){
             mLimitsAndStopsPresenter.remoteStop();
+        }else if (jbStart.equals(e.getSource())) {
+            if (jbStart.getText().equals("开始")) {
+                jbStart.setText("暂停");
+                start();
+            } else {
+                jbStart.setText("开始");
+                stop();
+            }
         }
     }
 
@@ -204,5 +257,57 @@ public class LimitsAndStops extends JFrame implements ActionListener,LimitsAndSt
 //        a.add(2);
 //        a.add(2);
 //        stopList.addAll(a);
+    }
+
+    private void start() {
+//        time.start();
+        count=0;
+        time = Integer.valueOf(jfTime.getText().toString().trim());
+        isLoop = true;
+    }
+
+    private void stop() {
+//        time.stop();
+        isLoop = false;
+    }
+
+    boolean isLoop = false;
+    boolean isRunning = true;
+    int time=0;
+    int count=0;
+
+    /**
+     * 循环发送指令
+     */
+    private void send() {
+        while (isRunning) {
+            try {
+//            System.out.println("-------isLoop");
+                Thread.sleep(10);
+                if (isLoop) {
+                    count++;
+                    jlCount.setText(""+count);
+//            byte[] byte1 = Byte2IntUtils.hexStringToBytes(jf1.getText().toString().trim());
+                    Integer cmd1 = Integer.valueOf(jf1.getText().toString().trim());
+                    Integer cmd2 = Integer.valueOf(jf2.getText().toString().trim());
+                    Integer cmd3 = Integer.valueOf(jf3.getText().toString().trim());
+                    Integer cmd4 = Integer.valueOf(jf4.getText().toString().trim());
+
+                    Draper.sendCmd(cmd1);
+                    Thread.sleep(time);
+                    if(!isLoop) continue;
+                    Draper.sendCmd(cmd2);
+                    Thread.sleep(time);
+                    if(!isLoop) continue;
+                    Draper.sendCmd(cmd3);
+                    Thread.sleep(time);
+                    if(!isLoop) continue;
+                    Draper.sendCmd(cmd4);
+                    Thread.sleep(Integer.valueOf(jfInterval.getText().toString().trim()));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

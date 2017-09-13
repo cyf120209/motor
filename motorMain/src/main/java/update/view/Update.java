@@ -23,7 +23,6 @@ import java.util.List;
 public class Update extends JFrame implements UpdateView, ActionListener {
 
     private final UpdatePresenter mUpdatePresenter;
-    private final Thread thread;
     public JButton choosebt = new JButton("choose file");
     public JButton updateToSelectButton = new JButton("Update select");
     public JButton updateButton = new JButton("Update");
@@ -50,14 +49,7 @@ public class Update extends JFrame implements UpdateView, ActionListener {
     private JProgressBar pb = new JProgressBar();
 
 
-    private JTextField jf1 = new JTextField();
-    private JTextField jf2 = new JTextField();
-    private JTextField jf3 = new JTextField();
-    private JTextField jf4 = new JTextField();
-    private JTextField jfTime = new JTextField();
-    private JTextField jfInterval = new JTextField();
-    private JButton jbStart = new JButton("开始");
-    private JLabel jlCount = new JLabel("次数");
+
 
     public JList draperOriginal = new JList();
     JScrollPane draperOriginalJSP = new JScrollPane(draperOriginal);
@@ -111,15 +103,6 @@ public class Update extends JFrame implements UpdateView, ActionListener {
         pb.setBackground(Color.white);
         pb.setForeground(Color.red);
 
-        jf1.setBounds(10, 300, 200, 20);
-        jf2.setBounds(10, 320, 200, 20);
-        jf3.setBounds(10, 340, 200, 20);
-        jf4.setBounds(10, 360, 200, 20);
-        jfTime.setBounds(220, 300, 100, 20);
-        jfInterval.setBounds(220, 320, 100, 20);
-        jbStart.setBounds(220, 340, 100, 20);
-        jlCount.setBounds(220, 360, 100, 20);
-
 
         draperOriginalJSP.setBounds(340, 40, 110, 400);
         draperBeforeUpgradeJSP.setBounds(460, 40, 110, 400);
@@ -149,14 +132,6 @@ public class Update extends JFrame implements UpdateView, ActionListener {
 
         add(pb);
 
-        add(jf1);
-        add(jf2);
-        add(jf3);
-        add(jf4);
-        add(jfTime);
-        add(jfInterval);
-        add(jbStart);
-        add(jlCount);
 
         add(draperOriginalJSP);
         add(draperBeforeUpgradeJSP);
@@ -168,24 +143,16 @@ public class Update extends JFrame implements UpdateView, ActionListener {
         ReadVersion.addActionListener(this);
         ReadValue.addActionListener(this);
 
-        jbStart.addActionListener(this);
+
 
         setResizable(false);
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
-                isRunning=false;
                 mUpdatePresenter.cancelListener();
             }
         });
-        thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                send();
-            }
-        });
-        thread.start();
 
     }
 
@@ -218,65 +185,9 @@ public class Update extends JFrame implements UpdateView, ActionListener {
             updateVersionLabel(version);
         } else if (ReadValue.equals(e.getSource())) {
             mUpdatePresenter.ReadValue();
-        } else if (jbStart.equals(e.getSource())) {
-            if (jbStart.getText().equals("开始")) {
-                jbStart.setText("暂停");
-                start();
-            } else {
-                jbStart.setText("开始");
-                stop();
-            }
         }
     }
 
-    private void start() {
-//        time.start();
-        count=0;
-        time = Integer.valueOf(jfTime.getText().toString().trim());
-        isLoop = true;
-    }
-
-    private void stop() {
-//        time.stop();
-        isLoop = false;
-    }
-
-    boolean isLoop = false;
-    boolean isRunning = true;
-    int time=0;
-    int count=0;
-
-    private void send() {
-        while (isRunning) {
-            try {
-//            System.out.println("-------isLoop");
-                Thread.sleep(10);
-                if (isLoop) {
-                    count++;
-                    jlCount.setText(""+count);
-//            byte[] byte1 = Byte2IntUtils.hexStringToBytes(jf1.getText().toString().trim());
-                    Integer cmd1 = Integer.valueOf(jf1.getText().toString().trim());
-                    Integer cmd2 = Integer.valueOf(jf2.getText().toString().trim());
-                    Integer cmd3 = Integer.valueOf(jf3.getText().toString().trim());
-                    Integer cmd4 = Integer.valueOf(jf4.getText().toString().trim());
-
-                    Draper.sendCmd(cmd1);
-                    Thread.sleep(time);
-                    if(!isLoop) continue;
-                    Draper.sendCmd(cmd2);
-                    Thread.sleep(time);
-                    if(!isLoop) continue;
-                    Draper.sendCmd(cmd3);
-                    Thread.sleep(time);
-                    if(!isLoop) continue;
-                    Draper.sendCmd(cmd4);
-                    Thread.sleep(Integer.valueOf(jfInterval.getText().toString().trim()));
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
 
     Timer timer = new Timer(1, new ActionListener() {
@@ -288,7 +199,10 @@ public class Update extends JFrame implements UpdateView, ActionListener {
         }
     });
 
-
+    /**
+     * 升级前的初始化
+     * @return
+     */
     private boolean initUpdate() {
         clearBeforeAndAfterDeviceVersion();
         if (getFileName() == null || "".equals(getFileName())) {

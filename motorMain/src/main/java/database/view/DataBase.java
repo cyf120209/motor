@@ -2,12 +2,15 @@ package database.view;
 
 import common.Common;
 import database.presenter.DataBasePresenterImpl;
+import util.Draper;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
  * Created by lenovo on 2017/8/24.
@@ -25,9 +28,13 @@ public class DataBase extends JFrame implements ActionListener,DataBaseView{
     //定义一维数据作为列标题
     Object[] columnTitle = {"姓名" , "年龄" , "性别"};
     private DataBasePresenterImpl mDataBasePresenter;
+
+
     public JButton refresh=new JButton("刷新");
     DefaultTableModel model=new DefaultTableModel(tableData,columnTitle);
     public JTable data=new JTable(model);
+
+
 
     public DataBase() {
         setTitle("BoxLayout");
@@ -38,12 +45,22 @@ public class DataBase extends JFrame implements ActionListener,DataBaseView{
 //        setResizable(false);
 
         refresh.setBounds(new Rectangle(10, 10, 100, Common.HEIGHT));
-        data.setBounds(new Rectangle(10,30,500,400));
+        data.setBounds(new Rectangle(10,30,500,200));
+
+
+
+
         add(refresh);
         add(data);
 
+
+
+
+
         mDataBasePresenter=new DataBasePresenterImpl(this);
         refresh.addActionListener(this);
+
+
     }
 
     @Override
@@ -58,4 +75,7 @@ public class DataBase extends JFrame implements ActionListener,DataBaseView{
     public void refresh(Object[][] tableData) {
         model.setDataVector(tableData,columnTitle);
     }
+
+
+
 }
