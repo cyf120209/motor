@@ -23,6 +23,7 @@ import com.serotonin.bacnet4j.util.PropertyReferences;
 import com.serotonin.bacnet4j.util.RequestUtils;
 import common.Common;
 import org.free.bacnet4j.util.SerialParameters;
+import rx.*;
 
 import java.util.*;
 
@@ -38,19 +39,20 @@ public class MyLocalDevice {
     public static Transport iptransport;
     public static MstpNetwork network;
 
-    /**
-     * 远程设备列表
-     */
-    private static List<RemoteDevice> mRemoteDeviceList=new ArrayList<>();
-
-    /**
-     * 远程设备列表
-     */
-    private static Map<Integer, RemoteDevice> mRemoteDevice = new HashMap<>();
+//    /**
+//     * 远程设备列表
+//     */
+//    private static List<RemoteDevice> mRemoteDeviceList=new ArrayList<>();
+//
+//    /**
+//     * 远程设备列表
+//     */
+//    private static Map<Integer, RemoteDevice> mRemoteDevice = new HashMap<>();
 
     private static MasterNode node;
     private static Transport transport;
     private static LocalDevice ipLocalDevice;
+    public static RemoteUtils mRemoteUtils;
 
     public static LocalDevice getInstance(){
         return localDevice;
@@ -78,7 +80,7 @@ public class MyLocalDevice {
                     network.peerNet=ipnetwork;
                     network.enableRouter=true;
                     ipnetwork.enableRouter=true;
-                    ////
+                    mRemoteUtils = new RemoteUtils();
                     init();
                 }
             }
@@ -157,7 +159,8 @@ public class MyLocalDevice {
      * @return
      */
     public static boolean isExist(RemoteDevice remoteDevice){
-        return mRemoteDeviceList.contains(remoteDevice);
+        return mRemoteUtils.isExist(remoteDevice);
+//        return mRemoteDeviceList.contains(remoteDevice);
     }
 
     /**
@@ -165,17 +168,20 @@ public class MyLocalDevice {
      * @param remoteDevice
      */
     public static void addRemoteDevice(RemoteDevice remoteDevice) throws BACnetException {
-        getObjectList(remoteDevice);
-        mRemoteDeviceList.add(remoteDevice);
-        mRemoteDevice.put(remoteDevice.getInstanceNumber(),remoteDevice);
+        //getObjectList(remoteDevice);
+        mRemoteUtils.addRemoteDevice(remoteDevice);
+
+//        mRemoteDeviceList.add(remoteDevice);
+//        mRemoteDevice.put(remoteDevice.getInstanceNumber(),remoteDevice);
     }
 
     /**
      * 清空 mRemoteDeviceList,mRemoteDevice
      */
     public static void clearRemoteDevice(){
-        mRemoteDeviceList.clear();
-        mRemoteDevice.clear();
+        mRemoteUtils.clearRemoteDevice();
+//        mRemoteDeviceList.clear();
+//        mRemoteDevice.clear();
     }
 
     /**
@@ -183,7 +189,8 @@ public class MyLocalDevice {
      * @return
      */
     public static List<RemoteDevice> getRemoteDeviceList() {
-        return mRemoteDeviceList;
+        return mRemoteUtils.getRemoteDeviceList();
+//        return mRemoteDeviceList;
     }
 
     /**
@@ -191,7 +198,8 @@ public class MyLocalDevice {
      * @return
      */
     public static Map<Integer, RemoteDevice> getRemoteDeviceMap() {
-        return mRemoteDevice;
+        return mRemoteUtils.getRemoteDeviceMap();
+//        return mRemoteDevice;
     }
 
     /**

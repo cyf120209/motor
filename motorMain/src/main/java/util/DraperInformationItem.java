@@ -13,12 +13,15 @@ import java.util.List;
  */
 public class DraperInformationItem extends Encodable{
 
+    private SignedInteger id;
     private Boolean isReverse;
     private SignedInteger curPos;
     private SignedInteger upLimit;
     private SignedInteger lowLimit;
     private LinkedList<SignedInteger> persetStop=new LinkedList<>() ;
+
     public DraperInformationItem(ByteQueue queue) {
+        id= new SignedInteger(queue);
         isReverse=new Boolean(queue);
         curPos=new SignedInteger(queue);
         upLimit=new SignedInteger(queue);
@@ -27,6 +30,10 @@ public class DraperInformationItem extends Encodable{
         while (queue.size()> 2){
             persetStop.add(new SignedInteger(queue));
         }
+    }
+
+    public SignedInteger getId() {
+        return id;
     }
 
     public Boolean getIsReverse() {

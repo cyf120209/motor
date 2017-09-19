@@ -10,6 +10,7 @@ import util.Draper;
 import util.RxBus;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
@@ -22,6 +23,7 @@ public class LimitsAndStops extends JFrame implements ActionListener,LimitsAndSt
 
     private final LimitsAndStopsPresenter mLimitsAndStopsPresenter;
     public JComboBox devBox=new JComboBox();
+    public JButton refresh =new JButton("refresh");
 
     public JButton extended =new JButton("extended");
     public JButton retracted =new JButton("retracted");
@@ -59,6 +61,12 @@ public class LimitsAndStops extends JFrame implements ActionListener,LimitsAndSt
     private JButton jbStart = new JButton("开始");
     private JLabel jlCount = new JLabel("次数");
 
+    private JTextField jfId = new JTextField();
+    private JTextField jfDistance = new JTextField();
+    private JTextField jfStep = new JTextField();
+    private JButton jbConfiguration = new JButton("配置");
+    private JButton jbAutoCfg = new JButton("自动");
+
 
 
     public LimitsAndStops( ) throws HeadlessException {
@@ -67,6 +75,7 @@ public class LimitsAndStops extends JFrame implements ActionListener,LimitsAndSt
         mLimitsAndStopsPresenter = new LimitsAndStopsPresenterImpl(this);
         setSize(700,400);
         devBox.setBounds(10,120,400,20);
+        refresh.setBounds(290,100,100,20);
 
         extended.setBounds(10,10,100,20);
         stop.setBounds(10,30,100,20);
@@ -103,7 +112,15 @@ public class LimitsAndStops extends JFrame implements ActionListener,LimitsAndSt
         jbStart.setBounds(470, 260, 100, 20);
         jlCount.setBounds(470, 280, 100, 20);
 
+        jfId.setBounds(450,100,100,20);
+        jfDistance.setBounds(450,120,100,20);
+        jfStep.setBounds(450,140,100,20);
+        jbConfiguration.setBounds(450,160,100,20);
+        jbAutoCfg.setBounds(550,160,50,20);
+
         add(devBox);
+        add(refresh);
+
         add(extended);
         add(stop);
         add(JOpen);
@@ -139,6 +156,12 @@ public class LimitsAndStops extends JFrame implements ActionListener,LimitsAndSt
         add(jbStart);
         add(jlCount);
 
+        add(jfId);
+        add(jfDistance);
+        add(jfStep);
+        add(jbConfiguration);
+        add(jbAutoCfg);
+
         extended.addActionListener(this);
         stop.addActionListener(this);
         retracted.addActionListener(this);
@@ -172,6 +195,9 @@ public class LimitsAndStops extends JFrame implements ActionListener,LimitsAndSt
                 });
 
         jbStart.addActionListener(this);
+        refresh.addActionListener(this);
+        jbConfiguration.addActionListener(this);
+        jbAutoCfg.addActionListener(this);
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -226,8 +252,51 @@ public class LimitsAndStops extends JFrame implements ActionListener,LimitsAndSt
                 jbStart.setText("开始");
                 stop();
             }
+        }else if(refresh.equals(e.getSource())){
+            mLimitsAndStopsPresenter.getDraperInformation();
+        }else if(jbConfiguration.equals(e.getSource())){
+            int id = Integer.valueOf(jfId.getText().toString().trim());
+            int distance = Integer.valueOf(jfDistance.getText().toString().trim());
+            //int step = Integer.valueOf(jfStep.getText().toString().trim());
+            mLimitsAndStopsPresenter.configuration(id, distance,0);
+            //mLimitsAndStopsPresenter.configuration(0, distance,0);
+        }else if(jbAutoCfg.equals(e.getSource())){
+            isAutoCfg=!isAutoCfg;
+            if(isAutoCfg){
+                cfgCount=0;
+                mLimitsAndStopsPresenter.clearCfgCount();
+                timer.start();
+            }else {
+                timer.stop();
+            }
         }
     }
+
+    @Override
+    public int getDistance() {
+        return Integer.valueOf(jfDistance.getText().toString().trim());
+    }
+
+    private boolean isAutoCfg=false;
+    private int cfgCount=0;
+    Timer timer = new Timer(3000, new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            cfgCount++;
+            int id = Integer.valueOf(jfId.getText().toString().trim());
+            Random random = new Random();
+            int i = random.nextInt(1000);
+            int distance =1000+i;
+            jfDistance.setText(""+distance);
+            mLimitsAndStopsPresenter.configuration(id, distance,0);
+            try {
+                Thread.sleep(1000);
+                mLimitsAndStopsPresenter.saveRemoteDeviceCfg();
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+        }
+    });
 
     @Override
     public RemoteDevice getSelectedItem() {
@@ -236,9 +305,15 @@ public class LimitsAndStops extends JFrame implements ActionListener,LimitsAndSt
 
     @Override
     public void updateDevBox(List<RemoteDevice> remoteDevices) {
+        devBox.removeAll();
         for(RemoteDevice remoteDevice:remoteDevices){
             devBox.addItem(remoteDevice);
         }
+    }
+
+    @Override
+    public boolean getRunningState() {
+        return isLoop;
     }
 
     public void updateDraperInfomation(DraperInformation draperInformation){
@@ -293,21 +368,31 @@ public class LimitsAndStops extends JFrame implements ActionListener,LimitsAndSt
                     Integer cmd3 = Integer.valueOf(jf3.getText().toString().trim());
                     Integer cmd4 = Integer.valueOf(jf4.getText().toString().trim());
 
-                    Draper.sendCmd(cmd1);
+                    send(cmd1);
                     Thread.sleep(time);
                     if(!isLoop) continue;
-                    Draper.sendCmd(cmd2);
+                    send(cmd2);
                     Thread.sleep(time);
                     if(!isLoop) continue;
-                    Draper.sendCmd(cmd3);
+                    send(cmd3);
                     Thread.sleep(time);
                     if(!isLoop) continue;
-                    Draper.sendCmd(cmd4);
+                    send(cmd4);
                     Thread.sleep(Integer.valueOf(jfInterval.getText().toString().trim()));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    private void send(int cmd) throws Exception {
+        Draper.sendCmd(cmd);
+        mLimitsAndStopsPresenter.save(cmd);
+        switch (cmd){
+            case 1:
+                mLimitsAndStopsPresenter.saveRemoteDeviceInfomation();
+                break;
         }
     }
 }

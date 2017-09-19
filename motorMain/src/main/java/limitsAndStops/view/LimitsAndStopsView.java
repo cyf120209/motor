@@ -12,4 +12,8 @@ public interface LimitsAndStopsView {
     RemoteDevice getSelectedItem();
 
     void updateDevBox(List<RemoteDevice> remoteDevices);
+
+    boolean getRunningState();
+
+    int getDistance();
 }

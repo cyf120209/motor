@@ -10,6 +10,8 @@ import main.view.BoxLayoutView;
 import util.MyLocalDevice;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by lenovo on 2017/1/19.
@@ -21,6 +23,11 @@ public class Listener extends DeviceEventAdapter {
     private BoxLayoutCasePresenter mBoxLayoutCasePresenter;
     private byte[] fileTmp;
     BoxLayoutView mBoxLayoutView;
+
+    /**
+     * 去重处理
+     */
+    private List<RemoteDevice> remoteDeviceList=new ArrayList<>();
 
     public Listener(BoxLayoutCasePresenter mBoxLayoutCasePresenter, BoxLayoutView mBoxLayoutView) {
         this.localDevice = MyLocalDevice.getInstance();
@@ -37,10 +44,11 @@ public class Listener extends DeviceEventAdapter {
     @Override
     public void iAmReceived(final RemoteDevice d){
         System.out.println("iHaveReceived"+d);
-        boolean exist = MyLocalDevice.isExist(d);
+        boolean exist = remoteDeviceList.contains(d);
         if(exist){
             return;
         }
+        remoteDeviceList.add(d);
         new Thread(new Runnable() {
             @Override
             public void run() {

@@ -38,6 +38,7 @@ public class Draper {
     public static final int SUBSCRIPTION_GROUP=5;
     public static final int ANNOUNCE_GROUP=6;
     public static final int ANNOUNCE_DRAPER_INFORMATION=8;
+    public static final int DRAPER_CONFIGURATION=9;
 
     public static final String GET_FRIMEBLOCK_PRODUCT_MODE_NAME="Product Model Name";
     public static final String GET_FRIMEBLOCK_START_OFFSET="Start Offset";
@@ -51,6 +52,7 @@ public class Draper {
     public static UnsignedInteger announce=new UnsignedInteger(ANNOUNCE_GROUP);
     public static UnsignedInteger announceDraperInformation=new UnsignedInteger(ANNOUNCE_DRAPER_INFORMATION);
     public static ObjectIdentifier deviceid=new ObjectIdentifier(ObjectType.device,900900);
+    public static final UnsignedInteger draperConfiguration=new UnsignedInteger(DRAPER_CONFIGURATION);
 
     private static LocalDevice dev= MyLocalDevice.getInstance();
     
@@ -229,12 +231,49 @@ public class Draper {
         Sequence resultBlock = (Sequence)result.getResultBlock();
         Map<String, Encodable> values = resultBlock.getValues();
         DraperInformationItem encodable = (DraperInformationItem) values.get("DraperInformation");
+        SignedInteger id = encodable.getId();
         Boolean isReverse = encodable.getIsReverse();
         SignedInteger curPos = encodable.getCurPos();
         SignedInteger upLimit = encodable.getUpLimit();
         SignedInteger lowLimit = encodable.getLowLimit();
         List<SignedInteger> persetStopList = encodable.getPersetStop();
-        DraperInformation draperInformation = new DraperInformation(isReverse, curPos, upLimit, lowLimit, persetStopList);
+        DraperInformation draperInformation = new DraperInformation(id,isReverse, curPos, upLimit, lowLimit, persetStopList);
         RxBus.getDefault().post(draperInformation);
     }
+
+    public static DraperInformation sendAnnounceDraperInformation(RemoteDevice peer, boolean b) throws BACnetException {
+        SequenceOf<Primitive> listParam= new SequenceOf<Primitive>();
+        listParam.add(deviceid);
+//        dev.sendGlobalBroadcast(new UnconfirmedPrivateTransferRequest(vendorID,announce,listParam));
+//        dev.send(peer,new ConfirmedPrivateTransferRequest(vendorID, announceDraperInformation, listParam));
+        AcknowledgementService send = dev.send(peer,new ConfirmedPrivateTransferRequest(vendorID, announceDraperInformation, listParam));
+        ConfirmedPrivateTransferAck result= (ConfirmedPrivateTransferAck) send;
+        Sequence resultBlock = (Sequence)result.getResultBlock();
+        Map<String, Encodable> values = resultBlock.getValues();
+        DraperInformationItem encodable = (DraperInformationItem) values.get("DraperInformation");
+        SignedInteger id = encodable.getId();
+        Boolean isReverse = encodable.getIsReverse();
+        SignedInteger curPos = encodable.getCurPos();
+        SignedInteger upLimit = encodable.getUpLimit();
+        SignedInteger lowLimit = encodable.getLowLimit();
+        List<SignedInteger> persetStopList = encodable.getPersetStop();
+        return new DraperInformation(id,isReverse, curPos, upLimit, lowLimit, persetStopList);
+    }
+
+    /**
+     * 配置
+     * @param id
+     * @param stance
+     * @param step
+     * @throws Exception
+     */
+    public static  void sendConfigure(int id,int stance,int step) throws Exception {
+        SequenceOf<Primitive> listParam= new SequenceOf<Primitive>();
+        listParam.add(new Unsigned8(0));
+        listParam.add(new UnsignedInteger(stance));
+//        listParam.add(new UnsignedInteger(step));
+//        listParam.add(new Unsigned8(7));
+        dev.sendGlobalBroadcast(new UnconfirmedPrivateTransferRequest(vendorID,draperConfiguration,listParam));
+    }
+
 }

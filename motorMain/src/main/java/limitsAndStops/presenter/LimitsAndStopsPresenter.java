@@ -20,4 +20,12 @@ public interface LimitsAndStopsPresenter {
     void reverse();
 
     void getDraperInformation();
+
+    void save(int cmd);
+    void saveRemoteDeviceInfomation();
+    void saveRemoteDeviceCfg();
+
+    void clearCfgCount();
+
+    void configuration(int id,int distance,int step);
 }
