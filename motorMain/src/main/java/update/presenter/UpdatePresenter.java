@@ -23,6 +23,10 @@ public interface UpdatePresenter {
      */
     void updateButton();
 
+    /**
+     * 电机升级的状态
+     * @return true：数据发送完， false：数据还在发送中
+     */
     boolean getUpdateState();
 
 //    int getMajorNum();

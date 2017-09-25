@@ -62,7 +62,6 @@ public class UpdateListener extends DeviceEventAdapter {
                 }
             };
             STExecutor.submit(runnable);
-
         }
     }
 

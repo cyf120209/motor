@@ -82,7 +82,6 @@ public class UpdatePresenterImpl implements UpdatePresenter {
             e.printStackTrace();
         }
 //        new UpdatePercent().run();
-
     }
 
     /**
@@ -115,7 +114,6 @@ public class UpdatePresenterImpl implements UpdatePresenter {
 
     /**
      * 检测文件类型
-     *
      * @param file
      * @return
      */
@@ -179,79 +177,20 @@ public class UpdatePresenterImpl implements UpdatePresenter {
         }
     }
 
-    /**
-     * 正则匹配
-     *
-     * @param str
-     * @param regx
-     * @return
-     */
-    public String getString(String str, String regx) {
-        //1.将正在表达式封装成对象Patten 类来实现
-        Pattern pattern = Pattern.compile(regx);
-        //2.将字符串和正则表达式相关联
-        Matcher matcher = pattern.matcher(str);
-        //3.String 对象中的matches 方法就是通过这个Matcher和pattern来实现的。
-        System.out.println(matcher.matches());
-        String group = "";
-        //查找符合规则的子串
-        while (matcher.find()) {
-            //获取 字符串
-            group = matcher.group();
-            //获取的字符串的首位置和末位置
-//            System.out.println(matcher.start() + "--" + matcher.end());
-        }
-        return group;
-    }
-
     @Override
     public boolean getUpdateState() {
         return isSendCompleted;
     }
 
-    /**
-     * 读取版本号
-     *
-     * @param remoteDevice
-     * @return
-     */
-    @Override
-    public synchronized String ReadVersion(RemoteDevice remoteDevice) {
-        try {
-//            mUpdateView.updateVersionLabel("Version: NULL");
-            ReadPropertyAck ack = (ReadPropertyAck) localDevice.send(remoteDevice, new ReadPropertyRequest(remoteDevice.getObjectIdentifier(), PropertyIdentifier.firmwareRevision));
-//            mUpdateView.updateVersionLabel("Version:   " + ack.getValue().toString());
-            return ack.getValue().toString();
-        } catch (Exception e1) {
-            e1.printStackTrace();
-            return null;
-        }
-    }
 
-    /**
-     * 读取版本号
-     *
-     * @param remoteDevice
-     * @return
-     */
-    public synchronized String readModelName(RemoteDevice remoteDevice) {
-        try {
-            ReadPropertyAck ack = (ReadPropertyAck) localDevice.send(remoteDevice, new ReadPropertyRequest(remoteDevice.getObjectIdentifier(), PropertyIdentifier.modelName));
-            return ack.getValue().toString();
-        } catch (Exception e1) {
-            e1.printStackTrace();
-            return null;
-        }
+    @Override
+    public byte[] getfileTmp() {
+        return fileTmp;
     }
 
     @Override
-    public void ReadValue() {
-        try {
-            localDevice.sendGlobalBroadcast(new WhoIsRequest());
-//            localDevice.sendGlobalBroadcast(localDevice.getIAm());
-        } catch (BACnetException e) {
-            e.printStackTrace();
-        }
+    public String getFileName() {
+        return mUpdateView.getFileName();
     }
 
     /**
@@ -316,57 +255,8 @@ public class UpdatePresenterImpl implements UpdatePresenter {
         percent = 0;
         flag = 2;
         isSendCompleted = false;
-        try {
-            localDevice.sendGlobalBroadcast(new WhoIsRequest());
-            Thread.sleep(100);
-        } catch (BACnetException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         mUpdateView.updateProgress(0);
         new Thread(new UpdatePresenterImpl.RunUpdateToOne(framefile, localDevice, (mUpdateView.getdevBoxSelectedItem()))).start();
-    }
-
-    /**
-     * 升级所有电机
-     */
-    @Override
-    public void updateButton() {
-        try {
-            if (framefile == null) {
-                framefile = new File(mUpdateView.getFileName());
-            }
-            //重置进度条
-            percent = 0;
-            flag = 2;
-            isSendCompleted = false;
-            try {
-                localDevice.sendGlobalBroadcast(new WhoIsRequest());
-                Thread.sleep(100);
-            } catch (BACnetException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            mUpdateView.updateProgress(0);
-            new Thread(new UpdatePresenterImpl.RunUpdate(framefile, localDevice)).start();
-
-        } catch (Exception e1) {
-            e1.printStackTrace();
-        }
-
-    }
-
-    @Override
-    public byte[] getfileTmp() {
-        return fileTmp;
-    }
-
-    @Override
-    public String getFileName() {
-        return mUpdateView.getFileName();
     }
 
     public class RunUpdateToOne implements Runnable {
@@ -386,6 +276,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                 Draper.sendIHaveFrameToOne(type, peer, mUpdateView.getMajorNum(), mUpdateView.getMinorNum(), mUpdateView.getPatchNum(), mUpdateView.getTypeNum(), updateFile);
                 //确保升级前找到所有设备，否则不升级,如果升级前找到了所以设备，则升级，否则进入等待
                 Thread.sleep(6000);
+                localDevice.sendGlobalBroadcast(new WhoIsRequest());
                 if (mUpdateView.getOriginalSize() != mUpdateView.getBeforeSize()) {
                     synchronized (lock) {
                         lock.wait();
@@ -456,6 +347,28 @@ public class UpdatePresenterImpl implements UpdatePresenter {
         }
     }
 
+    /**
+     * 升级所有电机
+     */
+    @Override
+    public void updateButton() {
+        try {
+            if (framefile == null) {
+                framefile = new File(mUpdateView.getFileName());
+            }
+            //重置进度条
+            percent = 0;
+            flag = 2;
+            isSendCompleted = false;
+            mUpdateView.updateProgress(0);
+            new Thread(new UpdatePresenterImpl.RunUpdate(framefile, localDevice)).start();
+
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
+
+    }
+
     public class RunUpdate implements Runnable {
         LocalDevice dev;
         File updateFile;
@@ -468,8 +381,10 @@ public class UpdatePresenterImpl implements UpdatePresenter {
         @Override
         public void run() {
             try {
+                //电机装备阶段 若a-> a 电机会重启，a->b不会重启
                 Draper.sendIHaveFrame(type, mUpdateView.getMajorNum(), mUpdateView.getMinorNum(), mUpdateView.getPatchNum(), mUpdateView.getTypeNum(), updateFile);
                 Thread.sleep(6000);
+                localDevice.sendGlobalBroadcast(new WhoIsRequest());
                 //确保升级前找到所有设备，否则不升级,如果升级前找到了所有设备，则升级，否则进入等待
                 if (mUpdateView.getOriginalSize() != mUpdateView.getBeforeSize()) {
                     synchronized (lock) {
@@ -600,6 +515,76 @@ public class UpdatePresenterImpl implements UpdatePresenter {
     public void findAllDevice() {
         synchronized (lock) {
             lock.notify();
+        }
+    }
+
+    /**
+     * 正则匹配
+     *
+     * @param str
+     * @param regx
+     * @return
+     */
+    public String getString(String str, String regx) {
+        //1.将正在表达式封装成对象Patten 类来实现
+        Pattern pattern = Pattern.compile(regx);
+        //2.将字符串和正则表达式相关联
+        Matcher matcher = pattern.matcher(str);
+        //3.String 对象中的matches 方法就是通过这个Matcher和pattern来实现的。
+        System.out.println(matcher.matches());
+        String group = "";
+        //查找符合规则的子串
+        while (matcher.find()) {
+            //获取 字符串
+            group = matcher.group();
+            //获取的字符串的首位置和末位置
+//            System.out.println(matcher.start() + "--" + matcher.end());
+        }
+        return group;
+    }
+
+    /**
+     * 读取版本号
+     *
+     * @param remoteDevice
+     * @return
+     */
+    @Override
+    public synchronized String ReadVersion(RemoteDevice remoteDevice) {
+        try {
+//            mUpdateView.updateVersionLabel("Version: NULL");
+            ReadPropertyAck ack = (ReadPropertyAck) localDevice.send(remoteDevice, new ReadPropertyRequest(remoteDevice.getObjectIdentifier(), PropertyIdentifier.firmwareRevision));
+//            mUpdateView.updateVersionLabel("Version:   " + ack.getValue().toString());
+            return ack.getValue().toString();
+        } catch (Exception e1) {
+            e1.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 读取版本号
+     *
+     * @param remoteDevice
+     * @return
+     */
+    public synchronized String readModelName(RemoteDevice remoteDevice) {
+        try {
+            ReadPropertyAck ack = (ReadPropertyAck) localDevice.send(remoteDevice, new ReadPropertyRequest(remoteDevice.getObjectIdentifier(), PropertyIdentifier.modelName));
+            return ack.getValue().toString();
+        } catch (Exception e1) {
+            e1.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public void ReadValue() {
+        try {
+            localDevice.sendGlobalBroadcast(new WhoIsRequest());
+//            localDevice.sendGlobalBroadcast(localDevice.getIAm());
+        } catch (BACnetException e) {
+            e.printStackTrace();
         }
     }
 }
