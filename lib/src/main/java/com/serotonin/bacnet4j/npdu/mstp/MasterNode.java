@@ -22,14 +22,6 @@ public class MasterNode extends MstpNode {
         idle, useToken, waitForReply, doneWithToken, passToken, noToken, pollForMaster, answerDataRequest
     }
 
-    private final List<Frame> framesToSend = new ArrayList<Frame>();
-
-    private List<Byte> addressList=new ArrayList<>();
-
-    private Map<Byte,Integer> addressMap=new HashMap<>();
-
-    private Timer timer=null;
-
     /**
      * The MAC address of the node to which This Station passes the token. If the Next
      * Station is unknown, NS shall be equal to TS.
@@ -65,6 +57,9 @@ public class MasterNode extends MstpNode {
 
     private long replyDeadline;
     private Frame replyFrame;
+
+    private final List<Frame> framesToSend = new ArrayList<Frame>();
+
 
     //    private long lastTokenPossession;
 
@@ -185,51 +180,7 @@ public class MasterNode extends MstpNode {
 
     private void frame() {
         FrameType type = frame.getFrameType();
-        if(!addressList.contains(frame.getSourceAddress())){
-            addressList.add(frame.getSourceAddress());
-            System.out.println(frame.toString());
-        }else {
-            byte sourceAddress = frame.getSourceAddress();
-            Integer integer = addressMap.get(sourceAddress);
-            addressMap.put(sourceAddress,(integer==null)?1:integer+1);
-        }
-        if(timer==null) {
-            timer = new Timer(5 * 1000, new ActionListener() {
 
-                /**
-                 * 算出所有 sourceAddress 记录的平均数，如果sourceaddress的次数少于平均数
-                 * 则代表该sourceaddress已被删除，则从addresslist将其删除，并清空addressmap
-                 * @param e
-                 */
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    List<Integer> countList=new LinkedList<>();
-                    Collection<Integer> values = addressMap.values();
-                    Iterator<Map.Entry<Byte, Integer>> iterator = addressMap.entrySet().iterator();
-                    int totalCount=0;
-                    while (iterator.hasNext()){
-                        Map.Entry<Byte, Integer> next = iterator.next();
-                        Integer value = next.getValue();
-                        totalCount+=value;
-                        countList.add(value);
-                    }
-                    Iterator<Map.Entry<Byte, Integer>> iterator1 = addressMap.entrySet().iterator();
-                    if(countList.size()==0){
-                        return;
-                    }
-                    int average = totalCount / countList.size();
-                    while (iterator1.hasNext()){
-                        Map.Entry<Byte, Integer> next = iterator1.next();
-                        if(next.getValue()<average){
-                            addressList.remove(next.getKey());
-                        }
-                    }
-                    System.out.println("--------addresslsit"+addressList.size());
-                    addressMap.clear();
-                }
-            });
-            timer.start();
-        }
         if (type == null) {
             // ReceivedUnwantedFrame
             if (LOG.isLoggable(Level.FINE))

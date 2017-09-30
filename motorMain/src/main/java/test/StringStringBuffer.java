@@ -1,5 +1,7 @@
 package test;
 
+import util.Public;
+
 import java.util.HashMap;
 
 /**
@@ -9,6 +11,7 @@ public class StringStringBuffer {
 
     public static void main(String[] args) {
 
+        Boolean aBoolean = Public.matchString("dslef(A)", "(B)");
         String s1="hello";
         String s2="world";
         System.out.println(s1+"---"+s2);

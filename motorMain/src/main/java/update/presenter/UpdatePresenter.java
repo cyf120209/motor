@@ -13,6 +13,8 @@ public interface UpdatePresenter {
 
     void choosebt();
 
+    void choosebt2();
+
     /**
      * 升级选中的电机
      */
@@ -39,7 +41,7 @@ public interface UpdatePresenter {
 
     byte[] getfileTmp();
 
-    String getFileName();
+    String getFirmWareType();
 
     /**
      * 读取版本号
@@ -65,6 +67,9 @@ public interface UpdatePresenter {
      * @param device
      */
     void addJListDevice(RemoteDevice device);
+    void addJListDeviceOrigin(RemoteDevice device);
+    void addJListDeviceBefore(RemoteDevice device);
+    void addJListDeviceAfter(RemoteDevice device);
 
     /**
      * 用户确认更新
@@ -87,4 +92,17 @@ public interface UpdatePresenter {
      * 通知找齐所有设备
      */
     void findAllDevice();
+
+    /**
+     * 找齐需要升级的所有设备
+     */
+    void findOriginDevice(int flag);
+
+    void cancelUpgrade();
+
+    int getAbnormalRemoteDeviceSize();
+    void autoUpdate1();
+    void autoUpdate2();
+    void autoOneUpdate1();
+    void autoOneUpdate2();
 }

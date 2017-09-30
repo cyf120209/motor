@@ -23,8 +23,10 @@ import com.serotonin.bacnet4j.util.PropertyReferences;
 import com.serotonin.bacnet4j.util.RequestUtils;
 import common.Common;
 import org.free.bacnet4j.util.SerialParameters;
+import org.free.bacnet4j.util.SerialPortException;
 import rx.*;
 
+import javax.swing.*;
 import java.util.*;
 
 /**
@@ -128,6 +130,11 @@ public class MyLocalDevice {
             localDevice.sendGlobalBroadcast(localDevice.getIAm());
 //            Thread.sleep(100);
             localDevice.sendGlobalBroadcast(new WhoIsRequest());
+        } catch (SerialPortException e){
+            JOptionPane.showMessageDialog(null, "串口被占用，请重新选择", "alert", JOptionPane.WARNING_MESSAGE);
+            if (localDevice != null) {
+                localDevice.terminate();
+            }
         } catch (BACnetException e) {
             e.printStackTrace();
             if (localDevice != null) {
@@ -170,6 +177,18 @@ public class MyLocalDevice {
     public static void addRemoteDevice(RemoteDevice remoteDevice) throws BACnetException {
         //getObjectList(remoteDevice);
         mRemoteUtils.addRemoteDevice(remoteDevice);
+
+//        mRemoteDeviceList.add(remoteDevice);
+//        mRemoteDevice.put(remoteDevice.getInstanceNumber(),remoteDevice);
+    }
+
+    /**
+     * 添加远程设备
+     * @param remoteDevice
+     */
+    public static void updateRemoteDevice(RemoteDevice remoteDevice) throws BACnetException {
+        //getObjectList(remoteDevice);
+        mRemoteUtils.updateRemoteDevice(remoteDevice);
 
 //        mRemoteDeviceList.add(remoteDevice);
 //        mRemoteDevice.put(remoteDevice.getInstanceNumber(),remoteDevice);

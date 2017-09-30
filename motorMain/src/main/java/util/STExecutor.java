@@ -53,6 +53,14 @@ public class STExecutor {
         singleThreadExecutor.submit(runnable);
     }
 
+    public static boolean getState(Runnable runnable){
+        return singleThreadExecutor.isShutdown();
+    }
+
+    public static void shutdown(Runnable runnable){
+        singleThreadExecutor.shutdownNow();
+    }
+
 
 
     public static void announce(final LocalDevice device, final SequenceOf<Primitive> listParam){

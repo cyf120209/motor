@@ -55,9 +55,21 @@ public class RemoteUtils {
      * @param remoteDevice
      */
     public synchronized void addRemoteDevice(RemoteDevice remoteDevice){
-        String modelName = readModelName(remoteDevice);
+        String modelName = Public.readModelName(remoteDevice);
         remoteDevice.setModelName(modelName);
         mRemoteDeviceIDList.add(remoteDevice.getInstanceNumber());
+        mRemoteDeviceList.add(remoteDevice);
+        mRemoteDevice.put(remoteDevice.getInstanceNumber(),remoteDevice);
+    }
+
+    /**
+     * 更新远程设备
+     * @param remoteDevice
+     */
+    public synchronized void updateRemoteDevice(RemoteDevice remoteDevice){
+        mRemoteDeviceList.remove(mRemoteDevice.get(remoteDevice));
+        String modelName = Public.readModelName(remoteDevice);
+        remoteDevice.setModelName(modelName);
         mRemoteDeviceList.add(remoteDevice);
         mRemoteDevice.put(remoteDevice.getInstanceNumber(),remoteDevice);
     }
@@ -119,23 +131,6 @@ public class RemoteUtils {
      */
     public Map<Integer, RemoteDevice> getRemoteDeviceMap() {
         return mRemoteDevice;
-    }
-
-    /**
-     * 读取modelName
-     *
-     * @param remoteDevice
-     * @return
-     */
-    public static  String readModelName(RemoteDevice remoteDevice) {
-        try {
-            LocalDevice localDevice = MyLocalDevice.getInstance();
-            ReadPropertyAck ack = (ReadPropertyAck) localDevice.send(remoteDevice, new ReadPropertyRequest(remoteDevice.getObjectIdentifier(), PropertyIdentifier.modelName));
-            return ack.getValue().toString();
-        } catch (Exception e1) {
-            e1.printStackTrace();
-            return null;
-        }
     }
 
 }

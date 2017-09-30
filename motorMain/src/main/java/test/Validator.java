@@ -141,7 +141,7 @@ public class Validator {
 //        Pattern p = Pattern.compile("^[a-zA-Z]");
 //        Matcher m = p.matcher("asdfjljkl");
 //        System.out.println(m.find());
-        Validator.getString("weoiugox jijf nvlsjijfasndlanvjijf","[0]*(jijf)[0]*");
+        Validator.getString("MC-AC-01","([A-Z][A-Z]\\-)+");
     }
 
     /**

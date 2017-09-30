@@ -5,9 +5,12 @@ import com.serotonin.bacnet4j.util.ByteBuilder;
 import com.sun.corba.se.impl.ior.ByteBuffer;
 import gnu.io.SerialPort;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,6 +22,9 @@ import org.free.bacnet4j.util.StreamUtils;
 import org.free.bacnet4j.util.SerialParameters;
 import org.free.bacnet4j.util.SerialUtils;
 import org.free.bacnet4j.util.ByteQueue;
+
+import javax.swing.*;
+import javax.swing.Timer;
 
 abstract public class MstpNode implements Runnable {
     private static final Logger LOG = Logger.getLogger(MstpNode.class.toString());
@@ -336,6 +342,13 @@ abstract public class MstpNode implements Runnable {
 
     }
 
+
+    public List<Byte> addressList=new ArrayList<>();
+
+    private Map<Byte,Integer> addressMap=new HashMap<>();
+
+    private Timer timer=null;
+
     private void header() {
         if (silence() > Constants.FRAME_ABORT) {
             // Timeout
@@ -370,6 +383,7 @@ abstract public class MstpNode implements Runnable {
                     headerCRC.accumulate(b);
                     frame.setSourceAddress(b);
                     index = 3;
+                    addressList(b);
                 }
                 else if (index == 3) {
                     // Length1
@@ -631,5 +645,38 @@ abstract public class MstpNode implements Runnable {
         else if (!serialParams.equals(other.serialParams))
             return false;
         return true;
+    }
+
+    private void addressList(byte sourceAddress) {
+        if(!addressList.contains(sourceAddress)){
+            addressList.add(sourceAddress);
+            addressMap.put(sourceAddress,1);
+            System.out.println("----------------------"+sourceAddress);
+        }else {
+            Integer integer = addressMap.get(sourceAddress);
+            addressMap.put(sourceAddress,(integer==null)?0:integer+1);
+        }
+        if(timer==null) {
+            timer = new Timer(5 * 1000, new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if(addressMap.size()==0){
+                        return;
+                    }
+                    List<Byte> cacheList=new ArrayList<>();
+                    Iterator<Map.Entry<Byte, Integer>> iterator = addressMap.entrySet().iterator();
+                    while (iterator.hasNext()){
+                        Map.Entry<Byte, Integer> next = iterator.next();
+                        Byte souraddr = next.getKey();
+                        cacheList.add(souraddr);
+                    }
+                    addressList.clear();
+                    addressList.addAll(cacheList);
+                    addressMap.clear();
+                }
+            });
+            timer.start();
+        }
     }
 }

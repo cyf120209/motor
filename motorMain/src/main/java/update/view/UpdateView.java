@@ -1,6 +1,7 @@
 package update.view;
 
 import com.serotonin.bacnet4j.RemoteDevice;
+import update.presenter.FirmWareInformation;
 
 import java.util.List;
 
@@ -11,17 +12,11 @@ public interface UpdateView {
 
     void updateFileText(String text);
 
-    void updateTypeLabelText(String text);
+    void updateFileText2(String text);
+
+    int getDelay();
 
     String getFileName();
-
-    int getMajorNum();
-
-    int getMinorNum();
-
-    int getPatchNum();
-
-    int getTypeNum();
 
     RemoteDevice getdevBoxSelectedItem();
 
@@ -31,7 +26,7 @@ public interface UpdateView {
 
     void updateDevBox(RemoteDevice remoteDevice);
 
-    void updateVersionAndType(String type,String major,String minor,String patch);
+    void updateVersionAndType(FirmWareInformation firmWareInformation);
 
     void showError(String str);
 
@@ -62,7 +57,7 @@ public interface UpdateView {
     /**
      * 显示是否升级对话框
      */
-    void showConfirmDialog();
+    void showConfirmDialog(String str);
 
     /**
      * 显示固件最后修改日期
@@ -82,5 +77,9 @@ public interface UpdateView {
      */
     int getBeforeSize();
 
-
+    /**
+     * 更新升级信息
+     * @param version
+     */
+    void showUpgradeInformation(String version);
 }

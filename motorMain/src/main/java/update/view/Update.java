@@ -2,9 +2,13 @@ package update.view;
 
 import com.serotonin.bacnet4j.RemoteDevice;
 import common.Common;
+import update.presenter.FirmWareInformation;
 import update.presenter.UpdatePresenter;
 import update.presenter.UpdatePresenterImpl;
 import util.Draper;
+import util.MyLocalDevice;
+import util.Public;
+import util.STExecutor;
 
 import javax.swing.*;
 import javax.swing.Timer;
@@ -23,23 +27,26 @@ import java.util.List;
 public class Update extends JFrame implements UpdateView, ActionListener {
 
     private final UpdatePresenter mUpdatePresenter;
-    public JButton choosebt = new JButton("choose file");
+    public JButton choosebt = new JButton("c1");
+    public JButton choosebt2 = new JButton("c2");
     public JButton updateToSelectButton = new JButton("Update select");
     public JButton updateButton = new JButton("Update");
+    public JTextField jfDelay = new JTextField();
 
     public JLabel loclFile = new JLabel("");
-    public JLabel lastModifiy = new JLabel("lastModifiy:");
+    public JLabel loclFile2 = new JLabel("");
     public JLabel type = new JLabel("Type:");
+    public JLabel typehText = new JLabel("type Num:");
+    public JLabel lastModifiy = new JLabel("lastModifiy:");
     public JLabel majorText = new JLabel("Major Num:");
     public JLabel minorText = new JLabel("Minor Num:");
     public JLabel patchText = new JLabel("Patch Num:");
-    public JLabel typehText = new JLabel("type Num:");
-    public JLabel lastModifiyText = new JLabel("");
     public JLabel typeText = new JLabel("");
+    public JLabel typeLabel = new JLabel("");
+    public JLabel lastModifiyText = new JLabel("");
     public JLabel majorLabel = new JLabel("");
     public JLabel minorLabel = new JLabel("");
     public JLabel patchLabel = new JLabel("");
-    public JLabel typeLabel = new JLabel("");
     public JComboBox devBox = new JComboBox();
 
     public JLabel versionLabel = new JLabel("Versin: No Version");
@@ -48,31 +55,36 @@ public class Update extends JFrame implements UpdateView, ActionListener {
 
     private JProgressBar pb = new JProgressBar();
 
-
-
+    private JCheckBox jcSinge = new JCheckBox("single");
+    private JButton jbAuto = new JButton("自动循环");
+    private JLabel jlAutoCount = new JLabel("0");
 
     public JList draperOriginal = new JList();
     JScrollPane draperOriginalJSP = new JScrollPane(draperOriginal);
-
     public JList draperBeforeUpgrade = new JList();
     JScrollPane draperBeforeUpgradeJSP = new JScrollPane(draperBeforeUpgrade);
-
     public JList draperAfterUpgrade = new JList();
     JScrollPane draperAfterUpgradeJSP = new JScrollPane(draperAfterUpgrade);
+
+    public JList upgradeInformation = new JList();
+    JScrollPane upgradeInformationJSP = new JScrollPane(upgradeInformation);
 
 
     public Update() throws HeadlessException {
         mUpdatePresenter = new UpdatePresenterImpl(this);
-
         setTitle("update");
         setLayout(null);
         setSize(700, 500);
 
-        loclFile.setBounds(10, 25, 500, 20);
+        loclFile.setBounds(70, 5, 500, 20);
+        loclFile2.setBounds(70, 25, 500, 20);
 
-        choosebt.setBounds(new Rectangle(10, 5, 100, 20));
-        updateButton.setBounds(240, 5, 100, 20);
-        updateToSelectButton.setBounds(110, 5, 130, 20);
+        choosebt.setBounds(new Rectangle(10, 5, 50, 20));
+        choosebt2.setBounds(new Rectangle(10, 25, 50, 20));
+        updateToSelectButton.setBounds(340, 50, 130, 20);
+        updateButton.setBounds(470, 50, 100, 20);
+        jfDelay.setBounds(580, 50, 100, 20);
+
         devBox.setBounds(10, 150, 300, 20);
 
         type.setBounds(10, 50, 70, 20);
@@ -103,15 +115,22 @@ public class Update extends JFrame implements UpdateView, ActionListener {
         pb.setBackground(Color.white);
         pb.setForeground(Color.red);
 
+        draperOriginalJSP.setBounds(340, 75, 110, 390);
+        draperBeforeUpgradeJSP.setBounds(460, 75, 110, 390);
+        draperAfterUpgradeJSP.setBounds(580, 75, 110, 390);
+        upgradeInformationJSP.setBounds(10, 270, 300, 200);
 
-        draperOriginalJSP.setBounds(340, 40, 110, 400);
-        draperBeforeUpgradeJSP.setBounds(460, 40, 110, 400);
-        draperAfterUpgradeJSP.setBounds(580, 40, 110, 400);
+        jcSinge.setBounds(530, 5, 60, 20);
+        jbAuto.setBounds(600, 5, 100, 20);
+        jlAutoCount.setBounds(600, 25, 100, 20);
 
         add(choosebt);
+        add(choosebt2);
         add(updateToSelectButton);
         add(updateButton);
+        add(jfDelay);
         add(loclFile);
+        add(loclFile2);
         add(type);
         add(typeText);
         add(majorLabel);
@@ -132,18 +151,22 @@ public class Update extends JFrame implements UpdateView, ActionListener {
 
         add(pb);
 
-
         add(draperOriginalJSP);
         add(draperBeforeUpgradeJSP);
         add(draperAfterUpgradeJSP);
+        add(upgradeInformationJSP);
+
+        add(jcSinge);
+        add(jbAuto);
+        add(jlAutoCount);
 
         choosebt.addActionListener(this);
+        choosebt2.addActionListener(this);
         updateToSelectButton.addActionListener(this);
         updateButton.addActionListener(this);
         ReadVersion.addActionListener(this);
         ReadValue.addActionListener(this);
-
-
+        jbAuto.addActionListener(this);
 
         setResizable(false);
         addWindowListener(new WindowAdapter() {
@@ -160,22 +183,41 @@ public class Update extends JFrame implements UpdateView, ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (choosebt.equals(e.getSource())) {
             mUpdatePresenter.choosebt();
+        } else if (choosebt2.equals(e.getSource())) {
+            mUpdatePresenter.choosebt2();
         } else if (updateToSelectButton.equals(e.getSource())) {
+            showUpgradeInformation("开始升级：");
+            showUpgradeInformation("升级初始化");
             if (!initUpdate()) {
                 return;
             }
             if (mUpdatePresenter.getUpdateState()) {
-                mUpdatePresenter.updateToSelectButton();
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        mUpdatePresenter.updateToSelectButton();
+                    }
+                };
+                new Thread(runnable).start();
             } else {
                 Object[] options = {"Confirm"};
                 JOptionPane.showOptionDialog(null, "Please wait for the upgrade to complete!", "Alert", 0, 0, null, options, 0);
             }
+
         } else if (updateButton.equals(e.getSource())) {
+            showUpgradeInformation("开始升级：");
+            showUpgradeInformation("升级初始化");
             if (!initUpdate()) {
                 return;
             }
             if (mUpdatePresenter.getUpdateState()) {
-                mUpdatePresenter.updateButton();
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        mUpdatePresenter.updateButton();
+                    }
+                };
+                new Thread(runnable).start();
             } else {
                 Object[] options = {"Confirm"};
                 JOptionPane.showOptionDialog(null, "Please wait for the upgrade to complete!", "Alert", 0, 0, null, options, 0);
@@ -184,23 +226,30 @@ public class Update extends JFrame implements UpdateView, ActionListener {
             String version = mUpdatePresenter.ReadVersion(getdevBoxSelectedItem());
             updateVersionLabel(version);
         } else if (ReadValue.equals(e.getSource())) {
-            mUpdatePresenter.ReadValue();
+            String s = Public.matchStr(mUpdatePresenter.getFirmWareType(), "[A-Z](2)\\-+");
+            s+=s;
+//            mUpdatePresenter.ReadValue();
+//            if (autoVersion == 1) {
+//                autoVersion = 2;
+//            } else if (autoVersion == 2) {
+//                autoVersion = 1;
+//            }
+//            complete = true;
+        } else if (jbAuto.equals(e.getSource())) {
+            if ("自动循环".equals(jbAuto.getText().toString().trim())) {
+                jbAuto.setText("关闭循环");
+                isAuto = true;
+                autoStart();
+            } else {
+                jbAuto.setText("自动循环");
+                isAuto = false;
+            }
         }
     }
 
-
-
-    Timer timer = new Timer(1, new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            if (true) {
-
-            }
-            System.out.println("start");
-        }
-    });
-
     /**
      * 升级前的初始化
+     *
      * @return
      */
     private boolean initUpdate() {
@@ -222,7 +271,12 @@ public class Update extends JFrame implements UpdateView, ActionListener {
 
     @Override
     public void updateDevBox(RemoteDevice remoteDevice) {
+        Map<Integer, RemoteDevice> remoteDeviceMap = MyLocalDevice.getRemoteDeviceMap();
+        RemoteDevice device = remoteDeviceMap.get(remoteDevice.getInstanceNumber());
+        devBox.removeItem(device);
         devBox.addItem(remoteDevice);
+
+
     }
 
     @Override
@@ -231,8 +285,8 @@ public class Update extends JFrame implements UpdateView, ActionListener {
     }
 
     @Override
-    public void updateTypeLabelText(String text) {
-        typeLabel.setText(text);
+    public void updateFileText2(String text) {
+        loclFile2.setText(text);
     }
 
     @Override
@@ -241,11 +295,12 @@ public class Update extends JFrame implements UpdateView, ActionListener {
     }
 
     @Override
-    public void updateVersionAndType(String type, String major, String minor, String patch) {
-        typeText.setText(type);
-        majorLabel.setText(major);
-        minorLabel.setText(minor);
-        patchLabel.setText(patch);
+    public void updateVersionAndType(FirmWareInformation firmWareInformation) {
+        typeText.setText(firmWareInformation.getType());
+        typeLabel.setText("" + firmWareInformation.getTypeNum());
+        majorLabel.setText("" + firmWareInformation.getMajorNum());
+        minorLabel.setText("" + firmWareInformation.getMinorNum());
+        patchLabel.setText("" + firmWareInformation.getPatchNum());
     }
 
     @Override
@@ -269,30 +324,15 @@ public class Update extends JFrame implements UpdateView, ActionListener {
     }
 
     @Override
-    public int getMajorNum() {
-        return Integer.parseInt(majorLabel.getText().trim());
-    }
-
-    @Override
-    public int getMinorNum() {
-        return Integer.parseInt(minorLabel.getText().trim());
-    }
-
-    @Override
-    public int getPatchNum() {
-        return Integer.parseInt(patchLabel.getText().trim());
-    }
-
-    @Override
-    public int getTypeNum() {
-        return Integer.parseInt(typeLabel.getText().trim());
-    }
-
-    @Override
     public RemoteDevice getdevBoxSelectedItem() {
         return (RemoteDevice) devBox.getSelectedItem();
     }
 
+    @Override
+    public int getDelay() {
+        String delay = jfDelay.getText().toString().trim();
+        return ("".equals(delay)) ? 0 : Integer.valueOf(delay);
+    }
 
     DefaultListModel<String> odv = new DefaultListModel<>();
 
@@ -300,6 +340,14 @@ public class Update extends JFrame implements UpdateView, ActionListener {
     public void showOriginalDeviceVersion(String version) {
         odv.addElement(version);
         draperOriginal.setModel(odv);
+        if (UpdatePresenterImpl.isSingle) {
+            mUpdatePresenter.findOriginDevice(Common.DEVICE_FOUND_ALL);
+        } else {
+            if (MyLocalDevice.getAddressList().size() == odv.size()) {
+                mUpdatePresenter.findAllDevice();
+            }
+        }
+        draperOriginal.repaint();
     }
 
     DefaultListModel<String> bdv = new DefaultListModel<>();
@@ -311,6 +359,7 @@ public class Update extends JFrame implements UpdateView, ActionListener {
         if (odv.getSize() == bdv.getSize()) {
             mUpdatePresenter.findAllDevice();
         }
+        draperOriginal.repaint();
     }
 
     DefaultListModel<String> adv = new DefaultListModel<>();
@@ -319,22 +368,44 @@ public class Update extends JFrame implements UpdateView, ActionListener {
     public void showAfterDeviceVersion(String version) {
         adv.addElement(version);
         draperAfterUpgrade.setModel(adv);
+        if (bdv.size() == (adv.size() + mUpdatePresenter.getAbnormalRemoteDeviceSize())) {
+            showUpgradeInformation("升级成功，找到所有电机");
+            if (autoVersion == 1) {
+                autoVersion = 2;
+            } else if (autoVersion == 2) {
+                autoVersion = 1;
+            }
+            complete = true;
+        }
+        draperOriginal.repaint();
     }
 
     public void clearBeforeAndAfterDeviceVersion() {
+        odv.clear();
         bdv.clear();
         adv.clear();
+        draperOriginal.setModel(odv);
         draperBeforeUpgrade.setModel(bdv);
         draperAfterUpgrade.setModel(adv);
     }
 
+    DefaultListModel<String> udv = new DefaultListModel<>();
+
     @Override
-    public void showConfirmDialog() {
+    public void showUpgradeInformation(String version) {
+        udv.addElement(version);
+        upgradeInformation.setModel(udv);
+        upgradeInformation.setSelectedIndex(udv.size() - 1);
+        upgradeInformation.ensureIndexIsVisible(udv.size() - 1);
+    }
+
+    @Override
+    public void showConfirmDialog(String str) {
         Object[] options = {"Confirm", "Cancel"};
-        int i = JOptionPane.showOptionDialog(null, "Upgrade?", "Upgrade?", 0, 0, new ImageIcon(), options, 0);
+        int i = JOptionPane.showOptionDialog(null, str, "Upgrade?", 0, 0, new ImageIcon(), options, 0);
         System.out.println(i);
         if (i == JOptionPane.OK_OPTION) {
-            devBox.removeAllItems();
+            //devBox.removeAllItems();
             mUpdatePresenter.update(false);
         } else {
             mUpdatePresenter.update(true);
@@ -350,4 +421,53 @@ public class Update extends JFrame implements UpdateView, ActionListener {
     public int getBeforeSize() {
         return bdv.getSize();
     }
+
+
+    private boolean isAuto = false;
+    private int autoVersion = 0;
+    private boolean complete = true;
+    private int mCount = 0;
+
+    private void autoStart() {
+        autoVersion = 1;
+        new Thread(auto).start();
+    }
+
+    private Runnable auto = new Runnable() {
+        @Override
+        public void run() {
+            while (isAuto) {
+                try {
+                    if (complete) {
+                        complete = false;
+                        mCount++;
+                        jlAutoCount.setText("" + mCount);
+                        clearBeforeAndAfterDeviceVersion();
+                        if (jcSinge.isSelected()) {
+                            if (autoVersion == 1) {
+                                mUpdatePresenter.autoOneUpdate1();
+                                System.out.println("autoOneVersion==1");
+                            } else if (autoVersion == 2) {
+                                mUpdatePresenter.autoOneUpdate2();
+                                System.out.println("autoOneVersion==2");
+                            }
+                        } else {
+                            if (autoVersion == 1) {
+                                mUpdatePresenter.autoUpdate1();
+                                System.out.println("autoVersion==1");
+                            } else if (autoVersion == 2) {
+                                mUpdatePresenter.autoUpdate2();
+                                System.out.println("autoVersion==2");
+                            }
+                        }
+                    }
+                    System.out.println("auto");
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
 }
+
