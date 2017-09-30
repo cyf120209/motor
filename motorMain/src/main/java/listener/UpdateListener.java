@@ -49,26 +49,36 @@ public class UpdateListener extends DeviceEventAdapter {
     public void iAmReceived(final RemoteDevice d){
         Integer id = Integer.valueOf(d.getInstanceNumber());
         boolean exist = remoteDeviceIDList.contains(id);
-        if(listener!=null && mUpdatePresenter.getFlag()!=3){
-            if(remoteDeviceIDList.size()==MyLocalDevice.getAddressList().size()){
-                listener.received();
-                mUpdateView.showUpgradeInformation("----------------------------找到电机");
-
-            }
-        }
         if(exist){
             return;
         }
         remoteDeviceIDList.add(id);
+        if(listener!=null && mUpdatePresenter.getFlag()!=3){
+            if(remoteDeviceIDList.size()==MyLocalDevice.getAddressList().size() && mUpdatePresenter.getFlag()==1){
+                listener.received();
+//                System.out.println("-----+++++--------*****-----///////  origin 找到所有电机");
+                mUpdateView.showUpgradeInformation("-----+++++--------*****-----///////  origin 找到所有电机");
+            }else  if(remoteDeviceIDList.size()==mUpdateView.getOriginalSize()  && mUpdatePresenter.getFlag()==2){
+                listener.received();
+//                System.out.println("-----+++++--------*****-----///////  before 找到所有电机");
+                mUpdateView.showUpgradeInformation("-----+++++--------*****-----///////  before 找到所有电机");
+            }
+        }
+
+
         //若flag为升级后 的状态，则更新Mylocaldevice
         if(mUpdatePresenter.getFlag()==3){
             Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        mUpdateView.updateDevBox(d);
-                        MyLocalDevice.updateRemoteDevice(d);
-                        mUpdatePresenter.addJListDevice(d);
+                        String reg = Public.getAllString(mUpdatePresenter.getFirmWareType(), "[A-za-z-]");
+                        //Public.matchStr(mUpdatePresenter.getFirmWareType(),"[A-Z](2)+");
+                        if(Public.matchString(Public.readModelName(d),reg)) {
+                            mUpdateView.updateDevBox(d);
+                            MyLocalDevice.updateRemoteDevice(d);
+                            mUpdatePresenter.addJListDevice(d);
+                        }
                     } catch (BACnetException e) {
                         e.printStackTrace();
                     }
@@ -80,8 +90,9 @@ public class UpdateListener extends DeviceEventAdapter {
             Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
+                    String reg = Public.getAllString(mUpdatePresenter.getFirmWareType(), "[A-za-z-]");
                     //Public.matchStr(mUpdatePresenter.getFirmWareType(),"[A-Z](2)+");
-                    if(Public.matchString(Public.readModelName(d),"MC-AC")) {
+                    if(Public.matchString(Public.readModelName(d),reg)) {
                         mUpdatePresenter.addJListDevice(d);
                     }
                 }
@@ -92,13 +103,14 @@ public class UpdateListener extends DeviceEventAdapter {
             Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
+                    String reg = Public.getAllString(mUpdatePresenter.getFirmWareType(), "[A-za-z-]");
                     if(mUpdateView.getdevBoxSelectedItem().equals(d)){
-                        if(Public.matchString(Public.readModelName(d),"MC-AC")) {
+                        if(Public.matchString(Public.readModelName(d),reg)) {
                             mUpdatePresenter.addJListDevice(d);
                         }
-                        if(listener!=null){
-                            listener.received();
-                        }
+//                        if(listener!=null){
+//                            listener.received();
+//                        }
                     }
                 }
             };

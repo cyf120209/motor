@@ -17,6 +17,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
@@ -338,38 +339,83 @@ public class Update extends JFrame implements UpdateView, ActionListener {
 
     @Override
     public void showOriginalDeviceVersion(String version) {
-        odv.addElement(version);
-        draperOriginal.setModel(odv);
+        showOriginal(version);
         if (UpdatePresenterImpl.isSingle) {
             mUpdatePresenter.findOriginDevice(Common.DEVICE_FOUND_ALL);
         } else {
+            System.out.println("ssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"+odv.size());
             if (MyLocalDevice.getAddressList().size() == odv.size()) {
                 mUpdatePresenter.findAllDevice();
             }
         }
-        draperOriginal.repaint();
+        //draperOriginal.revalidate();
+    }
+
+    private void showOriginal(final String version) {
+        try {
+            SwingUtilities.invokeAndWait(new Runnable() {
+                @Override
+                public void run() {
+                    odv.addElement(version);
+                    draperOriginal.setModel(odv);
+                }
+            });
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+
     }
 
     DefaultListModel<String> bdv = new DefaultListModel<>();
 
     @Override
     public void showBeforeDeviceVersion(String version) {
-        bdv.addElement(version);
-        draperBeforeUpgrade.setModel(bdv);
+        showBefore(version);
         if (odv.getSize() == bdv.getSize()) {
             mUpdatePresenter.findAllDevice();
         }
-        draperOriginal.repaint();
+        //draperOriginal.revalidate();
+    }
+
+    private void showBefore(final String version){
+        try {
+            SwingUtilities.invokeAndWait(new Runnable() {
+                @Override
+                public void run() {
+                    bdv.addElement(version);
+                    draperBeforeUpgrade.setModel(bdv);
+                }
+            });
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+
     }
 
     DefaultListModel<String> adv = new DefaultListModel<>();
 
     @Override
     public void showAfterDeviceVersion(String version) {
-        adv.addElement(version);
-        draperAfterUpgrade.setModel(adv);
-        if (bdv.size() == (adv.size() + mUpdatePresenter.getAbnormalRemoteDeviceSize())) {
-            showUpgradeInformation("升级成功，找到所有电机");
+        showAfter(version);
+//        if (bdv.size() == (adv.size() + mUpdatePresenter.getAbnormalRemoteDeviceSize())) {
+        if (bdv.size() == (adv.size())) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(1000);
+                        showUpgradeInformation("升级成功，找到所有电机");
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+
+
             if (autoVersion == 1) {
                 autoVersion = 2;
             } else if (autoVersion == 2) {
@@ -377,7 +423,24 @@ public class Update extends JFrame implements UpdateView, ActionListener {
             }
             complete = true;
         }
-        draperOriginal.repaint();
+        //draperOriginal.revalidate();
+    }
+
+    private void showAfter(final String version){
+        try {
+            SwingUtilities.invokeAndWait(new Runnable() {
+                @Override
+                public void run() {
+                    adv.addElement(version);
+                    draperAfterUpgrade.setModel(adv);
+                }
+            });
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void clearBeforeAndAfterDeviceVersion() {
@@ -392,11 +455,18 @@ public class Update extends JFrame implements UpdateView, ActionListener {
     DefaultListModel<String> udv = new DefaultListModel<>();
 
     @Override
-    public void showUpgradeInformation(String version) {
-        udv.addElement(version);
-        upgradeInformation.setModel(udv);
-        upgradeInformation.setSelectedIndex(udv.size() - 1);
-        upgradeInformation.ensureIndexIsVisible(udv.size() - 1);
+    public void showUpgradeInformation(final String version) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                udv.addElement(version);
+                upgradeInformation.setModel(udv);
+                upgradeInformation.setSelectedIndex(udv.size() - 1);
+                upgradeInformation.ensureIndexIsVisible(udv.size() - 1);
+            }
+        });
+
+        //upgradeInformation.revalidate();
     }
 
     @Override
@@ -423,6 +493,7 @@ public class Update extends JFrame implements UpdateView, ActionListener {
     }
 
 
+
     private boolean isAuto = false;
     private int autoVersion = 0;
     private boolean complete = true;
@@ -443,6 +514,7 @@ public class Update extends JFrame implements UpdateView, ActionListener {
                         mCount++;
                         jlAutoCount.setText("" + mCount);
                         clearBeforeAndAfterDeviceVersion();
+                        Thread.sleep(2000);
                         if (jcSinge.isSelected()) {
                             if (autoVersion == 1) {
                                 mUpdatePresenter.autoOneUpdate1();

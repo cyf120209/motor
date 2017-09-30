@@ -397,7 +397,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
 
     @Override
     public synchronized void addJListDeviceOrigin(RemoteDevice device) {
-        mUpdateView.showUpgradeInformation("single modelName："+readModelName(device));
+//        mUpdateView.showUpgradeInformation("single modelName："+readModelName(device));
 //        if (!readModelName(device).equals(type)) {
 //            return;
 //        }
@@ -409,7 +409,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
             String version = ReadVersion(device);
             count++;
             mUpdateView.showOriginalDeviceVersion(device.getInstanceNumber() + "--" + version);
-            mUpdateView.showUpgradeInformation("找到电机："+device.getInstanceNumber()+"    "+count+"/"+mUpdateView.getOriginalSize());
+            mUpdateView.showUpgradeInformation("找到电机："+device.getInstanceNumber()+"    "+count+"/"+MyLocalDevice.getAddressList().size());
         }
     }
 
@@ -582,6 +582,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                         lock.wait();
                     }
                 }
+                Thread.sleep(1000);
                 flag = 3;
                 count=0;
                 updateListener.clearRemoteDeviceList();
@@ -746,6 +747,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                         lock.wait();
                     }
                 }
+                Thread.sleep(1000);
                 flag = 3;
                 count=0;
                 updateListener.clearRemoteDeviceList();

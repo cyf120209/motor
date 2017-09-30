@@ -674,6 +674,7 @@ abstract public class MstpNode implements Runnable {
                     addressList.clear();
                     addressList.addAll(cacheList);
                     addressMap.clear();
+                    System.out.println("////////////////////////////////////////////////"+addressList.size());
                 }
             });
             timer.start();
