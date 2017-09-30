@@ -11,9 +11,12 @@ import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.*;
 import listener.Listener;
+import org.free.bacnet4j.util.SerialPortException;
 import util.MyLocalDevice;
 import util.Draper;
 import main.view.BoxLayoutView;
+
+import javax.swing.*;
 
 /**
  * Created by lenovo on 2017/1/19.
@@ -43,6 +46,14 @@ public class BoxLayoutCasePresenterImpl implements BoxLayoutCasePresenter {
                 public void run() {
                     try {
                         BACnetStart(mBoxLayoutView.getComBoxSelectedItem());
+                    } catch (SerialPortException e){
+                        JOptionPane.showMessageDialog(null, "The serial port is occupied! ", "alert", JOptionPane.WARNING_MESSAGE);
+                        BACnetStop();
+                        mBoxLayoutView.updatedevBox("start", true);
+                        running = false;
+//                        if (localDevice != null) {
+//                            localDevice.terminate();
+//                        }
                     } catch (Exception e1) {
                         e1.printStackTrace();
                     }

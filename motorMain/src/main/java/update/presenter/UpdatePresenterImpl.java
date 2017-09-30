@@ -404,20 +404,28 @@ public class UpdatePresenterImpl implements UpdatePresenter {
         if(isSingle && device.equals(mUpdateView.getdevBoxSelectedItem())){
             String version = ReadVersion(device);
             mUpdateView.showOriginalDeviceVersion(device.getInstanceNumber() + "--" + version);
-            mUpdateView.showUpgradeInformation("single 找到电机："+device.getInstanceNumber());
+            mUpdateView.showUpgradeInformation("single found device："+device.getInstanceNumber());
+            findOriginDevice(Common.DEVICE_FOUND_ALL);
         }else {
             String version = ReadVersion(device);
             count++;
             mUpdateView.showOriginalDeviceVersion(device.getInstanceNumber() + "--" + version);
-            mUpdateView.showUpgradeInformation("找到电机："+device.getInstanceNumber()+"    "+count+"/"+MyLocalDevice.getAddressList().size());
+            mUpdateView.showUpgradeInformation("found device："+device.getInstanceNumber()+"    "+count+"/"+MyLocalDevice.getAddressList().size());
+            if (MyLocalDevice.getAddressList().size() == updateListener.getIAmSize()) {
+                findAllDevice();
+            }
         }
     }
 
     @Override
     public synchronized void addJListDeviceBefore(RemoteDevice device) {
-        if (!readModelName(device).equals(firmWareInformation.getType())) {
+        String reg = Public.getAllString(getFirmWareType(), "[A-za-z-]");
+        if(!Public.matchString(Public.readModelName(device),reg)) {
             return;
         }
+//        if (!readModelName(device).equals(firmWareInformation.getType())) {
+//            return;
+//        }
         String version = ReadVersion(device);
         int typeNum = firmWareInformation.getTypeNum();
         switch (typeNum){
@@ -436,28 +444,32 @@ public class UpdatePresenterImpl implements UpdatePresenter {
         }
         if(isSingle && device.equals(mUpdateView.getdevBoxSelectedItem())){
             mUpdateView.showBeforeDeviceVersion(device.getInstanceNumber() + "--" + version);
-            mUpdateView.showUpgradeInformation("single 找到电机："+device.getInstanceNumber()+"    1/1");
+            mUpdateView.showUpgradeInformation("single found device："+device.getInstanceNumber()+"    1/1");
         }else {
             count++;
             mUpdateView.showBeforeDeviceVersion(device.getInstanceNumber() + "--" + version);
-            mUpdateView.showUpgradeInformation("找到电机："+device.getInstanceNumber()+"    "+count+"/"+mUpdateView.getOriginalSize());
+            mUpdateView.showUpgradeInformation("found device："+device.getInstanceNumber()+"    "+count+"/"+mUpdateView.getOriginalSize());
         }
     }
 
     @Override
     public synchronized void addJListDeviceAfter(RemoteDevice device) {
-        if (!readModelName(device).equals(firmWareInformation.getType())) {
+        String reg = Public.getAllString(getFirmWareType(), "[A-za-z-]");
+        if(!Public.matchString(Public.readModelName(device),reg)) {
             return;
         }
+//        if (!readModelName(device).equals(firmWareInformation.getType())) {
+//            return;
+//        }
         if(isSingle){
             String version = ReadVersion(device);
             mUpdateView.showAfterDeviceVersion(device.getInstanceNumber() + "--" + version);
-            mUpdateView.showUpgradeInformation("single 找到电机："+device.getInstanceNumber()+"    1/1");
+            mUpdateView.showUpgradeInformation("single found device："+device.getInstanceNumber()+"    1/1");
         }else {
             count++;
             String version = ReadVersion(device);
             mUpdateView.showAfterDeviceVersion(device.getInstanceNumber() + "--" + version);
-            mUpdateView.showUpgradeInformation("找到电机："+device.getInstanceNumber()+"    "+count+"/"+mUpdateView.getOriginalSize());
+            mUpdateView.showUpgradeInformation("found device："+device.getInstanceNumber()+"    "+count+"/"+mUpdateView.getOriginalSize());
         }
     }
 
@@ -508,14 +520,14 @@ public class UpdatePresenterImpl implements UpdatePresenter {
         try {
             isSingle=true;
             initUpdate();
-            Send send = new Send(this,updateListener);
+            Send send = new Send(this,updateListener,mUpdateView);
             send.send(new WhoIsRequest());
-            mUpdateView.showUpgradeInformation("查找待升级的电机");
+            mUpdateView.showUpgradeInformation("search the device for upgrade");
             synchronized (lock){
                 lock.wait();
             }
             if (originDeviceFlag == Common.DEVICE_UPDATE_EXIT) {
-                mUpdateView.showUpgradeInformation("退出升级！");
+                mUpdateView.showUpgradeInformation("exit！");
                 return;
             }
             if (framefile == null) {
@@ -548,21 +560,22 @@ public class UpdatePresenterImpl implements UpdatePresenter {
         @Override
         public void run() {
             try {
-                updateListener.clearRemoteDeviceList();
+
                 Draper.sendIHaveFrameToOne(firmWareInformation.getType(), peer, firmWareInformation.getMajorNum(),firmWareInformation.getMinorNum(),firmWareInformation.getPatchNum(), firmWareInformation.getTypeNum(), updateFile);
-                mUpdateView.showUpgradeInformation("发送准备命令");
+                mUpdateView.showUpgradeInformation("send the ready command");
                 //确保升级前找到所有设备，否则不升级,如果升级前找到了所以设备，则升级，否则进入等待
                 Thread.sleep(6000);
-                Send send = new Send(UpdatePresenterImpl.this,updateListener);
+                updateListener.clearRemoteDeviceList();
+                Send send = new Send(UpdatePresenterImpl.this,updateListener,mUpdateView);
                 send.send(new WhoIsRequest());
-                mUpdateView.showUpgradeInformation("查找准备好的电机");
+                mUpdateView.showUpgradeInformation("search for the prepared device");
                 if (mUpdateView.getOriginalSize() != mUpdateView.getBeforeSize()) {
                     synchronized (lock) {
                         lock.wait();
                     }
                 }
                 if (originDeviceFlag == Common.DEVICE_UPDATE_EXIT) {
-                    mUpdateView.showUpgradeInformation("退出升级！");
+                    mUpdateView.showUpgradeInformation("exit！");
                     return;
                 }
                 if(versionType==Common.DEVICE_VERSION_DEFFER){
@@ -577,7 +590,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                             }
                         }
                     }).start();
-                    mUpdateView.showUpgradeInformation("准备升级");
+                    mUpdateView.showUpgradeInformation("prepare to upgrade");
                     synchronized (lock) {
                         lock.wait();
                     }
@@ -587,10 +600,10 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                 count=0;
                 updateListener.clearRemoteDeviceList();
                 if (isCancel) {
-                    mUpdateView.showUpgradeInformation("升级取消");
+                    mUpdateView.showUpgradeInformation("upgrade cancel");
                     return;
                 }
-                mUpdateView.showUpgradeInformation("开始升级");
+                mUpdateView.showUpgradeInformation("begin to upgrade");
                 FileInputStream fi = new FileInputStream(updateFile);
                 byte[] buffer = new byte[(int) updateFile.length()];
                 int offset = 0;
@@ -601,7 +614,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                 }
                 // 确保所有数据均被读取
                 if (offset != buffer.length) {
-                    throw new IOException("Could not completely read file "
+                    throw new IOException("Could not  read file completely"
                             + framefile.getName());
                 } else {
                     int sent = 0;
@@ -662,10 +675,9 @@ public class UpdatePresenterImpl implements UpdatePresenter {
         try {
             isSingle=false;
             initUpdate();
-            localDevice.sendGlobalBroadcast(new WhoIsRequest());
-            Send send = new Send(this,updateListener);
+            Send send = new Send(this,updateListener,mUpdateView);
             send.send(new WhoIsRequest());
-            mUpdateView.showUpgradeInformation("查找待升级的电机");
+            mUpdateView.showUpgradeInformation("search the device for upgrade");
 //            while (true) {
 //                Thread.sleep(100);
 //                if (originDeviceFlag == 1) {
@@ -677,8 +689,9 @@ public class UpdatePresenterImpl implements UpdatePresenter {
             synchronized (lock){
                 lock.wait();
             }
+            //mUpdateView.showUpgradeInformation("第一阶段成功");
             if (originDeviceFlag == Common.DEVICE_UPDATE_EXIT) {
-                mUpdateView.showUpgradeInformation("退出升级！");
+                mUpdateView.showUpgradeInformation("exit！");
                 return;
             }
             if (framefile == null) {
@@ -692,8 +705,6 @@ public class UpdatePresenterImpl implements UpdatePresenter {
             mUpdateView.updateProgress(0);
             new Thread(new UpdatePresenterImpl.RunUpdate(framefile, localDevice)).start();
 
-        } catch (BACnetException e) {
-            e.printStackTrace();
         } catch (Exception e1) {
             e1.printStackTrace();
         }
@@ -711,22 +722,24 @@ public class UpdatePresenterImpl implements UpdatePresenter {
         @Override
         public void run() {
             try {
-                updateListener.clearRemoteDeviceList();
+
                 //电机装备阶段 若a-> a 电机会重启，a->b不会重启
                 Draper.sendIHaveFrame(firmWareInformation.getType(), firmWareInformation.getMajorNum(),firmWareInformation.getMinorNum(),firmWareInformation.getPatchNum(), firmWareInformation.getTypeNum(), updateFile);
-                mUpdateView.showUpgradeInformation("发送准备命令");
+                mUpdateView.showUpgradeInformation("send the ready command");
                 Thread.sleep(6000);
-                Send send = new Send(UpdatePresenterImpl.this,updateListener);
+                updateListener.clearRemoteDeviceList();
+                Send send = new Send(UpdatePresenterImpl.this,updateListener,mUpdateView);
                 send.send(new WhoIsRequest());
-                mUpdateView.showUpgradeInformation("查找准备好的电机");
+                mUpdateView.showUpgradeInformation("search for the prepared device");
                 //确保升级前找到所有设备，否则不升级,如果升级前找到了所有设备，则升级，否则进入等待
                 if (mUpdateView.getOriginalSize() != mUpdateView.getBeforeSize()) {
                     synchronized (lock) {
                         lock.wait();
                     }
                 }
+                //mUpdateView.showUpgradeInformation("第二阶段成功");
                 if (originDeviceFlag == Common.DEVICE_UPDATE_EXIT) {
-                    mUpdateView.showUpgradeInformation("退出升级！");
+                    mUpdateView.showUpgradeInformation("exit！");
                     return;
                 }
                 //版本异常弹出确认对话框，正常直接升级
@@ -742,7 +755,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                             }
                         }
                     }).start();
-                    mUpdateView.showUpgradeInformation("准备升级");
+                    mUpdateView.showUpgradeInformation("prepare to upgrade");
                     synchronized (lock) {
                         lock.wait();
                     }
@@ -752,11 +765,11 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                 count=0;
                 updateListener.clearRemoteDeviceList();
                 if (isCancel) {
-                    mUpdateView.showUpgradeInformation("升级取消");
+                    mUpdateView.showUpgradeInformation("upgrade cancel");
                     return;
                 }
 
-                mUpdateView.showUpgradeInformation("开始升级");
+                mUpdateView.showUpgradeInformation("begin to upgrade");
                 FileInputStream fi = new FileInputStream(updateFile);
                 byte[] buffer = new byte[(int) updateFile.length()];
                 int offset = 0;
@@ -768,7 +781,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
 
                 // 确保所有数据均被读取
                 if (offset != buffer.length) {
-                    throw new IOException("Could not completely read file "
+                    throw new IOException("Could not read file completely"
                             + framefile.getName());
                 } else {
                     int sent = 0;
@@ -828,7 +841,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                     Timer t = (Timer) e.getSource();
                     // 如果进度条达到最大值重新开发计数
                     if (percent == 100) {
-                        mUpdateView.showUpgradeInformation("升级完成，等待电机重启");
+                        mUpdateView.showUpgradeInformation("send complete，wait for devices restarted");
                         isSendCompleted = true;
                         t.stop();
                     }

@@ -78,9 +78,9 @@ public class Listener extends DeviceEventAdapter {
                 try {
 //                    MyLocalDevice.getObjectList(d);
                     MyLocalDevice.addRemoteDevice(d);
-                    if(Public.matchString(d.getModelName(),"MC-AC")){
+//                    if(Public.matchString(d.getModelName(),"MC-AC")){
                         mBoxLayoutView.AddItem(d);
-                    }
+//                    }
                 } catch (BACnetException e) {
                     e.printStackTrace();
                 }

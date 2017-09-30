@@ -96,10 +96,26 @@ public class Public {
      * @param remoteDevice
      * @return
      */
-    public static  String readModelName(RemoteDevice remoteDevice) {
+    public static synchronized String readModelName(RemoteDevice remoteDevice) {
         try {
             LocalDevice localDevice = MyLocalDevice.getInstance();
             ReadPropertyAck ack = (ReadPropertyAck) localDevice.send(remoteDevice, new ReadPropertyRequest(remoteDevice.getObjectIdentifier(), PropertyIdentifier.modelName));
+            return ack.getValue().toString();
+        } catch (Exception e1) {
+            e1.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 读取版本号
+     * @param remoteDevice
+     * @return
+     */
+    public static synchronized String readVersion(RemoteDevice remoteDevice) {
+        try {
+          LocalDevice localDevice = MyLocalDevice.getInstance();
+            ReadPropertyAck ack = (ReadPropertyAck) localDevice.send(remoteDevice, new ReadPropertyRequest(remoteDevice.getObjectIdentifier(), PropertyIdentifier.firmwareRevision));
             return ack.getValue().toString();
         } catch (Exception e1) {
             e1.printStackTrace();

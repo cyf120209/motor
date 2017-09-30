@@ -60,7 +60,7 @@ public class MyLocalDevice {
         return localDevice;
     }
 
-    public static LocalDevice getInstance(String prot){
+    public static LocalDevice getInstance(String prot) throws Exception {
         if(localDevice==null){
             synchronized (LocalDevice.class){
                 if(localDevice==null){
@@ -90,7 +90,7 @@ public class MyLocalDevice {
         return localDevice;
     }
 
-    private static void init() {
+    private static void init() throws Exception {
         //固件升级失败后回调
         List<SequenceDefinition.ElementSpecification> elements2 = new ArrayList<SequenceDefinition.ElementSpecification>();
         elements2.add(new SequenceDefinition.ElementSpecification(Draper.GET_FRIMEBLOCK_PRODUCT_MODE_NAME, CharacterString.class, false, false));
@@ -130,22 +130,12 @@ public class MyLocalDevice {
             localDevice.sendGlobalBroadcast(localDevice.getIAm());
 //            Thread.sleep(100);
             localDevice.sendGlobalBroadcast(new WhoIsRequest());
-        } catch (SerialPortException e){
-            JOptionPane.showMessageDialog(null, "串口被占用，请重新选择", "alert", JOptionPane.WARNING_MESSAGE);
-            if (localDevice != null) {
-                localDevice.terminate();
-            }
         } catch (BACnetException e) {
             e.printStackTrace();
             if (localDevice != null) {
                 localDevice.terminate();
             }
         } catch (InterruptedException e) {
-            e.printStackTrace();
-            if (localDevice != null) {
-                localDevice.terminate();
-            }
-        } catch (Exception e) {
             e.printStackTrace();
             if (localDevice != null) {
                 localDevice.terminate();

@@ -7,6 +7,7 @@ import database.view.DataBase;
 import limitsAndStops.view.LimitsAndStops;
 import main.presenter.BoxLayoutCasePresenter;
 import main.presenter.BoxLayoutCasePresenterImpl;
+import show.ShowAllDevice;
 import update.view.Update;
 import util.ComPortutils;
 
@@ -30,6 +31,7 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
     public JButton groupOperation=new JButton("groupOperation");
     public JButton update=new JButton("update");
     public JButton database=new JButton("database");
+    public JButton showAllDevice=new JButton("showAllDevice");
 
     public JComboBox comBox=new JComboBox();
     public JButton upComBox=new JButton("update port");
@@ -62,6 +64,7 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
         groupOperation.setBounds(new Rectangle(100,10,150,Common.HEIGHT));
         update.setBounds(new Rectangle(250,10,100,Common.HEIGHT));
         database.setBounds(new Rectangle(350,10,100,Common.HEIGHT));
+        showAllDevice.setBounds(new Rectangle(350,10,120,Common.HEIGHT));
         comBox.setBounds(10,35,150, Common.HEIGHT);
         upComBox.setBounds(170,35,100,Common.HEIGHT);
 
@@ -93,7 +96,8 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
         add(startstopbt);
         add(groupOperation);
         add(update);
-        add(database);
+//        add(database);
+        add(showAllDevice);
 
         add(upBt);
         add(downbt);
@@ -117,6 +121,7 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
         startstopbt.addActionListener(this);
         upComBox.addActionListener(this);
         database.addActionListener(this);
+        showAllDevice.addActionListener(this);
 
         upBt.addActionListener(this);
         stopButton.addActionListener(this);
@@ -178,6 +183,10 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
             DataBase dataBase = new DataBase();
             dataBase.setLocationRelativeTo(null);
             dataBase.setVisible(true);
+        }else if(showAllDevice.equals(e.getSource())){
+            ShowAllDevice showAllDevice = new ShowAllDevice();
+            showAllDevice.setLocationRelativeTo(null);
+            showAllDevice.setVisible(true);
         }
     }
 

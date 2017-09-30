@@ -28,10 +28,10 @@ import java.util.List;
 public class Update extends JFrame implements UpdateView, ActionListener {
 
     private final UpdatePresenter mUpdatePresenter;
-    public JButton choosebt = new JButton("c1");
+    public JButton choosebt = new JButton("choose file");
     public JButton choosebt2 = new JButton("c2");
-    public JButton updateToSelectButton = new JButton("Update select");
-    public JButton updateButton = new JButton("Update");
+    public JButton updateToSelectButton = new JButton("Upgrade select");
+    public JButton updateButton = new JButton("Upgrade All");
     public JTextField jfDelay = new JTextField();
 
     public JLabel loclFile = new JLabel("");
@@ -77,13 +77,15 @@ public class Update extends JFrame implements UpdateView, ActionListener {
         setLayout(null);
         setSize(700, 500);
 
-        loclFile.setBounds(70, 5, 500, 20);
+//        loclFile.setBounds(70, 5, 500, 20);
+        loclFile.setBounds(120, 5, 500, 20);
         loclFile2.setBounds(70, 25, 500, 20);
 
-        choosebt.setBounds(new Rectangle(10, 5, 50, 20));
+//        choosebt.setBounds(new Rectangle(10, 5, 50, 20));
+        choosebt.setBounds(new Rectangle(10, 5, 100, 20));
         choosebt2.setBounds(new Rectangle(10, 25, 50, 20));
-        updateToSelectButton.setBounds(340, 50, 130, 20);
-        updateButton.setBounds(470, 50, 100, 20);
+        updateToSelectButton.setBounds(340, 50, 120, 20);
+        updateButton.setBounds(460, 50, 110, 20);
         jfDelay.setBounds(580, 50, 100, 20);
 
         devBox.setBounds(10, 150, 300, 20);
@@ -126,12 +128,12 @@ public class Update extends JFrame implements UpdateView, ActionListener {
         jlAutoCount.setBounds(600, 25, 100, 20);
 
         add(choosebt);
-        add(choosebt2);
+//        add(choosebt2);
         add(updateToSelectButton);
         add(updateButton);
         add(jfDelay);
         add(loclFile);
-        add(loclFile2);
+//        add(loclFile2);
         add(type);
         add(typeText);
         add(majorLabel);
@@ -147,7 +149,7 @@ public class Update extends JFrame implements UpdateView, ActionListener {
         add(lastModifiyText);
 
         add(ReadVersion);
-        add(ReadValue);
+//        add(ReadValue);
         add(versionLabel);
 
         add(pb);
@@ -157,9 +159,9 @@ public class Update extends JFrame implements UpdateView, ActionListener {
         add(draperAfterUpgradeJSP);
         add(upgradeInformationJSP);
 
-        add(jcSinge);
-        add(jbAuto);
-        add(jlAutoCount);
+//        add(jcSinge);
+//        add(jbAuto);
+//        add(jlAutoCount);
 
         choosebt.addActionListener(this);
         choosebt2.addActionListener(this);
@@ -187,8 +189,7 @@ public class Update extends JFrame implements UpdateView, ActionListener {
         } else if (choosebt2.equals(e.getSource())) {
             mUpdatePresenter.choosebt2();
         } else if (updateToSelectButton.equals(e.getSource())) {
-            showUpgradeInformation("开始升级：");
-            showUpgradeInformation("升级初始化");
+            showUpgradeInformation("init upgrade");
             if (!initUpdate()) {
                 return;
             }
@@ -206,8 +207,7 @@ public class Update extends JFrame implements UpdateView, ActionListener {
             }
 
         } else if (updateButton.equals(e.getSource())) {
-            showUpgradeInformation("开始升级：");
-            showUpgradeInformation("升级初始化");
+            showUpgradeInformation("init upgrade");
             if (!initUpdate()) {
                 return;
             }
@@ -341,12 +341,10 @@ public class Update extends JFrame implements UpdateView, ActionListener {
     public void showOriginalDeviceVersion(String version) {
         showOriginal(version);
         if (UpdatePresenterImpl.isSingle) {
-            mUpdatePresenter.findOriginDevice(Common.DEVICE_FOUND_ALL);
+
         } else {
             System.out.println("ssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"+odv.size());
-            if (MyLocalDevice.getAddressList().size() == odv.size()) {
-                mUpdatePresenter.findAllDevice();
-            }
+
         }
         //draperOriginal.revalidate();
     }
@@ -408,7 +406,7 @@ public class Update extends JFrame implements UpdateView, ActionListener {
                 public void run() {
                     try {
                         Thread.sleep(1000);
-                        showUpgradeInformation("升级成功，找到所有电机");
+                        showUpgradeInformation("upgrade successful");
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

@@ -4,6 +4,7 @@ import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.service.unconfirmed.UnconfirmedRequestService;
 import com.serotonin.bacnet4j.service.unconfirmed.WhoIsRequest;
 import listener.UpdateListener;
+import update.view.UpdateView;
 import util.MyLocalDevice;
 
 /**
@@ -13,10 +14,12 @@ public class Send {
 
     UpdateListener listener;
     UpdatePresenter updatePresenter;
+    UpdateView updateView;
     boolean isReceived = false;
 
-    public Send(UpdatePresenter updatePresenter,UpdateListener listener) {
+    public Send(UpdatePresenter updatePresenter,UpdateListener listener,UpdateView updateView) {
         this.updatePresenter=updatePresenter;
+        this.updateView=updateView;
         this.listener = listener;
     }
 
@@ -25,7 +28,8 @@ public class Send {
             @Override
             public void received() {
                 isReceived = true;
-                System.out.println("*********************************************************************true");
+//                updateView.showUpgradeInformation("-----+  origin isReceived:"+isReceived);
+//                System.out.println("*********************************************************************true");
             }
         });
         Runnable runnable = new Runnable() {
@@ -35,7 +39,8 @@ public class Send {
                     if (!isReceived) {
                         try {
                             MyLocalDevice.getInstance().sendGlobalBroadcast(serviceRequest);
-                            System.out.println("*********************************************************************WhoIsRequest");
+//                            updateView.showUpgradeInformation("-----send WhoIsRequest"+isReceived);
+//                            System.out.println("*********************************************************************WhoIsRequest");
                             Thread.sleep(5000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
@@ -46,7 +51,8 @@ public class Send {
                         break;
                     }
                 }
-                System.out.println("+++++++++++++++++++++++++++++++++++++++"+isReceived);
+//                updateView.showUpgradeInformation("-----end send whois--"+isReceived);
+//                System.out.println("+++++++++++++++++++++++++++++++++++++++"+isReceived);
                 if(!isReceived){
                     updatePresenter.cancelUpgrade();
                 }

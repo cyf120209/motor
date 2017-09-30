@@ -57,11 +57,11 @@ public class UpdateListener extends DeviceEventAdapter {
             if(remoteDeviceIDList.size()==MyLocalDevice.getAddressList().size() && mUpdatePresenter.getFlag()==1){
                 listener.received();
 //                System.out.println("-----+++++--------*****-----///////  origin 找到所有电机");
-                mUpdateView.showUpgradeInformation("-----+++++--------*****-----///////  origin 找到所有电机");
+//                mUpdateView.showUpgradeInformation("-----+  origin 找到所有电机");
             }else  if(remoteDeviceIDList.size()==mUpdateView.getOriginalSize()  && mUpdatePresenter.getFlag()==2){
                 listener.received();
 //                System.out.println("-----+++++--------*****-----///////  before 找到所有电机");
-                mUpdateView.showUpgradeInformation("-----+++++--------*****-----///////  before 找到所有电机");
+//                mUpdateView.showUpgradeInformation("-----+  before 找到所有电机");
             }
         }
 
@@ -94,6 +94,7 @@ public class UpdateListener extends DeviceEventAdapter {
                     //Public.matchStr(mUpdatePresenter.getFirmWareType(),"[A-Z](2)+");
                     if(Public.matchString(Public.readModelName(d),reg)) {
                         mUpdatePresenter.addJListDevice(d);
+                        //mUpdateView.showUpgradeInformation(" ----------------send to jList");
                     }
                 }
             };
@@ -143,6 +144,9 @@ public class UpdateListener extends DeviceEventAdapter {
         this.remoteDeviceIDList.clear();
     }
 
+    public int getIAmSize(){
+        return remoteDeviceIDList.size();
+    }
 
     ReceivedListener listener;
 
