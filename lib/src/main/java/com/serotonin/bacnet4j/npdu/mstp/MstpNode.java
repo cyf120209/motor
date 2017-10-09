@@ -383,7 +383,6 @@ abstract public class MstpNode implements Runnable {
                     headerCRC.accumulate(b);
                     frame.setSourceAddress(b);
                     index = 3;
-                    addressList(b);
                 }
                 else if (index == 3) {
                     // Length1
@@ -416,6 +415,7 @@ abstract public class MstpNode implements Runnable {
             state = ReadFrameState.idle;
         }
         else {
+            addressList(frame.getSourceAddress());
             if (!frame.forStationOrBroadcast(thisStation))
                 // NotForUs
                 state = ReadFrameState.idle;
