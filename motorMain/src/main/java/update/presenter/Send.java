@@ -41,7 +41,7 @@ public class Send {
                             MyLocalDevice.getInstance().sendGlobalBroadcast(serviceRequest);
 //                            updateView.showUpgradeInformation("-----send WhoIsRequest"+isReceived);
 //                            System.out.println("*********************************************************************WhoIsRequest");
-                            Thread.sleep(5000);
+                            Thread.sleep(10000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         } catch (BACnetException e) {

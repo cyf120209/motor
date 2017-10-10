@@ -28,7 +28,8 @@ import java.util.List;
 public class Update extends JFrame implements UpdateView, ActionListener {
 
     private final UpdatePresenter mUpdatePresenter;
-    public JButton choosebt = new JButton("choose file");
+//    public JButton choosebt = new JButton("choose file");
+    public JButton choosebt = new JButton("c1");
     public JButton choosebt2 = new JButton("c2");
     public JButton updateToSelectButton = new JButton("Upgrade select");
     public JButton updateButton = new JButton("Upgrade All");
@@ -77,12 +78,12 @@ public class Update extends JFrame implements UpdateView, ActionListener {
         setLayout(null);
         setSize(700, 500);
 
-//        loclFile.setBounds(70, 5, 500, 20);
+        loclFile.setBounds(70, 5, 500, 20);
         loclFile.setBounds(120, 5, 500, 20);
         loclFile2.setBounds(70, 25, 500, 20);
 
-//        choosebt.setBounds(new Rectangle(10, 5, 50, 20));
-        choosebt.setBounds(new Rectangle(10, 5, 100, 20));
+        choosebt.setBounds(new Rectangle(10, 5, 50, 20));
+//        choosebt.setBounds(new Rectangle(10, 5, 100, 20));
         choosebt2.setBounds(new Rectangle(10, 25, 50, 20));
         updateToSelectButton.setBounds(340, 50, 120, 20);
         updateButton.setBounds(460, 50, 110, 20);
@@ -128,12 +129,12 @@ public class Update extends JFrame implements UpdateView, ActionListener {
         jlAutoCount.setBounds(600, 25, 100, 20);
 
         add(choosebt);
-//        add(choosebt2);
+        add(choosebt2);
         add(updateToSelectButton);
         add(updateButton);
         add(jfDelay);
         add(loclFile);
-//        add(loclFile2);
+        add(loclFile2);
         add(type);
         add(typeText);
         add(majorLabel);
@@ -159,9 +160,9 @@ public class Update extends JFrame implements UpdateView, ActionListener {
         add(draperAfterUpgradeJSP);
         add(upgradeInformationJSP);
 
-//        add(jcSinge);
-//        add(jbAuto);
-//        add(jlAutoCount);
+        add(jcSinge);
+        add(jbAuto);
+        add(jlAutoCount);
 
         choosebt.addActionListener(this);
         choosebt2.addActionListener(this);
@@ -224,7 +225,7 @@ public class Update extends JFrame implements UpdateView, ActionListener {
                 JOptionPane.showOptionDialog(null, "Please wait for the upgrade to complete!", "Alert", 0, 0, null, options, 0);
             }
         } else if (ReadVersion.equals(e.getSource())) {
-            String version = mUpdatePresenter.ReadVersion(getdevBoxSelectedItem());
+            String version = Public.readVersion(getdevBoxSelectedItem());
             updateVersionLabel(version);
         } else if (ReadValue.equals(e.getSource())) {
             String s = Public.matchStr(mUpdatePresenter.getFirmWareType(), "[A-Z](2)\\-+");
@@ -346,7 +347,6 @@ public class Update extends JFrame implements UpdateView, ActionListener {
             System.out.println("ssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"+odv.size());
 
         }
-        //draperOriginal.revalidate();
     }
 
     private void showOriginal(final String version) {
@@ -367,14 +367,12 @@ public class Update extends JFrame implements UpdateView, ActionListener {
     }
 
     DefaultListModel<String> bdv = new DefaultListModel<>();
-
     @Override
     public void showBeforeDeviceVersion(String version) {
         showBefore(version);
         if (odv.getSize() == bdv.getSize()) {
-            mUpdatePresenter.findAllDevice();
+            mUpdatePresenter.findBeforeDevice();
         }
-        //draperOriginal.revalidate();
     }
 
     private void showBefore(final String version){
@@ -395,12 +393,12 @@ public class Update extends JFrame implements UpdateView, ActionListener {
     }
 
     DefaultListModel<String> adv = new DefaultListModel<>();
-
     @Override
     public void showAfterDeviceVersion(String version) {
         showAfter(version);
 //        if (bdv.size() == (adv.size() + mUpdatePresenter.getAbnormalRemoteDeviceSize())) {
         if (bdv.size() == (adv.size())) {
+            mUpdatePresenter.cancelListener();
             new Thread(new Runnable() {
                 @Override
                 public void run() {

@@ -31,26 +31,9 @@ public interface UpdatePresenter {
      */
     boolean getUpdateState();
 
-//    int getMajorNum();
-//
-//    int getMinorNum();
-//
-//    int getPatchNum();
-//
-//    int getTypeNum();
-
     byte[] getfileTmp();
 
     String getFirmWareType();
-
-    /**
-     * 读取版本号
-     * @param remoteDevice
-     * @return
-     */
-    String ReadVersion(RemoteDevice remoteDevice);
-
-    void ReadValue();
 
     /**
      * 升级失败回调
@@ -89,9 +72,9 @@ public interface UpdatePresenter {
     int getFlag();
 
     /**
-     * 通知找齐所有设备
+     * 通知找齐升级前的所有设备
      */
-    void findAllDevice();
+    void findBeforeDevice();
 
     /**
      * 找齐需要升级的所有设备

@@ -22,10 +22,9 @@ public class Public {
 
     /**
      * 正则匹配
-     *
      * @param str
      * @param regx
-     * @return
+     * @return true：匹配到，false：未匹配到
      */
     public static Boolean matchString(String str, String regx) {
         //1.将正在表达式封装成对象Patten 类来实现
@@ -46,19 +45,19 @@ public class Public {
         return false;
     }
 
+    /**
+     * 则匹配
+     * @param str
+     * @param regx
+     * @return 返回匹配到的第一个字符串
+     */
     public static String matchStr(String str, String regx) {
-        //1.将正在表达式封装成对象Patten 类来实现
         Pattern pattern = Pattern.compile(regx);
-        //2.将字符串和正则表达式相关联
         Matcher matcher = pattern.matcher(str);
-        //3.String 对象中的matches 方法就是通过这个Matcher和pattern来实现的。
         System.out.println(matcher.matches());
         String group = "";
-        //查找符合规则的子串
         while (matcher.find()) {
-            //获取 字符串
             group = matcher.group();
-            //获取的字符串的首位置和末位置
             System.out.println(matcher.start() + "--" + matcher.end());
             return group;
         }
@@ -67,10 +66,9 @@ public class Public {
 
     /**
      * 正则匹配
-     *
      * @param str
      * @param regx
-     * @return
+     * @return 返回匹配到所有的字符串
      */
     public static String getAllString(String str, String regx) {
         //1.将正在表达式封装成对象Patten 类来实现
@@ -109,12 +107,13 @@ public class Public {
 
     /**
      * 读取版本号
+     *
      * @param remoteDevice
      * @return
      */
     public static synchronized String readVersion(RemoteDevice remoteDevice) {
         try {
-          LocalDevice localDevice = MyLocalDevice.getInstance();
+            LocalDevice localDevice = MyLocalDevice.getInstance();
             ReadPropertyAck ack = (ReadPropertyAck) localDevice.send(remoteDevice, new ReadPropertyRequest(remoteDevice.getObjectIdentifier(), PropertyIdentifier.firmwareRevision));
             return ack.getValue().toString();
         } catch (Exception e1) {
@@ -123,10 +122,10 @@ public class Public {
         }
     }
 
-    public synchronized void save(String str,String fileName){
+    public synchronized void save(String str, String fileName) {
         File file = new File("log");
         String path = file.getAbsolutePath();
-        if(!file.exists()){
+        if (!file.exists()) {
             file.mkdirs();
         }
         Date currentTime = new Date();
@@ -135,8 +134,8 @@ public class Public {
         SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String date = fmt.format(currentTime);
         try {
-            FileOutputStream fos = new FileOutputStream(new File(file, dateString+fileName),true);
-            str=date+"    "+str;
+            FileOutputStream fos = new FileOutputStream(new File(file, dateString + fileName), true);
+            str = date + "    " + str;
             fos.write(str.getBytes());
             fos.close();
         } catch (FileNotFoundException e) {

@@ -10,6 +10,7 @@ import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.Sequence;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
+import common.Common;
 import update.presenter.UpdatePresenterImpl;
 import util.MyLocalDevice;
 import update.presenter.UpdatePresenter;
@@ -53,19 +54,6 @@ public class UpdateListener extends DeviceEventAdapter {
             return;
         }
         remoteDeviceIDList.add(id);
-        if(listener!=null && mUpdatePresenter.getFlag()!=3){
-            if(remoteDeviceIDList.size()==MyLocalDevice.getAddressList().size() && mUpdatePresenter.getFlag()==1){
-                listener.received();
-//                System.out.println("-----+++++--------*****-----///////  origin 找到所有电机");
-//                mUpdateView.showUpgradeInformation("-----+  origin 找到所有电机");
-            }else  if(remoteDeviceIDList.size()==mUpdateView.getOriginalSize()  && mUpdatePresenter.getFlag()==2){
-                listener.received();
-//                System.out.println("-----+++++--------*****-----///////  before 找到所有电机");
-//                mUpdateView.showUpgradeInformation("-----+  before 找到所有电机");
-            }
-        }
-
-
         //若flag为升级后 的状态，则更新Mylocaldevice
         if(mUpdatePresenter.getFlag()==3){
             Runnable runnable = new Runnable() {
@@ -117,7 +105,22 @@ public class UpdateListener extends DeviceEventAdapter {
             };
             new Thread(runnable).start();
 //            STExecutor.submit(runnable);
+        }
 
+        //判断各个阶段是否找全所有设备
+        if(listener!=null && mUpdatePresenter.getFlag()!=3){
+            if(remoteDeviceIDList.size()==MyLocalDevice.getAddressList().size() && mUpdatePresenter.getFlag()==1){
+                listener.received();
+                if (!UpdatePresenterImpl.isSingle && MyLocalDevice.getAddressList().size() == getIAmSize()) {
+                    mUpdatePresenter.findOriginDevice(Common.DEVICE_FOUND_ALL);
+                    mUpdateView.showUpgradeInformation("-----+  origin 找到所有电机");
+                }
+//                System.out.println("-----+++++--------*****-----///////  origin 找到所有电机");
+            }else  if(remoteDeviceIDList.size()==mUpdateView.getOriginalSize()  && mUpdatePresenter.getFlag()==2){
+                listener.received();
+//                System.out.println("-----+++++--------*****-----///////  before 找到所有电机");
+                mUpdateView.showUpgradeInformation("-----+  before 找到所有电机");
+            }
         }
     }
 
