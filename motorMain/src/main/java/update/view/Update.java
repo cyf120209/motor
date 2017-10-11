@@ -341,12 +341,6 @@ public class Update extends JFrame implements UpdateView, ActionListener {
     @Override
     public void showOriginalDeviceVersion(String version) {
         showOriginal(version);
-        if (UpdatePresenterImpl.isSingle) {
-
-        } else {
-            System.out.println("ssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"+odv.size());
-
-        }
     }
 
     private void showOriginal(final String version) {
@@ -399,17 +393,17 @@ public class Update extends JFrame implements UpdateView, ActionListener {
 //        if (bdv.size() == (adv.size() + mUpdatePresenter.getAbnormalRemoteDeviceSize())) {
         if (bdv.size() == (adv.size())) {
             mUpdatePresenter.cancelListener();
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(1000);
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    try {
+//                        Thread.sleep(1000);
                         showUpgradeInformation("upgrade successful");
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }).start();
 
 
             if (autoVersion == 1) {

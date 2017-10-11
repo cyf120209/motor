@@ -8,21 +8,45 @@ import util.STExecutor;
 public class ThreadPool {
 
     public static void main(String[] args) {
-        Runnable runnable = new Runnable(){
-            @Override
-            public void run() {
-                for (int i=0;i<9;i++){
-                    System.out.println(""+i);
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+        for (int j=0;j<3;j++) {
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            for (int i = 0; i < 9; i++) {
+                                System.out.println("i=" + i);
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    });
+                    thread.start();
+                    for (int i = 0; i < 9; i++) {
+                        System.out.println("" + i);
+                        if (i == 6) {
+                            try {
+                                thread.join();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+//                    try {
+//                        Thread.sleep(1000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
                     }
                 }
-            }
-        };
-        new Thread(runnable).start();
-//        STExecutor.submit(runnable);
+            };
+
+//        new Thread(runnable).start();
+            STExecutor.submit(runnable);
+        }
 //        try {
 //            boolean state = STExecutor.getState(runnable);
 //            Thread.sleep(1000);
