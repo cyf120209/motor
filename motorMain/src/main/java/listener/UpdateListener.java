@@ -34,7 +34,7 @@ public class UpdateListener extends DeviceEventAdapter {
     /**
      * 记录原始设备的个数，若和sourceAddress相等，则说明找全设备
      */
-    private int originCount=0;
+    private int originCount = 0;
 
     /**
      * 去重处理
@@ -48,11 +48,6 @@ public class UpdateListener extends DeviceEventAdapter {
     }
 
     @Override
-    public void iHaveReceived(final RemoteDevice d, final RemoteObject o) {
-    }
-
-
-    @Override
     public void iAmReceived(final RemoteDevice d) {
         Integer id = Integer.valueOf(d.getInstanceNumber());
         boolean exist = remoteDeviceIDList.contains(id);
@@ -60,10 +55,10 @@ public class UpdateListener extends DeviceEventAdapter {
             return;
         }
         remoteDeviceIDList.add(id);
-
-        if(listener!=null && remoteDeviceIDList.size() == MyLocalDevice.getAddressList().size()){
+        mUpdateView.showUpgradeInformation("IDList.size" + remoteDeviceIDList.size() + "flag:" + mUpdatePresenter.getFlag());
+        if (listener != null && remoteDeviceIDList.size() == MyLocalDevice.getAddressList().size()) {
             listener.received();
-            mUpdateView.showUpgradeInformation("who is 找齐 "+mUpdatePresenter.getFlag());
+            mUpdateView.showUpgradeInformation("who is 找齐 " + mUpdatePresenter.getFlag());
         }
 
         //更新升级列表
@@ -94,26 +89,15 @@ public class UpdateListener extends DeviceEventAdapter {
                         if (Public.matchString(Public.readModelName(d), reg)) {
                             mUpdatePresenter.addJListDevice(d);
                         }
-//                        if(listener!=null){
-//                            listener.received();
-//                        }
                     }
                 }
 
-                //判断各个阶段是否找全所有设备
-                if (listener != null) {
-                    if (mUpdatePresenter.getFlag() == 1) {
-                        originCount++;
-                        if (!UpdatePresenterImpl.isSingle && MyLocalDevice.getAddressList().size() == originCount) {
-                            mUpdatePresenter.findOriginDevice(Common.DEVICE_FOUND_ALL);
-                            mUpdateView.showUpgradeInformation("-----+  origin 找到所有电机");
-                        }
-//                System.out.println("-----+++++--------*****-----///////  origin 找到所有电机");
-                    } else if (mUpdatePresenter.getFlag() == 2) {
-//                    } else if (remoteDeviceIDList.size() == mUpdateView.getOriginalSize() && mUpdatePresenter.getFlag() == 2) {
-//                        listener.received();
-//                System.out.println("-----+++++--------*****-----///////  before 找到所有电机");
-                        mUpdateView.showUpgradeInformation("-----+  before 找到所有电机");
+                //判断原始数据阶段是否找全所有设备
+                if (mUpdatePresenter.getFlag() == 1) {
+                    originCount++;
+                    if (!UpdatePresenterImpl.isSingle && MyLocalDevice.getAddressList().size() == originCount) {
+                        mUpdatePresenter.findOriginDevice(Common.DEVICE_FOUND_ALL);
+                        mUpdateView.showUpgradeInformation("-----+  origin 找到所有电机");
                     }
                 }
             }
@@ -141,12 +125,8 @@ public class UpdateListener extends DeviceEventAdapter {
     }
 
     public void clearRemoteDeviceList() {
-        originCount=0;
+        originCount = 0;
         this.remoteDeviceIDList.clear();
-    }
-
-    public int getIAmSize() {
-        return remoteDeviceIDList.size();
     }
 
     ReceivedListener listener;

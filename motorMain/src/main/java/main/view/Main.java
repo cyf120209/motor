@@ -19,15 +19,28 @@ import java.util.List;
  */
 public class Main{
 
-    private static BoxLayoutCase mBoxLayoutCase;
-    private static List<String> mListPort=new LinkedList<>();
+    private BoxLayoutCase mBoxLayoutCase;
 
     public static void main(String[] args) throws Exception {
-        guiInit();
+        Main main = new Main();
+        main.guiInit();
+        //初始化数据库
         MyBatisUtils.init();
+        //周期性更新数据库
+        main.updateDatabase();
     }
 
-    private static void guiInit() throws ParseException {
+    private void updateDatabase() {
+        Timer timer = new Timer(3000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+        timer.start();
+    }
+
+    private void guiInit() throws ParseException {
         mBoxLayoutCase = new BoxLayoutCase();
     }
 }

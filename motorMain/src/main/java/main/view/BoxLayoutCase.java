@@ -10,12 +10,14 @@ import main.presenter.BoxLayoutCasePresenterImpl;
 import show.ShowAllDevice;
 import update.view.Update;
 import util.ComPortutils;
+import util.StyleUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.net.URL;
 import java.util.LinkedList;
 
 /**
@@ -24,8 +26,6 @@ import java.util.LinkedList;
 public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutView{
 
     private BoxLayoutCasePresenter mBoxLayoutCasePresenter;
-    private int WIDTH=Common.SCREEN_WEIGHT;
-    private int HEIGHT=Common.SCREEN_HEIGHT;
 
     public JButton startstopbt=new JButton("start");
     public JButton groupOperation=new JButton("groupOperation");
@@ -51,20 +51,44 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
 
     public JButton limitsSetting=new JButton("LimitsSetting");
 
+    private JButton exit=new JButton("退出");
+
     public BoxLayoutCase() throws HeadlessException {
         mBoxLayoutCasePresenter = new BoxLayoutCasePresenterImpl(this);
         setTitle("BoxLayout");
-        setSize(WIDTH,HEIGHT);
+        setSize(Common.SCREEN_WEIGHT,Common.SCREEN_HEIGHT);
 
-        setLocationRelativeTo(null);
+        setLocationRelativeTo(this);
+
         setLayout(null);
-//        setResizable(false);
+        setUndecorated(true);
+        //总在最前面
+//        setAlwaysOnTop(true);
+        //不能改变大小
+        setResizable(false);
+        //最大化
+//        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        //不要边框
+        setUndecorated(true);
+
+        //不要边框 需放置在组件添加之前，否则不生效
+        setUndecorated(true);
+
+        // 把背景图片显示在一个标签里面
+        JLabel label = new JLabel(StyleUtils.getFormBg());
+        // 把标签的大小位置设置为图片刚好填充整个面板
+        label.setBounds(0, 0, this.getWidth(), this.getHeight());
+        // 把内容窗格转化为JPanel，否则不能用方法setOpaque()来使内容窗格透明
+        JPanel imagePanel = (JPanel) this.getContentPane();
+        imagePanel.setOpaque(false);
+        // 把背景图片添加到分层窗格的最底层作为背景
+        this.getLayeredPane().add(label, new Integer(Integer.MIN_VALUE));
 
         startstopbt.setBounds(new Rectangle(10, 10, 100, Common.HEIGHT));
-        groupOperation.setBounds(new Rectangle(100,10,150,Common.HEIGHT));
-        update.setBounds(new Rectangle(250,10,100,Common.HEIGHT));
-        database.setBounds(new Rectangle(350,10,100,Common.HEIGHT));
-        showAllDevice.setBounds(new Rectangle(350,10,120,Common.HEIGHT));
+        groupOperation.setBounds(new Rectangle(110,10,150,Common.HEIGHT));
+        update.setBounds(new Rectangle(260,10,100,Common.HEIGHT));
+        showAllDevice.setBounds(new Rectangle(360,10,120,Common.HEIGHT));
+        database.setBounds(new Rectangle(480,10,100,Common.HEIGHT));
         comBox.setBounds(10,35,150, Common.HEIGHT);
         upComBox.setBounds(170,35,100,Common.HEIGHT);
 
@@ -78,25 +102,34 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
         draperID.setBounds(10,150,200,Common.HEIGHT);
         address.setBounds(10,170,200,Common.HEIGHT);
 
-        cmdTestbt.setBounds(100,200,150,Common.HEIGHT);
-        cmdTestOneBT.setBounds(250,200,100,Common.HEIGHT);
         cmdTextEdit.setBounds(10,200,100,Common.HEIGHT);
+        cmdTestbt.setBounds(110,200,150,Common.HEIGHT);
+        cmdTestOneBT.setBounds(260,200,100,Common.HEIGHT);
         limitsSetting.setBounds(200,250,150,Common.HEIGHT);
 
-//        Container con=getContentPane();
-//        Box horBox1 = Box.createHorizontalBox();
-//        horBox1.add(startstopbt);
-//        horBox1.add(groupOperation);
-//        horBox1.add(update);
-//        horBox1.setBounds(100,10,270,20);
-//        con.add(horBox1);
+        exit.setBounds(this.getWidth()-60-5, 5, 60, 20);
+
+        StyleUtils.setBtnBg(startstopbt);
+        StyleUtils.setBtnBg(groupOperation);
+        StyleUtils.setBtnBg(update);
+        StyleUtils.setBtnBg(showAllDevice);
+        StyleUtils.setBtnBg(database);
+        StyleUtils.setBtnBg(upComBox);
+        StyleUtils.setBtnBg(upBt);
+        StyleUtils.setBtnBg(downbt);
+        StyleUtils.setBtnBg(stopButton);
+        StyleUtils.setBtnBg(cmdTestbt);
+        StyleUtils.setBtnBg(cmdTestOneBT);
+        StyleUtils.setBtnBg(limitsSetting);
+        StyleUtils.setBtnBg(exit);
+
 
         add(cmdTextEdit);
 
         add(startstopbt);
         add(groupOperation);
         add(update);
-//        add(database);
+        add(database);
         add(showAllDevice);
 
         add(upBt);
@@ -116,8 +149,9 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
 
         add(limitsSetting);
 
-        setLocationRelativeTo(this);
-        setVisible(true);
+        add(exit);
+
+
         startstopbt.addActionListener(this);
         upComBox.addActionListener(this);
         database.addActionListener(this);
@@ -133,15 +167,10 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
         groupOperation.addActionListener(this);
         update.addActionListener(this);
 
-//        setUndecorated(true);
-        //总在最前面
-//        setAlwaysOnTop(true);
-        //不能改变大小
-        setResizable(false);
-        //最大化
-//        setExtendedState(JFrame.MAXIMIZED_BOTH);
-        //不要边框
-//        setUndecorated(true);
+        exit.addActionListener(this);
+
+        setVisible(true);
+
         addWindowListener(new MyWindowEventHandle());
         listPort();
     }
@@ -177,7 +206,7 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
             groupOperation.setVisible(true);
         }else if(update.equals(e.getSource())){
             Update update1 = new Update();
-            update1.setLocationRelativeTo(null);
+//            update1.setLocationRelativeTo(null);
             update1.setVisible(true);
         }else if(database.equals(e.getSource())){
             DataBase dataBase = new DataBase();
@@ -187,6 +216,8 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
             ShowAllDevice showAllDevice = new ShowAllDevice();
             showAllDevice.setLocationRelativeTo(null);
             showAllDevice.setVisible(true);
+        }else if(exit.equals(e.getSource())){
+            System.exit(1);
         }
     }
 

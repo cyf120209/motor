@@ -7,39 +7,40 @@ import util.STExecutor;
  */
 public class ThreadPool {
 
+    static int j=0;
     public static void main(String[] args) {
-        for (int j=0;j<3;j++) {
+        for (j=0;j<100;j++) {
             Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
-                    Thread thread = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            for (int i = 0; i < 9; i++) {
-                                System.out.println("i=" + i);
-                                try {
-                                    Thread.sleep(1000);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                    });
-                    thread.start();
+//                    Thread thread = new Thread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            for (int i = 0; i < 9; i++) {
+//                                System.out.println("i=" + i);
+//                                try {
+//                                    Thread.sleep(1000);
+//                                } catch (InterruptedException e) {
+//                                    e.printStackTrace();
+//                                }
+//                            }
+//                        }
+//                    });
+//                    thread.start();
                     for (int i = 0; i < 9; i++) {
-                        System.out.println("" + i);
-                        if (i == 6) {
-                            try {
-                                thread.join();
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-//                    try {
-//                        Thread.sleep(1000);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
+                        System.out.println("j="+j+" i="+ i);
+//                        if (i == 6) {
+//                            try {
+//                                thread.join();
+//                            } catch (InterruptedException e) {
+//                                e.printStackTrace();
+//                            }
+//                        }
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     }
                 }
             };

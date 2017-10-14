@@ -10,10 +10,11 @@ import java.util.HashMap;
 public class StringStringBuffer {
 
     public static void main(String[] args) {
-
         Boolean aBoolean = Public.matchString("dslef(A)", "(B)");
         String s1="hello";
         String s2="world";
+        String s3=new String("hello");
+        System.out.println(s1==s3);
         System.out.println(s1+"---"+s2);
         change(s1,s2);
         System.out.println(s1+"---"+s2);

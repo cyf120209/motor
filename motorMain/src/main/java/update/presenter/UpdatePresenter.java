@@ -33,6 +33,10 @@ public interface UpdatePresenter {
 
     byte[] getfileTmp();
 
+    /**
+     * 获取固件type类型
+     * @return
+     */
     String getFirmWareType();
 
     /**
@@ -46,12 +50,27 @@ public interface UpdatePresenter {
     AcknowledgementService privateTransferReceivedComplex(UnsignedInteger vendorId, UnsignedInteger serviceNumber, Encodable serviceParameters, Address address);
 
     /**
-     * 电机列表及版本显示
-     * @param device
+     * 设备列表及版本显示
+     * @param device 设备列表
      */
     void addJListDevice(RemoteDevice device);
+
+    /**
+     * 设备原始列表显示
+     * @param device
+     */
     void addJListDeviceOrigin(RemoteDevice device);
+
+    /**
+     * 设备升级前列表显示
+     * @param device
+     */
     void addJListDeviceBefore(RemoteDevice device);
+
+    /**
+     * 设备升级后列表显示
+     * @param device
+     */
     void addJListDeviceAfter(RemoteDevice device);
 
     /**
@@ -81,6 +100,9 @@ public interface UpdatePresenter {
      */
     void findOriginDevice(int flag);
 
+    /**
+     * 取消升级
+     */
     void cancelUpgrade();
 
     int getAbnormalRemoteDeviceSize();

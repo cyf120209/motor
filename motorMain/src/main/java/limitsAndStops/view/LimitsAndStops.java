@@ -2,12 +2,14 @@ package limitsAndStops.view;
 
 import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.type.primitive.SignedInteger;
+import common.Common;
 import limitsAndStops.presenter.LimitsAndStopsPresenter;
 import limitsAndStops.presenter.LimitsAndStopsPresenterImpl;
 import model.DraperInformation;
 import rx.functions.Action1;
 import util.Draper;
 import util.RxBus;
+import util.StyleUtils;
 
 import javax.swing.*;
 import javax.swing.Timer;
@@ -72,8 +74,23 @@ public class LimitsAndStops extends JFrame implements ActionListener,LimitsAndSt
     public LimitsAndStops( ) throws HeadlessException {
         setTitle("LimitsAndStops");
         setLayout(null);
+        setSize(Common.SCREEN_WEIGHT,Common.SCREEN_HEIGHT);
+//        setSize(700,400);
+        //不要边框 需放置在组件添加之前，否则不生效
+//        setUndecorated(true);
+
+        // 把背景图片显示在一个标签里面
+        JLabel label = new JLabel(StyleUtils.getFormBg());
+        // 把标签的大小位置设置为图片刚好填充整个面板
+        label.setBounds(0, 0, this.getWidth(), this.getHeight());
+        // 把内容窗格转化为JPanel，否则不能用方法setOpaque()来使内容窗格透明
+        JPanel imagePanel = (JPanel) this.getContentPane();
+        imagePanel.setOpaque(false);
+        // 把背景图片添加到分层窗格的最底层作为背景
+        this.getLayeredPane().add(label, new Integer(Integer.MIN_VALUE));
+
         mLimitsAndStopsPresenter = new LimitsAndStopsPresenterImpl(this);
-        setSize(700,400);
+
         devBox.setBounds(10,120,400,20);
         refresh.setBounds(290,100,100,20);
 
@@ -102,7 +119,6 @@ public class LimitsAndStops extends JFrame implements ActionListener,LimitsAndSt
         lowLimitLabel.setBounds(120,200,100,20);
         deviceSP.setBounds(120,220,100,100);
 
-
         jf1.setBounds(250, 220, 200, 20);
         jf2.setBounds(250, 240, 200, 20);
         jf3.setBounds(250, 260, 200, 20);
@@ -117,6 +133,24 @@ public class LimitsAndStops extends JFrame implements ActionListener,LimitsAndSt
         jfStep.setBounds(450,140,100,20);
         jbConfiguration.setBounds(450,160,100,20);
         jbAutoCfg.setBounds(550,160,50,20);
+
+        StyleUtils.setBtnBg(extended);
+        StyleUtils.setBtnBg(stop);
+        StyleUtils.setBtnBg(JOpen);
+        StyleUtils.setBtnBg(JClose);
+        StyleUtils.setBtnBg(retracted);
+        StyleUtils.setBtnBg(upperLimit);
+        StyleUtils.setBtnBg(lowerLimit);
+        StyleUtils.setBtnBg(preStop);
+        StyleUtils.setBtnBg(nextStop);
+        StyleUtils.setBtnBg(addStop);
+        StyleUtils.setBtnBg(remoteStop);
+        StyleUtils.setBtnBg(remoteAllStop);
+        StyleUtils.setBtnBg(reverse);
+        StyleUtils.setBtnBg(refresh);
+        StyleUtils.setBtnBg(jbConfiguration);
+        StyleUtils.setBtnBg(jbAutoCfg);
+        StyleUtils.setBtnBg(jbStart);
 
         add(devBox);
         add(refresh);

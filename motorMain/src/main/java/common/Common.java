@@ -8,8 +8,8 @@ public class Common {
     public static final int HEIGHT=20;
     public static final int BAUDRATE=38400;
 
-    public static final int SCREEN_WEIGHT=600;
-    public static final int SCREEN_HEIGHT=400;
+    public static final int SCREEN_WEIGHT=800;
+    public static final int SCREEN_HEIGHT=475;
 
 
     public static final int DEVICE_FOUND_ALL=1;

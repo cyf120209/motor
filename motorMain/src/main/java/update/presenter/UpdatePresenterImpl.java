@@ -334,11 +334,6 @@ public class UpdatePresenterImpl implements UpdatePresenter {
         return firmWareInformation.getType();
     }
 
-    /**
-     * 更新日志
-     *
-     * @param device
-     */
     @Override
     public synchronized void addJListDevice(RemoteDevice device) {
         if (flag == 1) {
@@ -351,7 +346,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
     }
 
     @Override
-    public synchronized void addJListDeviceOrigin(RemoteDevice device) {
+    public void addJListDeviceOrigin(RemoteDevice device) {
         if (isSingle && device.equals(mUpdateView.getdevBoxSelectedItem())) {
             String version = Public.readVersion(device);
             mUpdateView.showOriginalDeviceVersion(device.getInstanceNumber() + "--" + version);
@@ -366,7 +361,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
     }
 
     @Override
-    public synchronized void addJListDeviceBefore(RemoteDevice device) {
+    public void addJListDeviceBefore(RemoteDevice device) {
         String version = Public.readVersion(device);
         int typeNum = firmWareInformation.getTypeNum();
         switch (typeNum) {
@@ -394,7 +389,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
     }
 
     @Override
-    public synchronized void addJListDeviceAfter(RemoteDevice device) {
+    public void addJListDeviceAfter(RemoteDevice device) {
         if (isSingle) {
             String version = Public.readVersion(device);
             mUpdateView.showAfterDeviceVersion(device.getInstanceNumber() + "--" + version);
@@ -444,11 +439,13 @@ public class UpdatePresenterImpl implements UpdatePresenter {
     private void initUpdate() {
         flag = 1;
         count = 0;
+        isCancel=false;
         mAbnormalRemoteDevice.clear();
         versionType = Common.DEVICE_VERSION_SAME;
         originDeviceFlag = Common.DEVICE_FOUNDING;
         updateListener.clearRemoteDeviceList();
         localDevice.getEventHandler().addListener(updateListener);
+//        mUpdateView.showUpgradeInformation("add listener");
     }
 
     private void updateOne() {
@@ -504,9 +501,9 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                 send.send(new WhoIsRequest());
                 mUpdateView.showUpgradeInformation("search for the prepared device");
 //                if (mUpdateView.getOriginalSize() != mUpdateView.getBeforeSize()) {
-                    synchronized (lockBefore) {
-                        lockBefore.wait();
-                    }
+                synchronized (lockBefore) {
+                    lockBefore.wait();
+                }
 //                }
                 if (originDeviceFlag == Common.DEVICE_UPDATE_EXIT) {
                     mUpdateView.showUpgradeInformation("exit！");
@@ -651,12 +648,9 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                 Send send = new Send(UpdatePresenterImpl.this, updateListener, mUpdateView);
                 send.send(new WhoIsRequest());
                 mUpdateView.showUpgradeInformation("search for the prepared device");
-                //确保升级前找到所有设备，否则不升级,如果升级前找到了所有设备，则升级，否则进入等待
-//                if (mUpdateView.getOriginalSize() != mUpdateView.getBeforeSize()) {
-                    synchronized (lockBefore) {
-                        lockBefore.wait();
-                    }
-//                }
+                synchronized (lockBefore) {
+                    lockBefore.wait();
+                }
                 //mUpdateView.showUpgradeInformation("第二阶段成功");
                 if (originDeviceFlag == Common.DEVICE_UPDATE_EXIT) {
                     mUpdateView.showUpgradeInformation("exit！");
