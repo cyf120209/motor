@@ -1,7 +1,7 @@
 package mapper;
 
-import entity.Shade;
 import entity.ShadeGroup;
+import entity.ShadeGroupRelation;
 
 import java.util.List;
 
@@ -10,13 +10,21 @@ import java.util.List;
  */
 public interface GroupMapper {
 
-    List<ShadeGroup> queryAll() throws Exception;
+    List<ShadeGroup> queryAll();
 
     ShadeGroup selectByGroupId(int id);
 
-    void insert(ShadeGroup shadeGroup);
+    ShadeGroup selectByGroupOther(ShadeGroup shadeGroup);
+
+    int insert(ShadeGroup shadeGroup);
+
+    void insertRelation(List<ShadeGroupRelation> shadeGroupRelationList);
 
     void update(ShadeGroup shadeGroup);
 
     void delete(int id);
+
+    void deleteRelation(List<ShadeGroupRelation> shadeGroupRelationList);
+
+    void deleteRelationById(int id);
 }

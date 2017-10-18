@@ -16,16 +16,15 @@ public class ShadeGroup {
 
     private String groupName;
 
-    private List<Shade> shades=new ArrayList<Shade>();
+    private List<Shade> shades =new ArrayList<Shade>();
 
     public ShadeGroup() {
         super();
     }
 
-    public ShadeGroup(Integer groupId, Integer deviceId, String groupName) {
+    public ShadeGroup(Integer groupId, Integer deviceId) {
         this.groupId = groupId;
         this.deviceId = deviceId;
-        this.groupName = groupName;
     }
 
     public Integer getId() {

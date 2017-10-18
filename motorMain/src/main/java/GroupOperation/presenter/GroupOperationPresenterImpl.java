@@ -36,7 +36,7 @@ public class GroupOperationPresenterImpl implements GroupOperationPresenter {
     private List<Sequence> mSequence = new ArrayList<>();
 
     /**
-     * 电机，设备和组的关系列表
+     * 设备和组和电机的关系列表
      */
     private Map<Integer, Map<Integer, List<Integer>>> mRelativeList = new HashMap<>();
 
@@ -244,7 +244,7 @@ public class GroupOperationPresenterImpl implements GroupOperationPresenter {
         ObjectIdentifier draperID1 = (ObjectIdentifier) values1.get("draperID");
         int instanceNumber1 = draperID1.getInstanceNumber();
         //该draperID下的设备-组关系
-        DraperSubList deviceGroup1 = (DraperSubList) values1.get("DeviceGroup");
+        DraperSubList deviceGroup1 = (DraperSubList) values1.get("ShadeGroup");
         for (DraperSubItem item1 : deviceGroup1.getList()) {
             Map<Integer, List<Integer>> CdevGrpInf = null;
             CdevGrpInf = mRelativeList.get(item1.getDevicID().getInstanceNumber());
@@ -265,6 +265,7 @@ public class GroupOperationPresenterImpl implements GroupOperationPresenter {
                 devList.add(instanceNumber1);
             }
         }
+        MyLocalDevice.mRemoteUtils.setRelationMap(mRelativeList);
         mGroupOperationView.updateDevice(mDevicesIDList.toArray());
     }
 }

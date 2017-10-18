@@ -82,12 +82,13 @@ public class RemoteUtils {
         mRemoteDevice.clear();
     }
 
-    public Map<Integer, Map<Integer, List<Integer>>> getMap() {
+    public Map<Integer, Map<Integer, List<Integer>>> getRelationMap() {
         return mMap;
     }
 
-    public void setMap(Map<Integer, Map<Integer, List<Integer>>> map) {
-        mMap = map;
+    public synchronized void setRelationMap(Map<Integer, Map<Integer, List<Integer>>> map) {
+        mMap.clear();
+        mMap.putAll(map);
     }
 
     /**

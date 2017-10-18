@@ -9,8 +9,6 @@ import java.util.List;
  */
 public class Shade implements Serializable {
 
-    private Integer id;
-
     private Integer shadeId;
 
     private String shadeName;
@@ -21,28 +19,22 @@ public class Shade implements Serializable {
 
     private String shadeStatus;
 
+    private String remarks;
+
 //    private Set shadeGroups=new HashSet();
-    private List<ShadeGroup> shadeGroups=new ArrayList<ShadeGroup>();
+    private List<ShadeGroup> shadeGroups =new ArrayList<ShadeGroup>();
 
 
     public Shade() {
         super();
     }
 
-    public Shade(Integer shadeId, String shadeName, Integer shadePosition, Integer shadePriority, String shadeStatus ) {
+    public Shade(Integer shadeId, String shadeName, Integer shadePosition, Integer shadePriority, String shadeStatus) {
         this.shadeId = shadeId;
         this.shadeName = shadeName;
         this.shadePosition = shadePosition;
         this.shadePriority = shadePriority;
         this.shadeStatus = shadeStatus;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public Integer getShadeId() {
@@ -83,6 +75,14 @@ public class Shade implements Serializable {
 
     public void setShadeStatus(String shadeStatus) {
         this.shadeStatus = shadeStatus;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
     }
 
     public List<ShadeGroup> getShadeGroups() {

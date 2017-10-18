@@ -1,5 +1,6 @@
 package mapper;
 
+import entity.Device;
 import entity.Shade;
 
 import java.util.List;
@@ -11,7 +12,7 @@ public interface ShadeMapper {
 
     List<Shade> queryAll();
 
-    Shade selectByShadeId(int id);
+    Shade selectByShadeId(int shadeId);
 
     void insert(Shade shade);
 

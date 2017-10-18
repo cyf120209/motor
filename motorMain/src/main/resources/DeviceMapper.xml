@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.DeviceMapper">    <!-- 使用sql标签可以将公共的sql提取出来复用 -->
+
+    <sql id="queryFields">
+        id , deviceId , deviceName
+    </sql>
+    <!--<select id="selectByID" parameterType="int" resultType="Device">select-->
+        <!--<include refid="queryFields"/>-->
+        <!--from `device` where id = #{id}-->
+    <!--</select>-->
+    <resultMap id="deviceMap" type="entity.Device">
+        <id property="id" column="id" />
+        <result property="deviceId" column="deviceId" />
+        <result property="deviceName" column="deviceName" />
+        <result property="devicePosition" column="devicePosition" />
+        <result property="devicePriority" column="devicePriority" />
+        <result property="deviceStatus" column="deviceStatus" />
+        <association property="shadeGroups" javaType="java.util.List"
+                     select="selectById" column="deviceId">
+
+        </association>
+        <!--<collection property="shadeGroups" ofType="entity.shadeGroup">-->
+            <!--<id property="groupId" column="groupId" />-->
+            <!--&lt;!&ndash;<result property="groupId" column="groupId" />&ndash;&gt;-->
+            <!--<result property="groupName" column="groupName" />-->
+        <!--</collection>-->
+    </resultMap>
+
+    <select id="queryAll" resultMap="deviceMap">
+        SELECT * FROM device
+    </select>
+
+    <select id="selectByDeviceId" parameterType="int" resultMap="deviceMap">
+        SELECT * FROM device WHERE deviceId=#{id}
+    </select>
+    
+    <select id="selectById" parameterType="int" resultType="entity.ShadeGroup">
+        SELECT * FROM devicegrouprelation r INNER JOIN  devicegroup g on r.deviceGroupId=g.groupId
+      WHERE r.deviceId=#{id}
+    </select>
+
+    <!--<insert id="insert" parameterType="entity.Device" useGeneratedKeys="true" keyProperty="id">-->
+        <!--INSERT INTO device (deviceId,deviceName,devicePosition,devicePriority,deviceStatus) values (#{deviceId},#{deviceName},#{devicePosition},#{devicePriority},#{deviceStatus})-->
+    <!--</insert>-->
+
+    <insert id="insert" parameterType="entity.Device" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO device (deviceId,deviceName,mac,modelName,version,remarks)
+        values (#{deviceId},#{deviceName},#{mac},#{modelName},#{version},#{remarks})
+    </insert>
+
+    <!--<update id="update" parameterType="entity.Device" >-->
+        <!--UPDATE device set deviceName=#{deviceName},devicePosition=#{devicePosition},devicePriority=#{devicePriority},deviceStatus=#{deviceStatus} WHERE deviceId=#{deviceId}-->
+    <!--</update>-->
+
+    <update id="update" parameterType="entity.Device" >
+        UPDATE device
+        set deviceName=#{deviceName},
+        mac=#{mac},
+        modelName=#{modelName},
+        version=#{version}
+        WHERE deviceId=#{deviceId}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM device WHERE deviceId=#{deviceId}
+    </delete>
+</mapper>

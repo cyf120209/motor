@@ -5,9 +5,9 @@
     <sql id="queryFields">
         id , groupId ,deviceId ,groupName
     </sql>
-    <!--<select id="selectByID" parameterType="int" resultType="Shade">select-->
+    <!--<select id="selectByID" parameterType="int" resultType="Device">select-->
         <!--<include refid="queryFields"/>-->
-        <!--from `shade` where id = #{id}-->
+        <!--from `device` where id = #{id}-->
     <!--</select>-->
     <resultMap id="groupMap" type="entity.ShadeGroup">
         <id property="id" column="id"/>
@@ -26,6 +26,10 @@
         SELECT * FROM shadegroup WHERE g.id=#{id}
     </select>
 
+    <select id="selectByGroupOther" parameterType="entity.ShadeGroup" resultType="entity.ShadeGroup">
+        SELECT * FROM shadegroup WHERE groupId=#{groupId} and deviceId=#{deviceId}
+    </select>
+
     <select id="selectById" parameterType="int" resultType="entity.Shade">
         SELECT
         s.shadeId,s.shadeName,s.shadePosition,s.shadePriority,s.shadeStatus
@@ -34,7 +38,15 @@
     </select>
 
     <insert id="insert" parameterType="entity.ShadeGroup" useGeneratedKeys="true" keyProperty="id">
-      INSERT INTO shadegroup (groupId,deviceId,groupName) values (#{groupId},#{deviceId},#{groupName})
+      INSERT INTO shadegroup (groupId,deviceId) values (#{groupId},#{deviceId})
+    </insert>
+
+    <insert id="insertRelation" parameterType="java.util.List">
+      INSERT INTO shadegrouprelation (shadeGroupId,shadeId)
+      values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.shadeGroupId},#{item.shadeId})
+        </foreach>
     </insert>
 
     <update id="update" parameterType="entity.ShadeGroup" >
@@ -43,5 +55,18 @@
 
     <delete id="delete" parameterType="int">
         DELETE FROM shadegroup WHERE id=#{id}
+    </delete>
+
+    <delete id="deleteRelation" parameterType="java.util.List">
+        DELETE FROM shadegrouprelation
+        WHERE
+        <foreach collection="list" item="item" index="index" separator="or">
+            shadeGroupId=#{item.shadeGroupId} and shadeId=#{item.shadeId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteRelationById" parameterType="int">
+        DELETE FROM shadegrouprelation
+        WHERE shadeGroupId=#{id}
     </delete>
 </mapper>

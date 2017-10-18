@@ -15,6 +15,11 @@ public class ShadeGroupRelation {
         super();
     }
 
+    public ShadeGroupRelation(Integer shadeGroupId, Integer shadeId) {
+        this.shadeGroupId = shadeGroupId;
+        this.shadeId = shadeId;
+    }
+
     public Integer getId() {
         return id;
     }

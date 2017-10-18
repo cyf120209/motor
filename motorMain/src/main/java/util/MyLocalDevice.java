@@ -103,7 +103,7 @@ public class MyLocalDevice {
         List<SequenceDefinition.ElementSpecification> elements3 = new ArrayList<SequenceDefinition.ElementSpecification>();
         elements3.add(new SequenceDefinition.ElementSpecification("draperID", ObjectIdentifier.class, false, false));
         elements3.add(new SequenceDefinition.ElementSpecification("Motor Number", UnsignedInteger.class, false, false));
-        elements3.add(new SequenceDefinition.ElementSpecification("DeviceGroup", DraperSubList.class, false, false));
+        elements3.add(new SequenceDefinition.ElementSpecification("ShadeGroup", DraperSubList.class, false, false));
         SequenceDefinition def3 = new SequenceDefinition(elements3);
         UnconfirmedPrivateTransferRequest.vendorServiceResolutions.put(new VendorServiceKey(new UnsignedInteger(900),
                 new UnsignedInteger(7)), def3);
@@ -198,6 +198,9 @@ public class MyLocalDevice {
      * @return
      */
     public static List<RemoteDevice> getRemoteDeviceList() {
+        if(mRemoteUtils==null){
+            return new ArrayList<>();
+        }
         return mRemoteUtils.getRemoteDeviceList();
 //        return mRemoteDeviceList;
     }
@@ -209,6 +212,26 @@ public class MyLocalDevice {
     public static Map<Integer, RemoteDevice> getRemoteDeviceMap() {
         return mRemoteUtils.getRemoteDeviceMap();
 //        return mRemoteDevice;
+    }
+
+    /**
+     * 获取设备，组，电机的关系
+     * @return
+     */
+    public static Map<Integer, Map<Integer, List<Integer>>> getRelationMap() {
+        if(mRemoteUtils==null){
+            return new HashMap<>();
+        }else {
+            return mRemoteUtils.getRelationMap();
+        }
+    }
+
+    /**
+     * 设置设备，组，电机的关系
+     * @param map
+     */
+    public static void setRelationMap(Map<Integer, Map<Integer, List<Integer>>> map) {
+        mRemoteUtils.setRelationMap(map);
     }
 
     /**

@@ -8,8 +8,8 @@
     </settings>
     <typeAliases>
         <typeAlias alias="User" type="entity.User"/>
-        <typeAlias alias="shade" type="entity.Shade"/>
-        <typeAlias alias="shadeMapper" type="mapper.ShadeMapper"/>
+        <typeAlias alias="device" type="entity.Device"/>
+        <typeAlias alias="deviceMapper" type="mapper.DeviceMapper"/>
     </typeAliases>     <!-- 数据库配置信息 -->
     <environments default="development">
         <environment id="development">
@@ -24,6 +24,7 @@
     </environments>     <!-- 映射文件 -->
     <mappers>
         <mapper resource="User.xml"/>
+        <mapper resource="DeviceMapper.xml"/>
         <mapper resource="ShadeMapper.xml"/>
         <mapper resource="GroupMapper.xml"/>
         <mapper resource="BookMapper.xml" />

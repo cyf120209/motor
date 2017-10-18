@@ -79,7 +79,7 @@ public class BoxLayoutCasePresenterImpl implements BoxLayoutCasePresenter {
 
 //        elements3.add(new SequenceDefinition.ElementSpecification("draperID", ObjectIdentifier.class, false, false));
 //        elements3.add(new SequenceDefinition.ElementSpecification("Motor Number", UnsignedInteger.class, false, false));
-//        elements3.add(new SequenceDefinition.ElementSpecification("DeviceGroup", DraperSubList.class, false, false));
+//        elements3.add(new SequenceDefinition.ElementSpecification("ShadeGroup", DraperSubList.class, false, false));
 //        SequenceDefinition def3 = new SequenceDefinition(elements3);
 //        UnconfirmedPrivateTransferRequest.vendorServiceResolutions.put(new VendorServiceKey(new UnsignedInteger(900),
 //                new UnsignedInteger(7)), def3);

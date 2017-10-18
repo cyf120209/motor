@@ -3,11 +3,11 @@
 <mapper namespace="mapper.ShadeMapper">    <!-- 使用sql标签可以将公共的sql提取出来复用 -->
 
     <sql id="queryFields">
-        id , shadeId , shadeName
+        id , deviceId , deviceName
     </sql>
     <!--<select id="selectByID" parameterType="int" resultType="Shade">select-->
         <!--<include refid="queryFields"/>-->
-        <!--from `shade` where id = #{id}-->
+        <!--from `device` where id = #{id}-->
     <!--</select>-->
     <resultMap id="shadeMap" type="entity.Shade">
         <id property="id" column="id" />
@@ -20,7 +20,7 @@
                      select="selectById" column="shadeId">
 
         </association>
-        <!--<collection property="shadeGroups" ofType="entity.ShadeGroup">-->
+        <!--<collection property="shadeGroups" ofType="entity.shadeGroup">-->
             <!--<id property="groupId" column="groupId" />-->
             <!--&lt;!&ndash;<result property="groupId" column="groupId" />&ndash;&gt;-->
             <!--<result property="groupName" column="groupName" />-->
@@ -40,12 +40,12 @@
       WHERE r.shadeId=#{id}
     </select>
 
-    <insert id="add" parameterType="entity.Shade" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="entity.Shade" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO shade (shadeId,shadeName,shadePosition,shadePriority,shadeStatus) values (#{shadeId},#{shadeName},#{shadePosition},#{shadePriority},#{shadeStatus})
     </insert>
 
     <update id="update" parameterType="entity.Shade" >
-        UPDATE shade set shadeId=#{shadeId},shadeName=#{shadeName},shadePosition=#{shadePosition},shadePriority=#{shadePriority},shadeStatus=#{shadeStatus} WHERE id=#{id}
+        UPDATE shade set shadeName=#{shadeName},shadePosition=#{shadePosition},shadePriority=#{shadePriority},shadeStatus=#{shadeStatus} WHERE shadeId=#{shadeId}
     </update>
 
     <delete id="delete" parameterType="int">

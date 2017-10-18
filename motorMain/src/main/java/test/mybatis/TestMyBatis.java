@@ -1,10 +1,8 @@
 package test.mybatis;
 
-import dao.GroupDao;
-import dao.ShadeDao;
-import entity.Shade;
-import entity.ShadeGroup;
-import mapper.ShadeMapper;
+import dao.DeviceDao;
+import entity.Device;
+import mapper.DeviceMapper;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -34,7 +32,7 @@ public class TestMyBatis {
 //        try {
 //            List<ShadeGroup> shadeGroups = groupDao.queryAll();
 //            ShadeGroup shadeGroup = shadeGroups.get(0);
-//            List<Shade> shades = shadeGroup.getShades();
+//            List<Device> shades = shadeGroup.getDevices();
 //            System.out.println();
 //        } catch (Exception e) {
 //            e.printStackTrace();
@@ -44,7 +42,7 @@ public class TestMyBatis {
 //        ShadeGroup shadeGroup = new ShadeGroup(6,6,"name7");
 //        shadeGroup.setId(7);
 //        groupDao.delete(7);
-//        List<Shade> shades = shadeGroup.getShades();
+//        List<Device> shades = shadeGroup.getDevices();
         System.out.println();
     }
 
@@ -64,8 +62,8 @@ public class TestMyBatis {
     public void testDelete() {
         SqlSession session = sqlSessionFactory.openSession();
         try {  //返回值是删除条数
-            ShadeMapper shadeMapper = session.getMapper(ShadeMapper.class);
-            shadeMapper.delete(60001);
+            DeviceMapper deviceMapper = session.getMapper(DeviceMapper.class);
+            deviceMapper.delete(60001);
             session.commit();
         } finally {
             session.close();
@@ -75,27 +73,27 @@ public class TestMyBatis {
     public void testInsertShade() {
 //        SqlSession session = sqlSessionFactory.openSession();
 //        try {
-//            ShadeMapper shadeMapper = session.getMapper(ShadeMapper.class);
-//            Shade shade = new Shade(60001, "60001", 0, 0, "0");
-//            shadeMapper.add(shade);
-//            System.out.println("before"+shade.getId());
+//            DeviceMapper shadeMapper = session.getMapper(DeviceMapper.class);
+//            Device device = new Device(60001, "60001", 0, 0, "0");
+//            shadeMapper.add(device);
+//            System.out.println("before"+device.getId());
 //            session.commit();
-//            System.out.println("after"+shade.getId());
+//            System.out.println("after"+device.getId());
 //        } finally {
 //            session.close();
 //        }
-        Shade shade = new Shade(60001, "60001", 0, 0, "0");
-        ShadeDao shadeDao = new ShadeDao();
-        shadeDao.insert(shade);
+        Device device = new Device(60001, "60001", 0, 0, "0");
+        DeviceDao shadeDao = new DeviceDao();
+        shadeDao.insert(device);
     }
 
     public void testUpdateShade() {
         SqlSession session = sqlSessionFactory.openSession();
         try {
-            ShadeMapper shadeMapper = session.getMapper(ShadeMapper.class);
-            Shade shade = shadeMapper.selectByShadeId(10001);
-            shade.setShadePosition(100);
-            shadeMapper.update(shade);
+            DeviceMapper deviceMapper = session.getMapper(DeviceMapper.class);
+            Device device = deviceMapper.selectByDeviceId(10001);
+            device.setDevicePosition(100);
+            deviceMapper.update(device);
             session.commit();
         } finally {
             session.close();
@@ -105,11 +103,11 @@ public class TestMyBatis {
     public void testQueryShade() {
         SqlSession session = sqlSessionFactory.openSession();
         try {
-            ShadeMapper shadeMapper = session.getMapper(ShadeMapper.class);
-            Shade shade = shadeMapper.selectByShadeId(10001);
-//            Shade shade = (Shade) session.selectOne("entity.ShadeShade.selectByID", 1);
-            System.out.println(shade.getShadeId());
-            System.out.println(shade.getShadePosition());
+            DeviceMapper deviceMapper = session.getMapper(DeviceMapper.class);
+            Device device = deviceMapper.selectByDeviceId(10001);
+//            Device device = (Device) session.selectOne("entity.ShadeShade.selectByID", 1);
+            System.out.println(device.getDeviceId());
+            System.out.println(device.getDevicePosition());
         } finally {
             session.close();
         }
@@ -118,14 +116,14 @@ public class TestMyBatis {
     public void testQueryShadeAll() {
 //        SqlSession session = sqlSessionFactory.openSession();
 //        try {
-//            ShadeMapper shadeMapper = session.getMapper(ShadeMapper.class);
-//            List<Shade> shades = shadeMapper.queryAll();
-//            System.out.println(shades.size());
+//            DeviceMapper shadeMapper = session.getMapper(DeviceMapper.class);
+//            List<Device> devices = shadeMapper.queryAll();
+//            System.out.println(devices.size());
 //        } finally {
 //            session.close();
 //        }
-        ShadeDao shadeDao = new ShadeDao();
-        List<Shade> shades = shadeDao.queryAll();
-        Shade shade = shades.get(0);
+        DeviceDao shadeDao = new DeviceDao();
+        List<Device> devices = shadeDao.queryAll();
+        Device device = devices.get(0);
     }
 }

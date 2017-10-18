@@ -1,6 +1,7 @@
 package dao;
 
 import entity.ShadeGroup;
+import entity.ShadeGroupRelation;
 import mapper.GroupMapper;
 import org.apache.ibatis.session.SqlSession;
 import util.MyBatisUtils;
@@ -12,12 +13,12 @@ import java.util.List;
  */
 public class GroupDao implements GroupMapper {
     @Override
-    public List<ShadeGroup> queryAll() throws Exception{
+    public List<ShadeGroup> queryAll() {
         SqlSession session = MyBatisUtils.getSession();
         try {
             GroupMapper mapper = session.getMapper(GroupMapper.class);
             return mapper.queryAll();
-        }finally {
+        } finally {
             session.close();
         }
     }
@@ -28,19 +29,46 @@ public class GroupDao implements GroupMapper {
         try {
             GroupMapper mapper = session.getMapper(GroupMapper.class);
             return mapper.selectByGroupId(id);
-        }finally {
+        } finally {
             session.close();
         }
     }
 
     @Override
-    public void insert(ShadeGroup shadeGroup) {
+    public ShadeGroup selectByGroupOther(ShadeGroup shadeGroup) {
+        SqlSession session = MyBatisUtils.getSession();
+        ShadeGroup sg;
+        try {
+            GroupMapper mapper = session.getMapper(GroupMapper.class);
+            sg = mapper.selectByGroupOther(shadeGroup);
+        } finally {
+            session.close();
+        }
+        return sg;
+    }
+
+    @Override
+    public int insert(ShadeGroup shadeGroup) {
+        int id;
         SqlSession session = MyBatisUtils.getSession();
         try {
             GroupMapper mapper = session.getMapper(GroupMapper.class);
-            mapper.insert(shadeGroup);
+            id = mapper.insert(shadeGroup);
             session.commit();
-        }finally {
+        } finally {
+            session.close();
+        }
+        return id;
+    }
+
+    @Override
+    public void insertRelation(List<ShadeGroupRelation> shadeGroupRelationList) {
+        SqlSession session = MyBatisUtils.getSession();
+        try {
+            GroupMapper mapper = session.getMapper(GroupMapper.class);
+            mapper.insertRelation(shadeGroupRelationList);
+            session.commit();
+        } finally {
             session.close();
         }
     }
@@ -52,7 +80,7 @@ public class GroupDao implements GroupMapper {
             GroupMapper mapper = session.getMapper(GroupMapper.class);
             mapper.update(shadeGroup);
             session.commit();
-        }finally {
+        } finally {
             session.close();
         }
     }
@@ -64,7 +92,31 @@ public class GroupDao implements GroupMapper {
             GroupMapper mapper = session.getMapper(GroupMapper.class);
             mapper.delete(id);
             session.commit();
-        }finally {
+        } finally {
+            session.close();
+        }
+    }
+
+    @Override
+    public void deleteRelation(List<ShadeGroupRelation> shadeGroupRelationList) {
+        SqlSession session = MyBatisUtils.getSession();
+        try {
+            GroupMapper mapper = session.getMapper(GroupMapper.class);
+            mapper.deleteRelation(shadeGroupRelationList);
+            session.commit();
+        } finally {
+            session.close();
+        }
+    }
+
+    @Override
+    public void deleteRelationById(int id) {
+        SqlSession session = MyBatisUtils.getSession();
+        try {
+            GroupMapper mapper = session.getMapper(GroupMapper.class);
+            mapper.deleteRelationById(id);
+            session.commit();
+        } finally {
             session.close();
         }
     }

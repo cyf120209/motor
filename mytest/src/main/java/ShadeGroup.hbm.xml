@@ -15,7 +15,7 @@
         <property name="groupName" type="java.lang.String">
             <column name="groupName"/>
         </property>
-        <set name="shades" lazy="true" table="shadegrouprelation">
+        <set name="devices" lazy="true" table="shadegrouprelation">
             <key column="shadeGroupId"></key>
             <many-to-many column="shadeId" property-ref="shadeId" class="Shade" />
         </set>

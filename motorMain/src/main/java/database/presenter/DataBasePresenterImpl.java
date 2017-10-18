@@ -1,9 +1,8 @@
 package database.presenter;
 
-import dao.ShadeDao;
-import database.view.DataBase;
+import dao.DeviceDao;
 import database.view.DataBaseView;
-import entity.Shade;
+import entity.Device;
 
 import java.util.List;
 
@@ -19,14 +18,14 @@ public class DataBasePresenterImpl {
     }
 
     void getData(){
-        ShadeDao shadeDao = new ShadeDao();
-        List<Shade> shades = shadeDao.queryAll();
-        Object[][] data=new Object[shades.size()][3];
-        for(int i=0;i<shades.size();i++){
-            Shade shade = shades.get(i);
-            data[i][0]=shade.getId();
-            data[i][1]=shade.getShadeName();
-            data[i][2]=shade.getShadeStatus();
+        DeviceDao shadeDao = new DeviceDao();
+        List<Device> devices = shadeDao.queryAll();
+        Object[][] data=new Object[devices.size()][3];
+        for(int i = 0; i< devices.size(); i++){
+            Device device = devices.get(i);
+            data[i][0]= device.getId();
+            data[i][1]= device.getDeviceName();
+            data[i][2]= device.getDeviceStatus();
         }
         mDataBaseView.refresh(data);
     }
