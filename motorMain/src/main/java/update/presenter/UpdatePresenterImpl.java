@@ -138,8 +138,8 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                 e1.printStackTrace();
             }
             framefile1 = fDialog.getSelectedFile();
-            CheckFileType(framefile1);
             ReadFileTobuff(framefile1);
+            CheckFileType(framefile1);
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(framefile1.lastModified());
@@ -188,16 +188,24 @@ public class UpdatePresenterImpl implements UpdatePresenter {
 //            int startAddress=(tmp[6]&0xffffff)*256+tmp[5]&0xffffff;
             int startAddress = (int) (tmp[6] & 0xff) * 256 + (int) (tmp[5] & 0xff);
 
-            if (startAddress < 0x0080) {
-                firmWareInformation1.setTypeNum(0);
-                //mUpdateView.updateTypeLabelText("0");
-            } else if (startAddress < 0x0240) {
-                firmWareInformation1.setTypeNum(1);
-                //mUpdateView.updateTypeLabelText("1");
-            } else {
-                firmWareInformation1.setTypeNum(2);
-                //mUpdateView.updateTypeLabelText("2");
+            if(Public.matchString(firmWareInformation1.getType(),"MC-AC-EX-")){
+                if (startAddress < 0x4100) {
+                    firmWareInformation1.setTypeNum(0);
+                } else if (startAddress < 0x4400) {
+                    firmWareInformation1.setTypeNum(1);
+                } else {
+                    firmWareInformation1.setTypeNum(2);
+                }
+            }else {
+                if (startAddress < 0x0080) {
+                    firmWareInformation1.setTypeNum(0);
+                } else if (startAddress < 0x0240) {
+                    firmWareInformation1.setTypeNum(1);
+                } else {
+                    firmWareInformation1.setTypeNum(2);
+                }
             }
+            mUpdateView.updateVersionAndType(firmWareInformation1);
             if (tmp[1] == 122 && tmp[3] == 0 && tmp[4] == 32) {
                 return true;
             }
