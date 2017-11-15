@@ -25,6 +25,7 @@ import util.MyLocalDevice;
 import update.view.UpdateView;
 import util.Draper;
 import util.Public;
+import util.STExecutor;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -519,11 +520,18 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                 }
                 if (versionType == Common.DEVICE_VERSION_DEFFER) {
                     //弹出确认升级对话框
-                    if (versionType == Common.DEVICE_VERSION_DEFFER) {
-                        mUpdateView.showConfirmDialog("Version exception");
-                    } else {
-                        mUpdateView.showConfirmDialog("Version normal");
-                    }
+                    Runnable runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            if (versionType == Common.DEVICE_VERSION_DEFFER) {
+                                mUpdateView.showConfirmDialog("Version exception");
+                            } else {
+                                mUpdateView.showConfirmDialog("Version normal");
+                            }
+                        }
+                    };
+                    STExecutor.submit(runnable);
+
                     mUpdateView.showUpgradeInformation("prepare to upgrade");
                     synchronized (lockConfirm) {
                         lockConfirm.wait();
@@ -667,11 +675,19 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                 //版本异常弹出确认对话框，正常直接升级
                 if (versionType == Common.DEVICE_VERSION_DEFFER) {
                     //弹出确认升级对话框
-                    if (versionType == Common.DEVICE_VERSION_DEFFER) {
-                        mUpdateView.showConfirmDialog("Version exception");
-                    } else {
-                        mUpdateView.showConfirmDialog("Version normal");
-                    }
+                    Runnable runnable = new Runnable() {
+
+                        @Override
+                        public void run() {
+                            if (versionType == Common.DEVICE_VERSION_DEFFER) {
+                                mUpdateView.showConfirmDialog("Version exception");
+                            } else {
+                                mUpdateView.showConfirmDialog("Version normal");
+                            }
+                        }
+                    };
+                    STExecutor.submit(runnable);
+
                     mUpdateView.showUpgradeInformation("prepare to upgrade");
                     synchronized (lockConfirm) {
                         lockConfirm.wait();
