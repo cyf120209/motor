@@ -104,11 +104,11 @@ public class MasterNode extends MstpNode {
             throw new RuntimeException("Cannot send frame of type: " + type);
 
         String s = Byte2IntUtils.bytesToHexString(data);
-        System.out.println("queueFrame---"+s);
+//        System.out.println("queueFrame---"+s);
         Frame frame = new Frame(type, destination, thisStation, data);
         synchronized (framesToSend) {
             framesToSend.add(frame);
-            System.out.println("MasterNode frameToSend add"+framesToSend.size());
+//            System.out.println("MasterNode frameToSend add"+framesToSend.size());
         }
     }
 
@@ -239,7 +239,7 @@ public class MasterNode extends MstpNode {
         synchronized (framesToSend) {
             if (!framesToSend.isEmpty()){
                 frameToSend = framesToSend.remove(0);
-                System.out.println("MasterNode frameToSend del"+framesToSend.size());
+//                System.out.println("MasterNode frameToSend del"+framesToSend.size());
             }
 
         }

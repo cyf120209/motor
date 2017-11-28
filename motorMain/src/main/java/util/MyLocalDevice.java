@@ -148,6 +148,11 @@ public class MyLocalDevice {
             localDevice.terminate();
             localDevice = null;
         }
+        if(ipLocalDevice!=null){
+            ipLocalDevice.terminate();
+            ipLocalDevice=null;
+
+        }
     }
 
     /**

@@ -275,6 +275,7 @@ abstract public class MstpNode implements Runnable {
         try {
             if (in.available() > 0) {
                 readCount = in.read(readArray);
+//                System.out.println("readArray "+readArray.length+"readCount "+readCount);
                 if (DEBUG)
                     debug("in: " + StreamUtils.dumpArrayHex(readArray, 0, readCount));
                 inputBuffer.push(readArray, 0, readCount);
@@ -566,7 +567,7 @@ abstract public class MstpNode implements Runnable {
 
                 byte[] bytes = byteBuffer.toArrays();
                 String s = Byte2IntUtils.bytesToHexString(bytes);
-                System.out.println("MstpNode bytes" + bytes.length);
+//                System.out.println("MstpNode bytes" + bytes.length);
             }
 
             out.flush();

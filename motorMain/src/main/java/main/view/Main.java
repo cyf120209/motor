@@ -41,7 +41,7 @@ public class Main{
         new Thread(new Runnable() {
             @Override
             public void run() {
-                main.updateDatabase();
+//                main.updateDatabase();
             }
         }).start();
     }
