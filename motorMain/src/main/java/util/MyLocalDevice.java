@@ -53,7 +53,7 @@ public class MyLocalDevice {
 
     private static MasterNode node;
     private static Transport transport;
-    private static LocalDevice ipLocalDevice;
+//    private static LocalDevice ipLocalDevice;
     public static RemoteUtils mRemoteUtils;
 
     public static LocalDevice getInstance(){
@@ -74,14 +74,14 @@ public class MyLocalDevice {
 //                    transport.setTimeout(15000);
 //                    transport.setSegTimeout(15000);
                     localDevice = new LocalDevice(900, 900900, transport);
-                    ////
-                    ipnetwork=new IpNetwork();
-                    iptransport = new Transport(ipnetwork);
-                    ipLocalDevice = new LocalDevice(901, 900912, iptransport);
-                    ipnetwork.peerNet=network;
-                    network.peerNet=ipnetwork;
-                    network.enableRouter=true;
-                    ipnetwork.enableRouter=true;
+                    ////路由功能
+//                    ipnetwork=new IpNetwork();
+//                    iptransport = new Transport(ipnetwork);
+//                    ipLocalDevice = new LocalDevice(901, 900912, iptransport);
+//                    ipnetwork.peerNet=network;
+//                    network.peerNet=ipnetwork;
+//                    network.enableRouter=true;
+//                    ipnetwork.enableRouter=true;
                     mRemoteUtils = new RemoteUtils();
                     init();
                 }
@@ -115,17 +115,12 @@ public class MyLocalDevice {
                 new UnsignedInteger(8)), def4);
 
 
-//        localDevice.getEventHandler().addListener(new Listener());
-        LinkedList<Integer> myNet=new LinkedList<>();
-        myNet.add(1);
-        myNet.add(2001);
+        //路由功能
+//        LinkedList<Integer> myNet=new LinkedList<>();
+//        myNet.add(1);
+//        myNet.add(2001);
         try {
             localDevice.initialize();
-            Thread.sleep(1000);
-            ipLocalDevice.initialize();
-            Thread.sleep(500);
-            network.SendIamRouter(myNet);
-            ipnetwork.SendIamRouter(myNet);
             Thread.sleep(1000);
             localDevice.sendGlobalBroadcast(localDevice.getIAm());
 //            Thread.sleep(100);
@@ -148,11 +143,7 @@ public class MyLocalDevice {
             localDevice.terminate();
             localDevice = null;
         }
-        if(ipLocalDevice!=null){
-            ipLocalDevice.terminate();
-            ipLocalDevice=null;
 
-        }
     }
 
     /**

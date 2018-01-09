@@ -1,12 +1,13 @@
 package entity;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by lenovo on 2017/6/16.
  */
-public class ShadeGroup {
+public class ShadeGroup implements Serializable{
 
     private Integer id;
 

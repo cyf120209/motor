@@ -19,4 +19,7 @@ public class Common {
     public static final int DEVICE_VERSION_SAME=1;
     public static final int DEVICE_VERSION_DEFFER=-1;
 
+    public static final String HOST_IP="127.0.0.1";
+    public static final String RMI_PORT="12312";
+
 }

@@ -15,12 +15,6 @@ public class Device implements Serializable {
 
     private String deviceName;
 
-    private Integer devicePosition;
-
-    private Integer devicePriority;
-
-    private String deviceStatus;
-
     private String mac;
 
     private String modelName;
@@ -45,14 +39,6 @@ public class Device implements Serializable {
         this.version=version;
     }
 
-    public Device(Integer deviceId, String deviceName, Integer devicePosition, Integer devicePriority, String deviceStatus) {
-        this.deviceId = deviceId;
-        this.deviceName = deviceName;
-        this.devicePosition = devicePosition;
-        this.devicePriority = devicePriority;
-        this.deviceStatus = deviceStatus;
-    }
-
     public Integer getId() {
         return id;
     }
@@ -75,30 +61,6 @@ public class Device implements Serializable {
 
     public void setDeviceName(String deviceName) {
         this.deviceName = deviceName;
-    }
-
-    public Integer getDevicePosition() {
-        return devicePosition;
-    }
-
-    public void setDevicePosition(Integer devicePosition) {
-        this.devicePosition = devicePosition;
-    }
-
-    public Integer getDevicePriority() {
-        return devicePriority;
-    }
-
-    public void setDevicePriority(Integer devicePriority) {
-        this.devicePriority = devicePriority;
-    }
-
-    public String getDeviceStatus() {
-        return deviceStatus;
-    }
-
-    public void setDeviceStatus(String deviceStatus) {
-        this.deviceStatus = deviceStatus;
     }
 
     public List<ShadeGroup> getShadeGroups() {

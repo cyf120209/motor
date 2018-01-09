@@ -25,7 +25,6 @@ public class DataBasePresenterImpl {
             Device device = devices.get(i);
             data[i][0]= device.getId();
             data[i][1]= device.getDeviceName();
-            data[i][2]= device.getDeviceStatus();
         }
         mDataBaseView.refresh(data);
     }

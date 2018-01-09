@@ -82,7 +82,7 @@ public class TestMyBatis {
 //        } finally {
 //            session.close();
 //        }
-        Device device = new Device(60001, "60001", 0, 0, "0");
+        Device device = new Device(60001, "60001", "", "", "0");
         DeviceDao shadeDao = new DeviceDao();
         shadeDao.insert(device);
     }
@@ -92,7 +92,6 @@ public class TestMyBatis {
         try {
             DeviceMapper deviceMapper = session.getMapper(DeviceMapper.class);
             Device device = deviceMapper.selectByDeviceId(10001);
-            device.setDevicePosition(100);
             deviceMapper.update(device);
             session.commit();
         } finally {
@@ -107,7 +106,6 @@ public class TestMyBatis {
             Device device = deviceMapper.selectByDeviceId(10001);
 //            Device device = (Device) session.selectOne("entity.ShadeShade.selectByID", 1);
             System.out.println(device.getDeviceId());
-            System.out.println(device.getDevicePosition());
         } finally {
             session.close();
         }

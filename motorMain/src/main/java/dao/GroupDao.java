@@ -6,6 +6,7 @@ import mapper.GroupMapper;
 import org.apache.ibatis.session.SqlSession;
 import util.MyBatisUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,12 +16,14 @@ public class GroupDao implements GroupMapper {
     @Override
     public List<ShadeGroup> queryAll() {
         SqlSession session = MyBatisUtils.getSession();
+        List<ShadeGroup> shadeGroupList=new ArrayList<>();
         try {
             GroupMapper mapper = session.getMapper(GroupMapper.class);
-            return mapper.queryAll();
+            shadeGroupList.addAll( mapper.queryAll());
         } finally {
             session.close();
         }
+        return shadeGroupList;
     }
 
     @Override

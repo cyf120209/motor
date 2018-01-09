@@ -23,7 +23,7 @@
     </select>
 
     <select id="selectByGroupId" parameterType="int" resultMap="groupMap">
-        SELECT * FROM shadegroup WHERE g.id=#{id}
+        SELECT * FROM shadegroup WHERE id=#{id}
     </select>
 
     <select id="selectByGroupOther" parameterType="entity.ShadeGroup" resultType="entity.ShadeGroup">
