@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,6 +61,7 @@ abstract public class MstpNode implements Runnable {
     private OutputStream out;
     private InputStream in;
     private final byte[] readArray = new byte[512];
+//    private final byte[] readArray = new byte[56];
     private int readCount;
     private final Frame sendFrame = new Frame();
     private final HeaderCRC sendHeaderCRC = new HeaderCRC();
@@ -274,10 +276,12 @@ abstract public class MstpNode implements Runnable {
     private void readInputStream() {
         try {
             if (in.available() > 0) {
+//                readCount = in.read(readArray);
                 readCount = in.read(readArray);
 //                System.out.println("readArray "+readArray.length+"readCount "+readCount);
                 if (DEBUG)
                     debug("in: " + StreamUtils.dumpArrayHex(readArray, 0, readCount));
+//                debug("in: " + StreamUtils.dumpArrayHex(readArray, 0, readCount));
                 inputBuffer.push(readArray, 0, readCount);
                 eventCount += readCount;
                 noise();
@@ -527,22 +531,26 @@ abstract public class MstpNode implements Runnable {
             if (DEBUG)
                 debug("out: " + frame);
             //LOG.fine("writing frame: " + frame);
+//            debug("out: " + frame);
 
             ByteBuilder byteBuffer = new ByteBuilder();
             // Preamble
-            out.write(0x55);
-            out.write(0xFF);
+            if(serialParams!=null){
+                out.write(0x55);
+                out.write(0xFF);
+            }
             byteBuffer.append((byte) 0x55);
             byteBuffer.append((byte)0xFF);
 
             // Header
-            out.write(frame.getFrameType().id & 0xff);
-            out.write(frame.getDestinationAddress() & 0xff);
-            out.write(frame.getSourceAddress() & 0xff);
-            out.write((frame.getLength() >> 8) & 0xff);
-            out.write(frame.getLength() & 0xff);
-            out.write((byte)sendHeaderCRC.getCrc(frame));
-
+            if(serialParams!=null){
+                out.write(frame.getFrameType().id & 0xff);
+                out.write(frame.getDestinationAddress() & 0xff);
+                out.write(frame.getSourceAddress() & 0xff);
+                out.write((frame.getLength() >> 8) & 0xff);
+                out.write(frame.getLength() & 0xff);
+                out.write((byte)sendHeaderCRC.getCrc(frame));
+            }
             byteBuffer.append((byte)(frame.getFrameType().id & 0xff));
             byteBuffer.append((byte)(frame.getDestinationAddress() & 0xff));
             byteBuffer.append((byte)(frame.getSourceAddress() & 0xff));
@@ -552,25 +560,28 @@ abstract public class MstpNode implements Runnable {
 
             if (frame.getLength() > 0) {
                 // Data
-                out.write(frame.getData());
+                if(serialParams!=null){
+                    out.write(frame.getData());
+                }
                 byte[] data = frame.getData();
                 for (byte b:data){
                     byteBuffer.append(b);
                 }
 
                 int crc = sendDataCRC.getCrc(frame);
-                out.write(crc & 0xff);
-                out.write((crc >> 8) & 0xff);
-
+                if(serialParams!=null){
+                    out.write(crc & 0xff);
+                    out.write((crc >> 8) & 0xff);
+                }
                 byteBuffer.append((byte)( crc & 0xff));
                 byteBuffer.append((byte) ((crc >> 8) & 0xff));
-
-                byte[] bytes = byteBuffer.toArrays();
-                String s = Byte2IntUtils.bytesToHexString(bytes);
-//                System.out.println("MstpNode bytes" + bytes.length);
             }
-
+            byte[] bytes = byteBuffer.toArrays();
+            String s = Byte2IntUtils.bytesToHexString(bytes);
+//                System.out.println("MstpNode bytes" + bytes.length);
+            out.write(bytes);
             out.flush();
+
         }
         catch (IOException e) {
             // Only write the same error message once. Prevents logs from getting filled up unnecessarily with repeated

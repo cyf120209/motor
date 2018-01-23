@@ -11,5 +11,14 @@
 
     <artifactId>lib</artifactId>
 
+    <!--<dependencies>-->
+        <!--<dependency>-->
+            <!--<groupId>com.pi4j</groupId>-->
+            <!--<artifactId>pi4j-core</artifactId>-->
+            <!--<version>1.0</version>-->
+            <!--<scope>system</scope>-->
+            <!--<systemPath>${project.basedir}/libs/pi4j-core.jar</systemPath>-->
+        <!--</dependency>-->
+    <!--</dependencies>-->
 
 </project>

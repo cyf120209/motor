@@ -32,5 +32,6 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-core:2.5.4" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-web:2.5.4" level="project" />
     <orderEntry type="library" name="Maven: javax.servlet:servlet-api:2.4" level="project" />
+    <orderEntry type="library" name="pi4j-core" level="project" />
   </component>
 </module>

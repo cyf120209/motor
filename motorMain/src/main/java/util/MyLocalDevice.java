@@ -1,5 +1,6 @@
 package util;
 
+import com.pi4j.io.spi.SpiDevice;
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.exception.BACnetException;
@@ -7,6 +8,8 @@ import com.serotonin.bacnet4j.npdu.ip.IpNetwork;
 import com.serotonin.bacnet4j.npdu.mstp.Frame;
 import com.serotonin.bacnet4j.npdu.mstp.MasterNode;
 import com.serotonin.bacnet4j.npdu.mstp.MstpNetwork;
+import com.serotonin.bacnet4j.npdu.uart.Spi2Uart;
+import com.serotonin.bacnet4j.npdu.uart.UART;
 import com.serotonin.bacnet4j.service.VendorServiceKey;
 import com.serotonin.bacnet4j.service.acknowledgement.ConfirmedPrivateTransferAck;
 import com.serotonin.bacnet4j.service.confirmed.ConfirmedPrivateTransferRequest;
@@ -64,16 +67,27 @@ public class MyLocalDevice {
         if(localDevice==null){
             synchronized (LocalDevice.class){
                 if(localDevice==null){
-                    serialParams.setCommPortId(prot);
-                    serialParams.setBaudRate(Common.BAUDRATE);
-                    node = new MasterNode(serialParams, (byte) 2,2);
-                    network = new MstpNetwork(node);
-                    transport = new Transport(network);
+                    //串口
+//                    serialParams.setCommPortId(prot);
+//                    serialParams.setBaudRate(Common.BAUDRATE);
+//                    node = new MasterNode(serialParams, (byte) 2,2);
+//                    network = new MstpNetwork(node);
+//                    transport = new Transport(network);
+
+                    //IP
 //                    IpNetwork network = new IpNetwork("192.168.20.63");
 //                    Transport transport = new Transport(network);
 //                    transport.setTimeout(15000);
 //                    transport.setSegTimeout(15000);
+
+                    //UART
+                    Spi2Uart spi2Uart = new Spi2Uart(SpiDevice.DEFAULT_SPI_SPEED_100k, UART.BAUDRATE_38400);
+                    node=new MasterNode(spi2Uart.getUartInputStream(),spi2Uart.getUartOutputStream(),(byte) 2,2);
+                    network = new MstpNetwork(node);
+                    transport = new Transport(network);
+
                     localDevice = new LocalDevice(900, 900900, transport);
+
                     ////路由功能
 //                    ipnetwork=new IpNetwork();
 //                    iptransport = new Transport(ipnetwork);

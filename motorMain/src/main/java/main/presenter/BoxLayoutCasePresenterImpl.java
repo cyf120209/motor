@@ -146,6 +146,11 @@ public class BoxLayoutCasePresenterImpl implements BoxLayoutCasePresenter {
 
     @Override
     public void cmdTestbt() {
+//        try {
+//            localDevice.sendGlobalBroadcast(new WhoIsRequest());
+//        } catch (BACnetException e) {
+//            e.printStackTrace();
+//        }
         try {
             Draper.sendCmd( Integer.parseInt(mBoxLayoutView.getCmdTextEdit()));
         } catch (Exception e1) {

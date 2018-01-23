@@ -14,7 +14,7 @@ public class HelloClient {
 
     public static void main(String[] args) {
         try {
-            HelloInterface hello = (HelloInterface)Naming.lookup("Hello");
+            HelloInterface hello = (HelloInterface)Naming.lookup("hello");
             User user = hello.getUser();
             System.out.println(user.getName());
             User user1=hello.setUser("cyf");
