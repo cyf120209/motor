@@ -22,4 +22,11 @@ public class Common {
     public static final String HOST_IP="127.0.0.1";
     public static final String RMI_PORT="12312";
 
+    public static final String STEP_1_START="步骤1开始";
+    public static final String STEP_1_END="步骤1完成";
+    public static final String STEP_2_START="步骤2开始";
+    public static final String STEP_2_END="步骤2完成";
+    public static final String STEP_3_START="步骤3开始";
+    public static final String STEP_3_END="步骤3完成";
+
 }

@@ -53,6 +53,8 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
 
     private JButton exit=new JButton("退出");
 
+    public JComboBox commType=new JComboBox();
+
     public BoxLayoutCase() throws HeadlessException {
         mBoxLayoutCasePresenter = new BoxLayoutCasePresenterImpl(this);
         setTitle("BoxLayout");
@@ -61,18 +63,15 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
         setLocationRelativeTo(this);
 
         setLayout(null);
-        setUndecorated(true);
         //总在最前面
 //        setAlwaysOnTop(true);
         //不能改变大小
         setResizable(false);
         //最大化
 //        setExtendedState(JFrame.MAXIMIZED_BOTH);
-        //不要边框
-        setUndecorated(true);
 
         //不要边框 需放置在组件添加之前，否则不生效
-        setUndecorated(true);
+//        setUndecorated(true);
 
         // 把背景图片显示在一个标签里面
         JLabel label = new JLabel(StyleUtils.getFormBg());
@@ -109,6 +108,9 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
 
         exit.setBounds(this.getWidth()-60-5, 5, 60, 20);
 
+        commType.setBounds(10,55,150, Common.HEIGHT);
+
+
         StyleUtils.setBtnBg(startstopbt);
         StyleUtils.setBtnBg(groupOperation);
         StyleUtils.setBtnBg(update);
@@ -122,7 +124,6 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
         StyleUtils.setBtnBg(cmdTestOneBT);
         StyleUtils.setBtnBg(limitsSetting);
         StyleUtils.setBtnBg(exit);
-
 
         add(cmdTextEdit);
 
@@ -151,6 +152,7 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
 
         add(exit);
 
+        add(commType);
 
         startstopbt.addActionListener(this);
         upComBox.addActionListener(this);
@@ -173,6 +175,13 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
 
         addWindowListener(new MyWindowEventHandle());
         listPort();
+        listCommType();
+    }
+
+    private void listCommType() {
+        commType.addItem("MSTP");
+        commType.addItem("IP");
+        commType.addItem("UART");
     }
 
     @Override
@@ -261,6 +270,11 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
     @Override
     public String getComBoxSelectedItem() {
         return (String)comBox.getSelectedItem();
+    }
+
+    @Override
+    public String getCommType() {
+        return (String)commType.getSelectedItem();
     }
 
     @Override

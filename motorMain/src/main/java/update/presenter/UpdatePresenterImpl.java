@@ -463,10 +463,12 @@ public class UpdatePresenterImpl implements UpdatePresenter {
             initUpdate();
             Send send = new Send(this, updateListener, mUpdateView);
             send.send(new WhoIsRequest());
+            mUpdateView.showUpgradeInformation(Common.STEP_1_START);
             mUpdateView.showUpgradeInformation("search the device for upgrade");
             synchronized (lockOrigin) {
                 lockOrigin.wait();
             }
+            mUpdateView.showUpgradeInformation(Common.STEP_1_END);
             if (originDeviceFlag == Common.DEVICE_UPDATE_EXIT) {
                 mUpdateView.showUpgradeInformation("exit！");
                 return;
@@ -480,6 +482,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
             count = 0;
             isSendCompleted = false;
             mUpdateView.updateProgress(0);
+            mUpdateView.showUpgradeInformation(Common.STEP_2_START);
             new Thread(new UpdatePresenterImpl.RunUpdateToOne(framefile, localDevice, (mUpdateView.getdevBoxSelectedItem()))).start();
 
         } catch (InterruptedException e) {
@@ -514,6 +517,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                     lockBefore.wait();
                 }
 //                }
+                mUpdateView.showUpgradeInformation(Common.STEP_2_END);
                 if (originDeviceFlag == Common.DEVICE_UPDATE_EXIT) {
                     mUpdateView.showUpgradeInformation("exit！");
                     return;
@@ -545,6 +549,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                     mUpdateView.showUpgradeInformation("upgrade cancel");
                     return;
                 }
+                mUpdateView.showUpgradeInformation(Common.STEP_3_START);
                 mUpdateView.showUpgradeInformation("begin to upgrade");
                 FileInputStream fi = new FileInputStream(updateFile);
                 byte[] buffer = new byte[(int) updateFile.length()];
@@ -619,11 +624,12 @@ public class UpdatePresenterImpl implements UpdatePresenter {
             initUpdate();
             Send send = new Send(this, updateListener, mUpdateView);
             send.send(new WhoIsRequest());
+            mUpdateView.showUpgradeInformation(Common.STEP_1_START);
             mUpdateView.showUpgradeInformation("search the device for upgrade");
             synchronized (lockOrigin) {
                 lockOrigin.wait();
             }
-            //mUpdateView.showUpgradeInformation("第一阶段成功");
+            mUpdateView.showUpgradeInformation(Common.STEP_1_END);
             if (originDeviceFlag == Common.DEVICE_UPDATE_EXIT) {
                 mUpdateView.showUpgradeInformation("exit！");
                 return;
@@ -637,6 +643,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
             count = 0;
             isSendCompleted = false;
             mUpdateView.updateProgress(0);
+            mUpdateView.showUpgradeInformation(Common.STEP_2_START);
             new Thread(new UpdatePresenterImpl.RunUpdate(framefile, localDevice)).start();
 
         } catch (Exception e1) {
@@ -667,7 +674,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                 synchronized (lockBefore) {
                     lockBefore.wait();
                 }
-                //mUpdateView.showUpgradeInformation("第二阶段成功");
+                mUpdateView.showUpgradeInformation(Common.STEP_2_END);
                 if (originDeviceFlag == Common.DEVICE_UPDATE_EXIT) {
                     mUpdateView.showUpgradeInformation("exit！");
                     return;
@@ -701,7 +708,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                     mUpdateView.showUpgradeInformation("upgrade cancel");
                     return;
                 }
-
+                mUpdateView.showUpgradeInformation(Common.STEP_3_START);
                 mUpdateView.showUpgradeInformation("begin to upgrade");
                 FileInputStream fi = new FileInputStream(updateFile);
                 byte[] buffer = new byte[(int) updateFile.length()];

@@ -31,6 +31,8 @@ public class UpdateListener extends DeviceEventAdapter {
     UpdateView mUpdateView;
     boolean isFirst = true;
 
+    boolean Debug=false;
+
     /**
      * 记录原始设备的个数，若和sourceAddress相等，则说明找全设备
      */
@@ -55,10 +57,14 @@ public class UpdateListener extends DeviceEventAdapter {
             return;
         }
         remoteDeviceIDList.add(id);
-        mUpdateView.showUpgradeInformation("IDList.size" + remoteDeviceIDList.size() + "flag:" + mUpdatePresenter.getFlag());
+        if(Debug){
+            mUpdateView.showUpgradeInformation("IDList.size" + remoteDeviceIDList.size() + "flag:" + mUpdatePresenter.getFlag());
+        }
         if (listener != null && remoteDeviceIDList.size() == MyLocalDevice.getAddressList().size()) {
             listener.received();
-            mUpdateView.showUpgradeInformation("who is 找齐 " + mUpdatePresenter.getFlag());
+            if(Debug){
+                mUpdateView.showUpgradeInformation("who is 找齐 " + mUpdatePresenter.getFlag());
+            }
         }
 
         //更新升级列表

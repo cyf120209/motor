@@ -27,7 +27,7 @@ public class DatabaseManager {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                new DatabaseManager().updateDatabase();
+//                new DatabaseManager().updateDatabase();
             }
         }).start();
     }

@@ -30,6 +30,7 @@ import org.free.bacnet4j.util.SerialPortException;
 import rx.*;
 
 import javax.swing.*;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -37,7 +38,7 @@ import java.util.*;
  */
 public class MyLocalDevice {
 
-    public static SerialParameters serialParams=new SerialParameters();
+    public static SerialParameters serialParams = new SerialParameters();
     private static LocalDevice localDevice;
 
     public static IpNetwork ipnetwork;
@@ -56,52 +57,64 @@ public class MyLocalDevice {
 
     private static MasterNode node;
     private static Transport transport;
-//    private static LocalDevice ipLocalDevice;
+    //    private static LocalDevice ipLocalDevice;
     public static RemoteUtils mRemoteUtils;
 
-    public static LocalDevice getInstance(){
+    public static LocalDevice getInstance() {
         return localDevice;
     }
 
-    public static LocalDevice getInstance(String prot) throws Exception {
-        if(localDevice==null){
-            synchronized (LocalDevice.class){
-                if(localDevice==null){
-                    //串口
-//                    serialParams.setCommPortId(prot);
-//                    serialParams.setBaudRate(Common.BAUDRATE);
-//                    node = new MasterNode(serialParams, (byte) 2,2);
-//                    network = new MstpNetwork(node);
-//                    transport = new Transport(network);
-
-                    //IP
-//                    IpNetwork network = new IpNetwork("192.168.20.63");
-//                    Transport transport = new Transport(network);
-//                    transport.setTimeout(15000);
-//                    transport.setSegTimeout(15000);
-
-                    //UART
-                    Spi2Uart spi2Uart = new Spi2Uart(SpiDevice.DEFAULT_SPI_SPEED_100k, UART.BAUDRATE_38400);
-                    node=new MasterNode(spi2Uart.getUartInputStream(),spi2Uart.getUartOutputStream(),(byte) 2,2);
-                    network = new MstpNetwork(node);
-                    transport = new Transport(network);
-
+    public static LocalDevice getInstance(String type, String prot) throws Exception {
+        if (localDevice == null) {
+            synchronized (LocalDevice.class) {
+                if (localDevice == null) {
+                    if (type.equals("MSTP")) {
+                        initMSTP(prot);
+                    } else if (type.equals("IP")) {
+                        initIP();
+                    } else if (type.equals("UART")) {
+                        initUART();
+                    }
                     localDevice = new LocalDevice(900, 900900, transport);
-
-                    ////路由功能
-//                    ipnetwork=new IpNetwork();
-//                    iptransport = new Transport(ipnetwork);
-//                    ipLocalDevice = new LocalDevice(901, 900912, iptransport);
-//                    ipnetwork.peerNet=network;
-//                    network.peerNet=ipnetwork;
-//                    network.enableRouter=true;
-//                    ipnetwork.enableRouter=true;
                     mRemoteUtils = new RemoteUtils();
                     init();
                 }
             }
         }
         return localDevice;
+    }
+
+    /**
+     * UART
+     * @throws IOException
+     */
+    private static void initUART() throws IOException {
+        Spi2Uart spi2Uart = new Spi2Uart(SpiDevice.DEFAULT_SPI_SPEED_100k, UART.BAUDRATE_38400);
+        node = new MasterNode(spi2Uart.getUartInputStream(), spi2Uart.getUartOutputStream(), (byte) 2, 2);
+        network = new MstpNetwork(node);
+        transport = new Transport(network);
+    }
+
+    /**
+     * IP
+     */
+    private static void initIP() {
+        IpNetwork network = new IpNetwork("192.168.20.63");
+        transport = new Transport(network);
+        transport.setTimeout(15000);
+        transport.setSegTimeout(15000);
+    }
+
+    /**
+     * 串口 MSTP
+     * @param prot
+     */
+    private static void initMSTP(String prot) {
+        serialParams.setCommPortId(prot);
+        serialParams.setBaudRate(Common.BAUDRATE);
+        node = new MasterNode(serialParams, (byte) 2, 2);
+        network = new MstpNetwork(node);
+        transport = new Transport(network);
     }
 
     private static void init() throws Exception {
@@ -112,7 +125,7 @@ public class MyLocalDevice {
         elements2.add(new SequenceDefinition.ElementSpecification(Draper.GET_FRIMEBLOCK_BLOCK_SZIE, UnsignedInteger.class, false, false));
         SequenceDefinition def2 = new SequenceDefinition(elements2);
         ConfirmedPrivateTransferRequest.vendorServiceResolutions.put(new VendorServiceKey(new UnsignedInteger(900),
-                new UnsignedInteger(Draper.GETFRAME_CONF_SERSUM)),def2);
+                new UnsignedInteger(Draper.GETFRAME_CONF_SERSUM)), def2);
         //电机，设备，组的关系
         List<SequenceDefinition.ElementSpecification> elements3 = new ArrayList<SequenceDefinition.ElementSpecification>();
         elements3.add(new SequenceDefinition.ElementSpecification("draperID", ObjectIdentifier.class, false, false));
@@ -152,7 +165,7 @@ public class MyLocalDevice {
         }
     }
 
-    public static void stop(){
+    public static void stop() {
         if (localDevice != null) {
             localDevice.terminate();
             localDevice = null;
@@ -162,16 +175,18 @@ public class MyLocalDevice {
 
     /**
      * 判断设备是否已添加
+     *
      * @param remoteDevice
      * @return
      */
-    public static boolean isExist(RemoteDevice remoteDevice){
+    public static boolean isExist(RemoteDevice remoteDevice) {
         return mRemoteUtils.isExist(remoteDevice);
 //        return mRemoteDeviceList.contains(remoteDevice);
     }
 
     /**
      * 添加远程设备
+     *
      * @param remoteDevice
      */
     public static void addRemoteDevice(RemoteDevice remoteDevice) throws BACnetException {
@@ -184,6 +199,7 @@ public class MyLocalDevice {
 
     /**
      * 添加远程设备
+     *
      * @param remoteDevice
      */
     public static void updateRemoteDevice(RemoteDevice remoteDevice) throws BACnetException {
@@ -197,7 +213,7 @@ public class MyLocalDevice {
     /**
      * 清空 mRemoteDeviceList,mRemoteDevice
      */
-    public static void clearRemoteDevice(){
+    public static void clearRemoteDevice() {
         mRemoteUtils.clearRemoteDevice();
 //        mRemoteDeviceList.clear();
 //        mRemoteDevice.clear();
@@ -205,10 +221,11 @@ public class MyLocalDevice {
 
     /**
      * 获取远程设备列表
+     *
      * @return
      */
     public static List<RemoteDevice> getRemoteDeviceList() {
-        if(mRemoteUtils==null){
+        if (mRemoteUtils == null) {
             return new ArrayList<>();
         }
         return mRemoteUtils.getRemoteDeviceList();
@@ -217,6 +234,7 @@ public class MyLocalDevice {
 
     /**
      * 获取deviceID，device的关系列表
+     *
      * @return
      */
     public static Map<Integer, RemoteDevice> getRemoteDeviceMap() {
@@ -226,18 +244,20 @@ public class MyLocalDevice {
 
     /**
      * 获取设备，组，电机的关系
+     *
      * @return
      */
     public static Map<Integer, Map<Integer, List<Integer>>> getRelationMap() {
-        if(mRemoteUtils==null){
+        if (mRemoteUtils == null) {
             return new HashMap<>();
-        }else {
+        } else {
             return mRemoteUtils.getRelationMap();
         }
     }
 
     /**
      * 设置设备，组，电机的关系
+     *
      * @param map
      */
     public static void setRelationMap(Map<Integer, Map<Integer, List<Integer>>> map) {
@@ -246,18 +266,20 @@ public class MyLocalDevice {
 
     /**
      * 获取升级进度
+     *
      * @return
      */
-    public static List<Frame> getFrameToSend(){
+    public static List<Frame> getFrameToSend() {
         return node.getFramesToSend();
     }
 
-    public static List<Byte> getAddressList(){
+    public static List<Byte> getAddressList() {
         return node.getAddressList();
     }
 
     /**
      * 获取设备的属性，如：modelName，firmwireversion
+     *
      * @param d
      * @throws BACnetException
      */

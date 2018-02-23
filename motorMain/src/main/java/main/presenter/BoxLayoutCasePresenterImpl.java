@@ -66,7 +66,7 @@ public class BoxLayoutCasePresenterImpl implements BoxLayoutCasePresenter {
 
     private void BACnetStart(String port) throws Exception {
         MstpNode.DEBUG = false;
-        localDevice = MyLocalDevice.getInstance(port);
+        localDevice = MyLocalDevice.getInstance(mBoxLayoutView.getCommType(),port);
 //        java.util.List<SequenceDefinition.ElementSpecification> elements2 = new ArrayList<SequenceDefinition.ElementSpecification>();
 //        elements2.add(new SequenceDefinition.ElementSpecification(Draper.GET_FRIMEBLOCK_PRODUCT_MODE_NAME, CharacterString.class, false, false));
 //        elements2.add(new SequenceDefinition.ElementSpecification(Draper.GET_FRIMEBLOCK_START_OFFSET, UnsignedInteger.class, false, false));
