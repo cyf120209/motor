@@ -579,7 +579,9 @@ abstract public class MstpNode implements Runnable {
             byte[] bytes = byteBuffer.toArrays();
             String s = Byte2IntUtils.bytesToHexString(bytes);
 //                System.out.println("MstpNode bytes" + bytes.length);
-            out.write(bytes);
+            if(serialParams==null){
+                out.write(bytes);
+            }
             out.flush();
 
         }

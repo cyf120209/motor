@@ -101,7 +101,7 @@ public class Update extends JFrame implements UpdateView, ActionListener {
         choosebt2.setBounds(new Rectangle(10, 25, 50, 20));
         updateToSelectButton.setBounds(340, 50, 130, 20);
         updateButton.setBounds(470, 50, 130, 20);
-        jfDelay.setBounds(580, 50, 80, 20);
+        jfDelay.setBounds(600, 50, 80, 20);
 
         devBox.setBounds(10, 150, 300, 20);
 
