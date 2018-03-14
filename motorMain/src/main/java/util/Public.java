@@ -32,7 +32,7 @@ public class Public {
         //2.将字符串和正则表达式相关联
         Matcher matcher = pattern.matcher(str);
         //3.String 对象中的matches 方法就是通过这个Matcher和pattern来实现的。
-        System.out.println(matcher.matches());
+//        System.out.println(matcher.matches());
 //        String group = "";
         //查找符合规则的子串
         while (matcher.find()) {

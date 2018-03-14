@@ -74,7 +74,7 @@ public class UpdateListener extends DeviceEventAdapter {
                 //若flag为升级后 的状态，则更新Mylocaldevice
                 if (mUpdatePresenter.getFlag() == 3) {
                     try {
-                        String reg = Public.getAllString(mUpdatePresenter.getFirmWareType(), "[A-za-z-]");
+                        String reg = Public.getAllString(mUpdatePresenter.getFirmWareType(), "[A-za-z0-9-]");
                         if (Public.matchString(Public.readModelName(d), reg)) {
                             mUpdateView.updateDevBox(d);
                             MyLocalDevice.updateRemoteDevice(d);
@@ -84,13 +84,13 @@ public class UpdateListener extends DeviceEventAdapter {
                         e.printStackTrace();
                     }
                 } else if (!UpdatePresenterImpl.isSingle && mUpdatePresenter.getFlag() != 3) {
-                    String reg = Public.getAllString(mUpdatePresenter.getFirmWareType(), "[A-za-z-]");
+                    String reg = Public.getAllString(mUpdatePresenter.getFirmWareType(), "[A-za-z0-9-]");
                     if (Public.matchString(Public.readModelName(d), reg)) {
                         mUpdatePresenter.addJListDevice(d);
                         //mUpdateView.showUpgradeInformation(" ----------------send to jList");
                     }
                 } else if (UpdatePresenterImpl.isSingle && mUpdatePresenter.getFlag() != 3) {
-                    String reg = Public.getAllString(mUpdatePresenter.getFirmWareType(), "[A-za-z-]");
+                    String reg = Public.getAllString(mUpdatePresenter.getFirmWareType(), "[A-za-z0-9-]");
                     if (mUpdateView.getdevBoxSelectedItem().equals(d)) {
                         if (Public.matchString(Public.readModelName(d), reg)) {
                             mUpdatePresenter.addJListDevice(d);
