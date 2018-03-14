@@ -776,7 +776,14 @@ public class UpdatePresenterImpl implements UpdatePresenter {
 //                    percent=percent+5;
                     List<Frame> frameToSend = MyLocalDevice.getFrameToSend();
                     System.out.println("UpdatePresenterImpl frameToSend.size" + frameToSend.size());
-                    percent = 100 - frameToSend.size() * 100 / mTotalSize;
+                    try{
+                        percent = 100 - frameToSend.size() * 100 / mTotalSize;
+                    }catch (Exception e1){
+                        Timer t = (Timer) e.getSource();
+                        mUpdateView.showUpgradeInformation("update error ,please update again!");
+                        isSendCompleted = true;
+                        t.stop();
+                    }
                     mUpdateView.updateProgress(percent);
                     Timer t = (Timer) e.getSource();
                     // 如果进度条达到最大值重新开发计数
