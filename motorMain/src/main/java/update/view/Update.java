@@ -2,20 +2,18 @@ package update.view;
 
 import com.serotonin.bacnet4j.RemoteDevice;
 import common.Common;
-import update.presenter.FirmWareInformation;
+import model.FirmWareInformation;
 import update.presenter.UpdatePresenter;
 import update.presenter.UpdatePresenterImpl;
 import util.*;
 
 import javax.swing.*;
-import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.util.*;
 import java.util.List;
 
@@ -131,11 +129,11 @@ public class Update extends JFrame implements UpdateView, ActionListener {
         pb.setMinimum(0);
         pb.setMaximum(100);
         pb.setBackground(Color.white);
-        pb.setForeground(Color.red);
+        pb.setForeground(Color.GREEN);
 
         draperOriginalJSP.setBounds(340, 75, 130, 390);
-        draperBeforeUpgradeJSP.setBounds(460, 75, 130, 390);
-        draperAfterUpgradeJSP.setBounds(580, 75, 130, 390);
+        draperBeforeUpgradeJSP.setBounds(470, 75, 130, 390);
+        draperAfterUpgradeJSP.setBounds(600, 75, 130, 390);
         upgradeInformationJSP.setBounds(10, 270, 300, 200);
 
         jcSinge.setBounds(500, 5, 90, 20);
@@ -189,7 +187,7 @@ public class Update extends JFrame implements UpdateView, ActionListener {
         add(draperAfterUpgradeJSP);
         add(upgradeInformationJSP);
 
-        add(jcSinge);
+//        add(jcSinge);
         add(jbAuto);
         add(jlAutoCount);
 
@@ -458,7 +456,7 @@ public class Update extends JFrame implements UpdateView, ActionListener {
                 public void run() {
                     adv.addElement(version);
                     draperAfterUpgrade.setModel(adv);
-                    if (bdv.size() == (adv.size())) {
+                    if (bdv.size() == (adv.size()+mUpdatePresenter.getAbnormalRemoteDeviceSize())) {
                         mUpdatePresenter.cancelListener();
 //                        showUpgradeInformation("delete listener");
 //                        showUpgradeInformation("upgrade successful");
@@ -510,7 +508,7 @@ public class Update extends JFrame implements UpdateView, ActionListener {
     public void showConfirmDialog(String str) {
         Object[] options = {"Confirm", "Cancel"};
         int i = JOptionPane.showOptionDialog(null, str, "Upgrade?", 0, 0, new ImageIcon(), options, 0);
-        System.out.println(i);
+//        System.out.println(i);
         if (i == JOptionPane.OK_OPTION) {
             //devBox.removeAllItems();
             mUpdatePresenter.update(false);
@@ -529,7 +527,19 @@ public class Update extends JFrame implements UpdateView, ActionListener {
         return bdv.getSize();
     }
 
-
+    @Override
+    public void updateFinish() {
+        mUpdatePresenter.cancelListener();
+//                        showUpgradeInformation("delete listener");
+//                        showUpgradeInformation("upgrade successful");
+        showUpgradeInformation(Common.STEP_3_END);
+        if (autoVersion == 1) {
+            autoVersion = 2;
+        } else if (autoVersion == 2) {
+            autoVersion = 1;
+        }
+        complete=true;
+    }
 
     private boolean isAuto = false;
     private int autoVersion = 0;

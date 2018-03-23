@@ -52,6 +52,21 @@
             <version>2.9.0</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.apache.activemq/activemq-core -->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.activemq</groupId>-->
+            <!--<artifactId>activemq-core</artifactId>-->
+            <!--<version>5.7.0</version>-->
+        <!--</dependency>-->
+
+        <!-- Add by WXB -->
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-client</artifactId>
+            <version>5.10.0</version>
+        </dependency>
+
+
 
     </dependencies>
 </project>

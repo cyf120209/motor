@@ -1,4 +1,4 @@
-package update.presenter;
+package model;
 
 /**
  * Created by lenovo on 2017/9/28.

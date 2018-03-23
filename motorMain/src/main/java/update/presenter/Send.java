@@ -14,12 +14,10 @@ public class Send {
 
     UpdateListener listener;
     UpdatePresenter updatePresenter;
-    UpdateView updateView;
     boolean isReceived = false;
 
-    public Send(UpdatePresenter updatePresenter,UpdateListener listener,UpdateView updateView) {
+    public Send(UpdatePresenter updatePresenter,UpdateListener listener) {
         this.updatePresenter=updatePresenter;
-        this.updateView=updateView;
         this.listener = listener;
     }
 

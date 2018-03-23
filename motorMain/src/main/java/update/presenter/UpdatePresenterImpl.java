@@ -6,21 +6,17 @@ import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.npdu.mstp.Frame;
 import com.serotonin.bacnet4j.service.acknowledgement.AcknowledgementService;
 import com.serotonin.bacnet4j.service.acknowledgement.ConfirmedPrivateTransferAck;
-import com.serotonin.bacnet4j.service.acknowledgement.ReadPropertyAck;
-import com.serotonin.bacnet4j.service.confirmed.ReadPropertyRequest;
 import com.serotonin.bacnet4j.service.unconfirmed.WhoIsRequest;
 import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.Address;
 import com.serotonin.bacnet4j.type.constructed.Sequence;
 import com.serotonin.bacnet4j.type.constructed.SequenceOf;
-import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
 import com.serotonin.bacnet4j.type.primitive.Primitive;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import common.Common;
 import listener.UpdateListener;
-import rx.Observable;
-import rx.functions.Func1;
+import model.FirmWareInformation;
 import util.MyLocalDevice;
 import update.view.UpdateView;
 import util.Draper;
@@ -38,8 +34,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by lenovo on 2017/1/20.
@@ -358,14 +352,14 @@ public class UpdatePresenterImpl implements UpdatePresenter {
     public void addJListDeviceOrigin(RemoteDevice device) {
         if (isSingle && device.equals(mUpdateView.getdevBoxSelectedItem())) {
             String version = Public.readVersion(device);
-            mUpdateView.showOriginalDeviceVersion(device.getInstanceNumber() + "--" + version);
             mUpdateView.showUpgradeInformation("single found device：" + device.getInstanceNumber());
+            mUpdateView.showOriginalDeviceVersion(device.getInstanceNumber() + "--" + version);
             findOriginDevice(Common.DEVICE_FOUND_ALL);
         } else {
             String version = Public.readVersion(device);
             count++;
-            mUpdateView.showOriginalDeviceVersion(device.getInstanceNumber() + "--" + version);
             mUpdateView.showUpgradeInformation("found device：" + device.getInstanceNumber() + "    " + count + "/" + MyLocalDevice.getAddressList().size());
+            mUpdateView.showOriginalDeviceVersion(device.getInstanceNumber() + "--" + version);
         }
     }
 
@@ -388,12 +382,12 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                 break;
         }
         if (isSingle && device.equals(mUpdateView.getdevBoxSelectedItem())) {
-            mUpdateView.showBeforeDeviceVersion(device.getInstanceNumber() + "--" + version);
             mUpdateView.showUpgradeInformation("single found device：" + device.getInstanceNumber() + "    1/1");
+            mUpdateView.showBeforeDeviceVersion(device.getInstanceNumber() + "--" + version);
         } else {
             count++;
-            mUpdateView.showBeforeDeviceVersion(device.getInstanceNumber() + "--" + version);
             mUpdateView.showUpgradeInformation("found device：" + device.getInstanceNumber() + "    " + count + "/" + mUpdateView.getOriginalSize());
+            mUpdateView.showBeforeDeviceVersion(device.getInstanceNumber() + "--" + version);
         }
     }
 
@@ -401,13 +395,13 @@ public class UpdatePresenterImpl implements UpdatePresenter {
     public void addJListDeviceAfter(RemoteDevice device) {
         if (isSingle) {
             String version = Public.readVersion(device);
-            mUpdateView.showAfterDeviceVersion(device.getInstanceNumber() + "--" + version);
             mUpdateView.showUpgradeInformation("single found device：" + device.getInstanceNumber() + "    1/1");
+            mUpdateView.showAfterDeviceVersion(device.getInstanceNumber() + "--" + version);
         } else {
             count++;
             String version = Public.readVersion(device);
-            mUpdateView.showAfterDeviceVersion(device.getInstanceNumber() + "--" + version);
             mUpdateView.showUpgradeInformation("found device：" + device.getInstanceNumber() + "    " + count + "/" + mUpdateView.getOriginalSize());
+            mUpdateView.showAfterDeviceVersion(device.getInstanceNumber() + "--" + version);
         }
     }
 
@@ -461,7 +455,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
         try {
             isSingle = true;
             initUpdate();
-            Send send = new Send(this, updateListener, mUpdateView);
+            Send send = new Send(this, updateListener);
             send.send(new WhoIsRequest());
             mUpdateView.showUpgradeInformation(Common.STEP_1_START);
             mUpdateView.showUpgradeInformation("search the device for upgrade");
@@ -509,7 +503,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                 //确保升级前找到所有设备，否则不升级,如果升级前找到了所以设备，则升级，否则进入等待
                 Thread.sleep(6000);
                 updateListener.clearRemoteDeviceList();
-                Send send = new Send(UpdatePresenterImpl.this, updateListener, mUpdateView);
+                Send send = new Send(UpdatePresenterImpl.this, updateListener);
                 send.send(new WhoIsRequest());
                 mUpdateView.showUpgradeInformation("search for the prepared device");
 //                if (mUpdateView.getOriginalSize() != mUpdateView.getBeforeSize()) {
@@ -517,6 +511,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                     lockBefore.wait();
                 }
 //                }
+                Thread.sleep(1000);
                 mUpdateView.showUpgradeInformation(Common.STEP_2_END);
                 if (originDeviceFlag == Common.DEVICE_UPDATE_EXIT) {
                     mUpdateView.showUpgradeInformation("exit！");
@@ -547,6 +542,12 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                 updateListener.clearRemoteDeviceList();
                 if (isCancel) {
                     mUpdateView.showUpgradeInformation("upgrade cancel");
+                    return;
+                }
+                if(mUpdateView.getBeforeSize()==getAbnormalRemoteDeviceSize()){
+                    mUpdateView.showConfirmDialog("All firmware is the latest ,update finish!");
+                    isSendCompleted = true;
+                    mUpdateView.updateFinish();
                     return;
                 }
                 mUpdateView.showUpgradeInformation(Common.STEP_3_START);
@@ -622,7 +623,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
         try {
             isSingle = false;
             initUpdate();
-            Send send = new Send(this, updateListener, mUpdateView);
+            Send send = new Send(this, updateListener);
             send.send(new WhoIsRequest());
             mUpdateView.showUpgradeInformation(Common.STEP_1_START);
             mUpdateView.showUpgradeInformation("search the device for upgrade");
@@ -668,12 +669,13 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                 mUpdateView.showUpgradeInformation("send the ready command");
                 Thread.sleep(6000);
                 updateListener.clearRemoteDeviceList();
-                Send send = new Send(UpdatePresenterImpl.this, updateListener, mUpdateView);
+                Send send = new Send(UpdatePresenterImpl.this, updateListener);
                 send.send(new WhoIsRequest());
                 mUpdateView.showUpgradeInformation("search for the prepared device");
                 synchronized (lockBefore) {
                     lockBefore.wait();
                 }
+                Thread.sleep(1000);
                 mUpdateView.showUpgradeInformation(Common.STEP_2_END);
                 if (originDeviceFlag == Common.DEVICE_UPDATE_EXIT) {
                     mUpdateView.showUpgradeInformation("exit！");
@@ -706,6 +708,12 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                 updateListener.clearRemoteDeviceList();
                 if (isCancel) {
                     mUpdateView.showUpgradeInformation("upgrade cancel");
+                    return;
+                }
+                if(mUpdateView.getBeforeSize()==getAbnormalRemoteDeviceSize()){
+                    mUpdateView.showConfirmDialog("All firmware is the latest ,update finish!");
+                    isSendCompleted = true;
+                    mUpdateView.updateFinish();
                     return;
                 }
                 mUpdateView.showUpgradeInformation(Common.STEP_3_START);
@@ -775,7 +783,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                 public void actionPerformed(ActionEvent e) {
 //                    percent=percent+5;
                     List<Frame> frameToSend = MyLocalDevice.getFrameToSend();
-                    System.out.println("UpdatePresenterImpl frameToSend.size" + frameToSend.size());
+//                    System.out.println("UpdatePresenterImpl frameToSend.size" + frameToSend.size());
                     try{
                         percent = 100 - frameToSend.size() * 100 / mTotalSize;
                     }catch (Exception e1){
@@ -784,6 +792,7 @@ public class UpdatePresenterImpl implements UpdatePresenter {
                         isSendCompleted = true;
                         t.stop();
                     }
+
                     mUpdateView.updateProgress(percent);
                     Timer t = (Timer) e.getSource();
                     // 如果进度条达到最大值重新开发计数

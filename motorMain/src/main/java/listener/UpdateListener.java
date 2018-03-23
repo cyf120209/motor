@@ -33,6 +33,8 @@ public class UpdateListener extends DeviceEventAdapter {
 
     boolean Debug=false;
 
+    boolean isFound=false;
+
     /**
      * 记录原始设备的个数，若和sourceAddress相等，则说明找全设备
      */
@@ -74,26 +76,85 @@ public class UpdateListener extends DeviceEventAdapter {
                 //若flag为升级后 的状态，则更新Mylocaldevice
                 if (mUpdatePresenter.getFlag() == 3) {
                     try {
-                        String reg = Public.getAllString(mUpdatePresenter.getFirmWareType(), "[A-za-z0-9-]");
-                        if (Public.matchString(Public.readModelName(d), reg)) {
-                            mUpdateView.updateDevBox(d);
-                            MyLocalDevice.updateRemoteDevice(d);
-                            mUpdatePresenter.addJListDevice(d);
+                        String reg = Public.getAllString(mUpdatePresenter.getFirmWareType(), "[A-za-z0-9-/]");
+                        //墙面开关
+                        if(Public.matchString(reg, "^WS-")){
+//                        mUpdateView.showUpgradeInformation("-墙面开关");
+                            String substring = reg.substring(3);
+                            String[] split = substring.split("/");
+                            boolean match=false;
+                            for (int i=0;i<split.length;i++){
+                                if(Public.matchString(Public.readModelName(d), "WS-"+split[i])){
+                                    match=true;
+                                    break;
+                                }
+                            }
+                            if(match){
+                                MyLocalDevice.updateRemoteDevice(d);
+                                mUpdatePresenter.addJListDevice(d);
+                            }
+                        }else {
+                            if (Public.matchString(Public.readModelName(d), reg)) {
+                                mUpdateView.updateDevBox(d);
+                                MyLocalDevice.updateRemoteDevice(d);
+                                mUpdatePresenter.addJListDevice(d);
+                            }
                         }
                     } catch (BACnetException e) {
                         e.printStackTrace();
                     }
                 } else if (!UpdatePresenterImpl.isSingle && mUpdatePresenter.getFlag() != 3) {
-                    String reg = Public.getAllString(mUpdatePresenter.getFirmWareType(), "[A-za-z0-9-]");
-                    if (Public.matchString(Public.readModelName(d), reg)) {
-                        mUpdatePresenter.addJListDevice(d);
-                        //mUpdateView.showUpgradeInformation(" ----------------send to jList");
+                    String reg = Public.getAllString(mUpdatePresenter.getFirmWareType(), "[A-za-z0-9-/]");
+//                    mUpdateView.showUpgradeInformation(reg);
+                    //墙面开关
+                    if(Public.matchString(reg, "^WS-")){
+//                        mUpdateView.showUpgradeInformation("-墙面开关");
+                        String substring = reg.substring(3);
+                        String[] split = substring.split("/");
+                        boolean match=false;
+                        for (int i=0;i<split.length;i++){
+                            if(Public.matchString(Public.readModelName(d), "WS-"+split[i])){
+                                match=true;
+                                break;
+                            }
+                        }
+                        if(match){
+                            isFound=true;
+                            mUpdatePresenter.addJListDevice(d);
+                        }
+                    }else {
+                        if (Public.matchString(Public.readModelName(d), reg)) {
+                            isFound=true;
+                            mUpdatePresenter.addJListDevice(d);
+                            //mUpdateView.showUpgradeInformation(" ----------------send to jList");
+                        }
                     }
                 } else if (UpdatePresenterImpl.isSingle && mUpdatePresenter.getFlag() != 3) {
-                    String reg = Public.getAllString(mUpdatePresenter.getFirmWareType(), "[A-za-z0-9-]");
+                    String reg = Public.getAllString(mUpdatePresenter.getFirmWareType(), "[A-za-z0-9-/]");
+//                    mUpdateView.showUpgradeInformation(reg);
                     if (mUpdateView.getdevBoxSelectedItem().equals(d)) {
-                        if (Public.matchString(Public.readModelName(d), reg)) {
-                            mUpdatePresenter.addJListDevice(d);
+                        //墙面开关
+                        if(Public.matchString(reg, "^WS-")){
+                        mUpdateView.showUpgradeInformation("墙面开关");
+                            String substring = reg.substring(3);
+                            String[] split = substring.split("/");
+                            boolean match=false;
+                            for (int i=0;i<split.length;i++){
+                                if(Public.matchString(Public.readModelName(d), "WS-"+split[i])){
+                                    match=true;
+                                    break;
+                                }
+                            }
+                            if(match){
+                                isFound=true;
+                                mUpdatePresenter.addJListDevice(d);
+                            }
+                        }else {
+                            mUpdateView.showUpgradeInformation("其他");
+                            if (Public.matchString(Public.readModelName(d), reg)) {
+                                isFound=true;
+                                mUpdatePresenter.addJListDevice(d);
+                            }
                         }
                     }
                 }
@@ -101,9 +162,17 @@ public class UpdateListener extends DeviceEventAdapter {
                 //判断原始数据阶段是否找全所有设备
                 if (mUpdatePresenter.getFlag() == 1) {
                     originCount++;
+//                    mUpdateView.showUpgradeInformation("总个数 "+MyLocalDevice.getAddressList().size()+"/"+originCount);
                     if (!UpdatePresenterImpl.isSingle && MyLocalDevice.getAddressList().size() == originCount) {
-                        mUpdatePresenter.findOriginDevice(Common.DEVICE_FOUND_ALL);
-                        mUpdateView.showUpgradeInformation("-----+  origin 找到所有电机");
+                        if(isFound){
+                            mUpdatePresenter.findOriginDevice(Common.DEVICE_FOUND_ALL);
+                            isFound=false;
+                        }else {
+                            mUpdateView.showConfirmDialog("no device found! upgrade exit!");
+                        }
+                        if(Debug) {
+                            mUpdateView.showUpgradeInformation("-----+  origin 找到所有电机");
+                        }
                     }
                 }
             }
@@ -132,6 +201,7 @@ public class UpdateListener extends DeviceEventAdapter {
 
     public void clearRemoteDeviceList() {
         originCount = 0;
+        isFound=false;
         this.remoteDeviceIDList.clear();
     }
 

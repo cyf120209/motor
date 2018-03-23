@@ -1,7 +1,7 @@
 package update.view;
 
 import com.serotonin.bacnet4j.RemoteDevice;
-import update.presenter.FirmWareInformation;
+import model.FirmWareInformation;
 
 import java.util.List;
 
@@ -82,4 +82,6 @@ public interface UpdateView {
      * @param version
      */
     void showUpgradeInformation(String version);
+
+    void updateFinish();
 }

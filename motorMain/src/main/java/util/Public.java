@@ -54,11 +54,11 @@ public class Public {
     public static String matchStr(String str, String regx) {
         Pattern pattern = Pattern.compile(regx);
         Matcher matcher = pattern.matcher(str);
-        System.out.println(matcher.matches());
+//        System.out.println(matcher.matches());
         String group = "";
         while (matcher.find()) {
             group = matcher.group();
-            System.out.println(matcher.start() + "--" + matcher.end());
+//            System.out.println(matcher.start() + "--" + matcher.end());
             return group;
         }
         return "";
@@ -76,7 +76,7 @@ public class Public {
         //2.将字符串和正则表达式相关联
         Matcher matcher = pattern.matcher(str);
         //3.String 对象中的matches 方法就是通过这个Matcher和pattern来实现的。
-        System.out.println(matcher.matches());
+//        System.out.println(matcher.matches());
         String group = "";
         //查找符合规则的子串
         while (matcher.find()) {
