@@ -29,4 +29,7 @@ public class Common {
     public static final String STEP_3_START="步骤3开始";
     public static final String STEP_3_END="步骤3完成";
 
+    public static final int UPGRADE_12=1;
+    public static final int UPGRADE_121=2;
+
 }

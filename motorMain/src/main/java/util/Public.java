@@ -144,4 +144,19 @@ public class Public {
             e.printStackTrace();
         }
     }
+
+    public static int crcCalcData(byte[] dataValues) {
+        int crc=0;
+        for (byte tmp : dataValues)
+            crc = calcDataCRC(tmp & 0xff, crc);
+        return crc;
+    }
+
+    private static int calcDataCRC(int dataValue, int crcValue) {
+        int crcLow = (crcValue & 0xff) ^ dataValue; /* XOR C7..C0 with D7..D0 */
+        /* Exclusive OR the terms in the table (top down) */
+        int crc = (crcValue >> 8) ^ (crcLow << 8) ^ (crcLow << 3) ^ (crcLow << 12) ^ (crcLow >> 4) ^ (crcLow & 0x0f)
+                ^ ((crcLow & 0x0f) << 7);
+        return crc & 0xffff;
+    }
 }

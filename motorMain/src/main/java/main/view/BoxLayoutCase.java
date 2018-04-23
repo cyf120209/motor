@@ -7,6 +7,7 @@ import database.view.DataBase;
 import limitsAndStops.view.LimitsAndStops;
 import main.presenter.BoxLayoutCasePresenter;
 import main.presenter.BoxLayoutCasePresenterImpl;
+import schedule.view.ScheduleView;
 import show.ShowAllDevice;
 import update.view.Update;
 import util.ComPortutils;
@@ -17,7 +18,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
-import java.net.URL;
 import java.util.LinkedList;
 
 /**
@@ -31,6 +31,7 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
     public JButton groupOperation=new JButton("groupOperation");
     public JButton update=new JButton("update");
     public JButton database=new JButton("database");
+    public JButton schedule=new JButton("schedule");
     public JButton showAllDevice=new JButton("showAllDevice");
 
     public JComboBox comBox=new JComboBox();
@@ -88,6 +89,7 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
         update.setBounds(new Rectangle(260,10,100,Common.HEIGHT));
         showAllDevice.setBounds(new Rectangle(360,10,120,Common.HEIGHT));
         database.setBounds(new Rectangle(480,10,100,Common.HEIGHT));
+        schedule.setBounds(new Rectangle(580,10,100,Common.HEIGHT));
         comBox.setBounds(10,35,150, Common.HEIGHT);
         upComBox.setBounds(170,35,100,Common.HEIGHT);
 
@@ -116,6 +118,7 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
         StyleUtils.setBtnBg(update);
         StyleUtils.setBtnBg(showAllDevice);
         StyleUtils.setBtnBg(database);
+        StyleUtils.setBtnBg(schedule);
         StyleUtils.setBtnBg(upComBox);
         StyleUtils.setBtnBg(upBt);
         StyleUtils.setBtnBg(downbt);
@@ -132,6 +135,7 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
         add(update);
         add(database);
         add(showAllDevice);
+        add(schedule);
 
         add(upBt);
         add(downbt);
@@ -158,6 +162,7 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
         upComBox.addActionListener(this);
         database.addActionListener(this);
         showAllDevice.addActionListener(this);
+        schedule.addActionListener(this);
 
         upBt.addActionListener(this);
         stopButton.addActionListener(this);
@@ -221,6 +226,10 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
             DataBase dataBase = new DataBase();
             dataBase.setLocationRelativeTo(null);
             dataBase.setVisible(true);
+        }else if( schedule.equals(e.getSource())){
+            ScheduleView schedule = new ScheduleView();
+            schedule.setLocationRelativeTo(null);
+            schedule.setVisible(true);
         }else if(showAllDevice.equals(e.getSource())){
             ShowAllDevice showAllDevice = new ShowAllDevice();
             showAllDevice.setLocationRelativeTo(null);

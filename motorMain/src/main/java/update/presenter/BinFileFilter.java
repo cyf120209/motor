@@ -16,13 +16,13 @@ public class BinFileFilter extends FileFilter {
     @Override
     public boolean accept(File f) {
         String name = f.getName();
-        return f.isDirectory() || name.toLowerCase().endsWith(".bin");
+        return f.isDirectory() || name.toLowerCase().endsWith(".zip");
 //        return name.toLowerCase().endsWith(".bin");
     }
 
     @Override
     public String getDescription() {
-        return "*.bin";
+        return "*.zip";
     }
 
 }

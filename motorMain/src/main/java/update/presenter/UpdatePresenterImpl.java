@@ -17,6 +17,7 @@ import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import common.Common;
 import listener.UpdateListener;
 import model.FirmWareInformation;
+import update.UpgradeImpl;
 import util.MyLocalDevice;
 import update.view.UpdateView;
 import util.Draper;
@@ -129,17 +130,20 @@ public class UpdatePresenterImpl implements UpdatePresenter {
         if (JFileChooser.APPROVE_OPTION == returnVal) {
             try {
                 mUpdateView.updateFileText(fDialog.getSelectedFile().getCanonicalPath());
+                UpgradeImpl upgrade = new UpgradeImpl();
+//                List<FirmWareInformation> firmWareInformationList = upgrade.chooseFirmware(fDialog.getSelectedFile().getCanonicalPath());
+//                int size = firmWareInformationList.size();
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
-            framefile1 = fDialog.getSelectedFile();
-            ReadFileTobuff(framefile1);
-            CheckFileType(framefile1);
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(framefile1.lastModified());
-            String s = sdf.format(cal.getTime());
-            mUpdateView.updateLastModify(s);
+//            framefile1 = fDialog.getSelectedFile();
+//            ReadFileTobuff(framefile1);
+//            CheckFileType(framefile1);
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+//            Calendar cal = Calendar.getInstance();
+//            cal.setTimeInMillis(framefile1.lastModified());
+//            String s = sdf.format(cal.getTime());
+//            mUpdateView.updateLastModify(s);
         }
     }
 

@@ -38,4 +38,9 @@ public class StyleUtils {
         button.setOpaque(false);//设置控件是否透明，true为不透明，false为透明
         button.setContentAreaFilled(false);//设置图片填满按钮所在的区域
     }
+
+    public static void setObject(JComponent button){
+//        button.setHorizontalTextPosition(SwingConstants.CENTER);
+        button.setOpaque(false);//设置控件是否透明，true为不透明，false为透明
+    }
 }

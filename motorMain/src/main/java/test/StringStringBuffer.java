@@ -2,7 +2,9 @@ package test;
 
 import util.Public;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by lenovo on 2017/7/14.
@@ -10,6 +12,7 @@ import java.util.HashMap;
 public class StringStringBuffer {
 
     public static void main(String[] args) {
+        String usrHome = System.getProperty("user.home");
         Boolean aBoolean = Public.matchString("dslef(A)", "(B)");
         String s1="hello";
         String s2="world";

@@ -138,6 +138,25 @@ public class Draper {
 
     }
 
+    public static void  sendIHaveFrame( String _type,int major, int minor, int patch, int type,byte[] buffer) throws Exception {
+        SequenceOf<Primitive> listParam= new SequenceOf<Primitive>();
+        int crc =0;
+        listParam.add(new CharacterString(_type));
+        listParam.add(new Unsigned16(major));
+        listParam.add(new Unsigned16(minor));
+        listParam.add(new Unsigned16(patch));
+        listParam.add(new Enumerated(type));
+        listParam.add(new UnsignedInteger(buffer.length));
+        int offset = 0;
+        int numRead = 0;
+        for (byte tmp : buffer)
+            crc = calcDataCRC(tmp & 0xff, crc);
+        Unsigned16 pramCrc=new Unsigned16(crc);
+        listParam.add(pramCrc);
+        dev.sendGlobalBroadcast(new UnconfirmedPrivateTransferRequest(vendorID,haveFrame,listParam));
+
+    }
+
     //6.1	SHADE COMMAND
     public static  void sendCmd( int cmd) throws Exception {
         SequenceOf<Primitive> listParam= new SequenceOf<Primitive>();
