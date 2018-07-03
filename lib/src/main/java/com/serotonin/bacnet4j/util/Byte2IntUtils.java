@@ -42,11 +42,29 @@ public class Byte2IntUtils {
     }
 
     /**
+     * byte转化成十六进制字符串
+     * @param b
+     * @return
+     */
+    public static String byteToHexString(byte b) {
+        String hexString = Integer.toHexString(b & 0xFF);
+        if (hexString != null) {
+            if (hexString.length() == 1) {
+                hexString = '0' + hexString;
+            }
+        }
+        return hexString.toUpperCase();
+    }
+
+    /**
      * byte数组转化成十六进制字符串
      * @param bytes
      * @return
      */
     public static String bytesToHexString(byte[] bytes) {
+        if(bytes==null || bytes.length==0){
+            return "";
+        }
         String result = "";
         for (int i = 0; i < bytes.length; i++) {
             String hexString = Integer.toHexString(bytes[i] & 0xFF);

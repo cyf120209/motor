@@ -34,7 +34,7 @@ abstract public class MstpNode implements Runnable {
     private static final byte PREAMBLE2 = (byte) 0xFF;
     private static final int MAX_FRAME_LENGTH = 501;
 
-    public static boolean DEBUG = false;
+    public static boolean DEBUG = true;
 
     private enum ReadFrameState {
         idle, preamble, header, headerCrc, data, dataCrc;
@@ -76,6 +76,12 @@ abstract public class MstpNode implements Runnable {
     private ReadFrameState state;
 
     private String lastWriteError;
+
+    private LogCallbackListener logCallbackListener;
+
+    public void setLogCallbackListener(LogCallbackListener logCallbackListener) {
+        this.logCallbackListener = logCallbackListener;
+    }
 
     public MstpNode(SerialParameters serialParams, byte thisStation) {
         this.serialParams = serialParams;
@@ -578,10 +584,21 @@ abstract public class MstpNode implements Runnable {
             }
             byte[] bytes = byteBuffer.toArrays();
             String s = Byte2IntUtils.bytesToHexString(bytes);
-//                System.out.println("MstpNode bytes" + bytes.length);
+//            if (DEBUG) {
+//                System.out.println("MstpNode bytes" + s);
+//            }
+//            System.out.println("id: "+frame.getFrameType().id+
+//                    "  src: "+ Byte2IntUtils.byteToHexString(frame.getSourceAddress())+
+//                    "  dec: "+Byte2IntUtils.byteToHexString(frame.getDestinationAddress())+
+//                    "  data: "+Byte2IntUtils.bytesToHexString(frame.getData()));
+
+            if(frame.getData()!=null && frame.getData().length>0 && logCallbackListener!=null){
+                logCallbackListener.onFrameSend(frame.copy());
+            }
             if(serialParams==null){
                 out.write(bytes);
             }
+
             out.flush();
 
         }
