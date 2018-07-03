@@ -4,33 +4,44 @@ import com.pi4j.io.spi.SpiDevice;
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.exception.BACnetException;
+import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
+import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.npdu.ip.IpNetwork;
 import com.serotonin.bacnet4j.npdu.mstp.Frame;
+import com.serotonin.bacnet4j.npdu.mstp.LogCallbackListener;
 import com.serotonin.bacnet4j.npdu.mstp.MasterNode;
 import com.serotonin.bacnet4j.npdu.mstp.MstpNetwork;
 import com.serotonin.bacnet4j.npdu.uart.Spi2Uart;
 import com.serotonin.bacnet4j.npdu.uart.UART;
+import com.serotonin.bacnet4j.obj.BACnetObject;
 import com.serotonin.bacnet4j.service.VendorServiceKey;
 import com.serotonin.bacnet4j.service.acknowledgement.ConfirmedPrivateTransferAck;
 import com.serotonin.bacnet4j.service.confirmed.ConfirmedPrivateTransferRequest;
 import com.serotonin.bacnet4j.service.unconfirmed.UnconfirmedPrivateTransferRequest;
 import com.serotonin.bacnet4j.service.unconfirmed.WhoIsRequest;
 import com.serotonin.bacnet4j.transport.Transport;
+import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.SequenceDefinition;
+import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.primitive.CharacterString;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
+import com.serotonin.bacnet4j.type.primitive.Unsigned8;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
+import com.serotonin.bacnet4j.util.Byte2IntUtils;
 import com.serotonin.bacnet4j.util.PropertyReferences;
 import com.serotonin.bacnet4j.util.RequestUtils;
 import common.Common;
+import dao.LogDao;
+import entity.Log;
 import org.free.bacnet4j.util.SerialParameters;
 import org.free.bacnet4j.util.SerialPortException;
 import rx.*;
 
 import javax.swing.*;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -77,6 +88,7 @@ public class MyLocalDevice {
                     }
                     localDevice = new LocalDevice(900, 900900, transport);
                     mRemoteUtils = new RemoteUtils();
+                    Draper.updateLocalDevice();
                     init();
                 }
             }
@@ -113,9 +125,37 @@ public class MyLocalDevice {
         serialParams.setCommPortId(prot);
         serialParams.setBaudRate(Common.BAUDRATE);
         node = new MasterNode(serialParams, (byte) 2, 2);
+        node.setLogCallbackListener(logCallbackListener);
         network = new MstpNetwork(node);
         transport = new Transport(network);
     }
+
+    private  static LogCallbackListener logCallbackListener=new LogCallbackListener() {
+        @Override
+        public void onFrameSend(final Frame frame) {
+//            if(frame.getData()!=null && frame.getData().length>0){
+//                System.out.println("---------------------id: "+frame.getFrameType().id+
+//                        "  src: "+ Byte2IntUtils.byteToHexString(frame.getSourceAddress())+
+//                        "  dec: "+Byte2IntUtils.byteToHexString(frame.getDestinationAddress())+
+//                        "  data: "+Byte2IntUtils.bytesToHexString(frame.getData()));
+//            }
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
+                    String datetime = simpleDateFormat.format(new Date());
+                    LogDao logDao = new LogDao();
+                    Log log = new Log(datetime,
+                            (int) frame.getSourceAddress(),
+                            (int) frame.getFrameType().id,
+                            (int) frame.getDestinationAddress(),
+                            "",
+                            Byte2IntUtils.bytesToHexString(frame.getData()));
+                    logDao.insert(log);
+                }
+            }).start();
+        }
+    };
 
     private static void init() throws Exception {
         //固件升级失败后回调
@@ -130,7 +170,7 @@ public class MyLocalDevice {
         List<SequenceDefinition.ElementSpecification> elements3 = new ArrayList<SequenceDefinition.ElementSpecification>();
         elements3.add(new SequenceDefinition.ElementSpecification("draperID", ObjectIdentifier.class, false, false));
         elements3.add(new SequenceDefinition.ElementSpecification("Motor Number", UnsignedInteger.class, false, false));
-        elements3.add(new SequenceDefinition.ElementSpecification("ShadeGroup", DraperSubList.class, false, false));
+        elements3.add(new SequenceDefinition.ElementSpecification("DeviceGroup", DraperSubList.class, false, false));
         SequenceDefinition def3 = new SequenceDefinition(elements3);
         UnconfirmedPrivateTransferRequest.vendorServiceResolutions.put(new VendorServiceKey(new UnsignedInteger(900),
                 new UnsignedInteger(7)), def3);
@@ -151,7 +191,7 @@ public class MyLocalDevice {
             Thread.sleep(1000);
             localDevice.sendGlobalBroadcast(localDevice.getIAm());
 //            Thread.sleep(100);
-            localDevice.sendGlobalBroadcast(new WhoIsRequest());
+//            localDevice.sendGlobalBroadcast(new WhoIsRequest());
         } catch (BACnetException e) {
             e.printStackTrace();
             if (localDevice != null) {
@@ -339,5 +379,87 @@ public class MyLocalDevice {
             refs.add(oid, PropertyIdentifier.stateText);
             refs.add(oid, PropertyIdentifier.presentValue);
         }
+    }
+
+    public static void addBacnetObject(ObjectIdentifier deviceIdentifier1){
+        try {
+            ObjectIdentifier deviceIdentifier = new ObjectIdentifier(ObjectType.multiStateInput, 8765);
+
+            BACnetObject configuration = new BACnetObject(localDevice, deviceIdentifier);
+//            configuration.setProperty(PropertyIdentifier.maxApduLengthAccepted, new UnsignedInteger(1476));
+//            configuration.setProperty(PropertyIdentifier.vendorIdentifier, new Unsigned16(987));
+//            configuration.setProperty(PropertyIdentifier.vendorName, new CharacterString(
+//                    "Blueridge Technologies, Inc."));
+//            configuration.setProperty(PropertyIdentifier.segmentationSupported, Segmentation.segmentedBoth);
+
+//            SequenceOf<ObjectIdentifier> objectList = new SequenceOf<ObjectIdentifier>();
+//            objectList.add(deviceIdentifier);
+//            configuration.setProperty(PropertyIdentifier.objectList, objectList);
+//
+//            // Set up the supported services indicators. Remove lines as services get implemented.
+//            ServicesSupported servicesSupported = new ServicesSupported();
+//            servicesSupported.setAll(true);
+//            servicesSupported.setAcknowledgeAlarm(false);
+//            servicesSupported.setGetAlarmSummary(false);
+//            servicesSupported.setGetEnrollmentSummary(false);
+//            servicesSupported.setAtomicReadFile(false);
+//            servicesSupported.setAtomicWriteFile(false);
+//            servicesSupported.setAddListElement(false);
+//            servicesSupported.setRemoveListElement(false);
+//            servicesSupported.setReadPropertyConditional(false);
+//            servicesSupported.setDeviceCommunicationControl(false);
+//            servicesSupported.setReinitializeDevice(false);
+//            servicesSupported.setVtOpen(false);
+//            servicesSupported.setVtClose(false);
+//            servicesSupported.setVtData(false);
+//            servicesSupported.setAuthenticate(false);
+//            servicesSupported.setRequestKey(false);
+//            servicesSupported.setTimeSynchronization(false);
+//            servicesSupported.setReadRange(false);
+//            servicesSupported.setUtcTimeSynchronization(false);
+//            servicesSupported.setLifeSafetyOperation(false);
+//            servicesSupported.setSubscribeCovProperty(false);
+//            servicesSupported.setGetEventInformation(false);
+//            configuration.setProperty(PropertyIdentifier.protocolServicesSupported, servicesSupported);
+//
+//            // Set up the object types supported.
+//            ObjectTypesSupported objectTypesSupported = new ObjectTypesSupported();
+//            objectTypesSupported.setAll(true);
+//            configuration.setProperty(PropertyIdentifier.protocolObjectTypesSupported, objectTypesSupported);
+
+            // Set some other required values to defaults
+//            configuration.setProperty(PropertyIdentifier.objectName, new CharacterString("BACnet cyf device"));
+//            configuration.setProperty(PropertyIdentifier.systemStatus, DeviceStatus.operational);
+//            configuration.setProperty(PropertyIdentifier.modelName, new CharacterString("BACnet4J cyf "));
+//            configuration.setProperty(PropertyIdentifier.firmwareRevision, new CharacterString("not set cyf "));
+//            configuration.setProperty(PropertyIdentifier.applicationSoftwareVersion, new CharacterString("1.0.1"));
+//            configuration.setProperty(PropertyIdentifier.protocolVersion, new UnsignedInteger(1));
+//            configuration.setProperty(PropertyIdentifier.protocolRevision, new UnsignedInteger(0));
+//            configuration.setProperty(PropertyIdentifier.databaseRevision, new UnsignedInteger(0));
+//            configuration.setProperty(PropertyIdentifier.backupAndRestoreState, new BackupState(0));
+//            configuration.setProperty(PropertyIdentifier.maxSegmentsAccepted, new UnsignedInteger(1476));
+//            configuration.setProperty(PropertyIdentifier.description,new CharacterString("cyf bacnetobject"));
+            configuration.setProperty(PropertyIdentifier.presentValue,new UnsignedInteger(2));
+            configuration.setProperty(PropertyIdentifier.numberOfStates,new UnsignedInteger(3));
+
+            SequenceOf<CharacterString> objectList = new SequenceOf<CharacterString>();
+            objectList.add(new CharacterString("la lalala la"));
+            configuration.setProperty(PropertyIdentifier.stateText,objectList);
+
+            configuration.setProperty(PropertyIdentifier.priority,new Unsigned8(3));
+
+//            configuration.setProperty(PropertyIdentifier.profile,new UnsignedInteger(12));
+
+            localDevice.addObject(configuration);
+        }
+        catch (BACnetServiceException e) {
+            // Should never happen, but wrap in an unchecked just in case.
+            throw new BACnetRuntimeException(e);
+        }
+
+//        List<BACnetObject> localObjects1 = localDevice.getLocalObjects();
+//        BACnetObject baCnetObject = localObjects1.get(0);
+//        Encodable property2 = baCnetObject.getProperty(PropertyIdentifier.priority);
+//        String s2 = property2.toString();
     }
 }

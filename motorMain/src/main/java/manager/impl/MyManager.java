@@ -1,5 +1,8 @@
 package manager.impl;
 
+import dao.LogDao;
+import entity.Log;
+
 public class MyManager {
 
     private boolean router=false;
@@ -10,5 +13,6 @@ public class MyManager {
         if(router){
             RouterManager.register();
         }
+//        SunTrackingManager.init();
     }
 }

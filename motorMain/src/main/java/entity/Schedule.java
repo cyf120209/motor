@@ -6,45 +6,46 @@ import java.util.List;
 
 public class Schedule {
 
+    private int id;
+
     private int hour;
 
     private int min;
 
     private int percent;
 
-    private List<String> week=new ArrayList<>();
+    private String weeks;
 
-    private JPanel jPanel;
+    /**
+     * 默认值为 1
+     * 1 启用
+     * 0 关闭
+     */
+    private int isEnabled;
 
-    public Schedule(int hour, int min, int percent) {
-        this(hour,min,percent,new ArrayList<String>());
+    private List<ShadeGroup> shadeGroups =new ArrayList<ShadeGroup>();
+
+    public Schedule() {
     }
 
-    public Schedule(int hour, int min, int percent, List<String> week) {
+    public Schedule(int hour, int min, int percent) {
+        this(hour,min,percent,"");
+    }
+
+    public Schedule(int hour, int min, int percent, String weeks) {
         this.hour = hour;
         this.min = min;
         this.percent = percent;
-        this.week = week;
-        initialize();
+        this.weeks = weeks;
+        this.isEnabled=1;
     }
 
-    private void initialize(){
-        jPanel=new JPanel();
-        jPanel.setOpaque(false);
-        jPanel.setBounds(0,0,100,50);
-        JLabel time=new JLabel(hour+":"+min);
-        time.setBounds(5,5,80,20);
-        JLabel per=new JLabel(""+percent);
-        per.setBounds(90,5,50,20);
-        JLabel weeks=new JLabel(getWeekString());
-        weeks.setBounds(5,5,80,20);
-        jPanel.add(time);
-        jPanel.add(per);
-        jPanel.add(weeks);
+    public int getId() {
+        return id;
     }
 
-    public JPanel getjPanel() {
-        return jPanel;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public int getHour() {
@@ -71,19 +72,27 @@ public class Schedule {
         this.percent = percent;
     }
 
-    public List<String> getWeek() {
-        return week;
+    public String getWeeks() {
+        return weeks;
     }
 
-    public void setWeek(List<String> week) {
-        this.week = week;
+    public void setWeeks(String weeks) {
+        this.weeks = weeks;
     }
 
-    public String getWeekString(){
-        String weekStr="";
-        for (String str:week){
-            weekStr+=str+" ";
-        }
-        return weekStr.trim();
+    public int getIsEnabled() {
+        return isEnabled;
+    }
+
+    public void setIsEnabled(int isEnabled) {
+        this.isEnabled = isEnabled;
+    }
+
+    public List<ShadeGroup> getShadeGroups() {
+        return shadeGroups;
+    }
+
+    public void setShadeGroups(List<ShadeGroup> shadeGroups) {
+        this.shadeGroups = shadeGroups;
     }
 }

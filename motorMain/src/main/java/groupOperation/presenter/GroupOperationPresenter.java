@@ -1,4 +1,4 @@
-package GroupOperation.presenter;
+package groupOperation.presenter;
 
 import com.serotonin.bacnet4j.type.constructed.Sequence;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;

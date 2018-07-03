@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.ScheduleMapper">    <!-- 使用sql标签可以将公共的sql提取出来复用 -->
+
+    <sql id="queryFields">
+        id , deviceId , deviceName
+    </sql>
+    <!--<select id="selectByID" parameterType="int" resultType="Shade">select-->
+        <!--<include refid="queryFields"/>-->
+        <!--from `device` where id = #{id}-->
+    <!--</select>-->
+    <resultMap id="scheduleMap" type="entity.Schedule">
+        <id property="id" column="id" />
+        <result property="hour" column="hour" />
+        <result property="min" column="min" />
+        <result property="percent" column="percent" />
+        <result property="weeks" column="weeks" />
+        <result property="isEnabled" column="isEnabled" />
+        <association property="shadeGroups" javaType="java.util.List"
+                     select="selectById" column="scheduleId">
+
+        </association>
+        <!--<collection property="shadeGroups" ofType="entity.shadeGroup">-->
+            <!--<id property="groupId" column="groupId" />-->
+            <!--&lt;!&ndash;<result property="groupId" column="groupId" />&ndash;&gt;-->
+            <!--<result property="groupName" column="groupName" />-->
+        <!--</collection>-->
+    </resultMap>
+
+    <select id="queryAll" resultMap="scheduleMap">
+        SELECT * FROM schedule
+    </select>
+
+    <select id="selectByScheduleId" parameterType="int" resultMap="scheduleMap">
+        SELECT * FROM schedule WHERE id=#{id}
+    </select>
+    
+    <select id="selectById" parameterType="int" resultType="entity.ShadeGroup">
+        SELECT * FROM schedulegrouprelation r INNER JOIN  shadegroup g on r.scheduleGroupId=g.groupId
+      WHERE r.scheduleId=#{scheduleId}
+    </select>
+
+    <insert id="insert" parameterType="entity.Schedule" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO schedule (hour,min,percent,weeks,isEnabled) values (#{hour},#{min},#{percent},#{weeks},#{isEnabled})
+    </insert>
+
+    <update id="update" parameterType="entity.Schedule" >
+        UPDATE schedule set shadeName=#{shadeName},shadePosition=#{shadePosition},shadePriority=#{shadePriority},shadeStatus=#{shadeStatus} WHERE shadeId=#{shadeId}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM schedule WHERE id=#{scheduleId}
+    </delete>
+
+    <delete id="deleteAll">
+        DELETE FROM schedule
+    </delete>
+</mapper>

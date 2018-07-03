@@ -1,6 +1,6 @@
-package GroupOperation.presenter;
+package groupOperation.presenter;
 
-import GroupOperation.view.GroupOperationView;
+import groupOperation.view.GroupOperationView;
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.type.Encodable;
@@ -8,6 +8,7 @@ import com.serotonin.bacnet4j.type.constructed.Sequence;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import listener.AnnounceListener;
+import model.DeviceGroup;
 import util.MyLocalDevice;
 import util.Draper;
 import util.DraperSubItem;
@@ -61,18 +62,19 @@ public class GroupOperationPresenterImpl implements GroupOperationPresenter {
     public GroupOperationPresenterImpl(GroupOperationView mGroupOperationView) {
         this.mGroupOperationView = mGroupOperationView;
         localDevice= MyLocalDevice.getInstance();
-        mRemoteDevices = localDevice.getRemoteDevices();
-        List<String> draperList=new ArrayList<String>();
-        for (RemoteDevice d:mRemoteDevices){
-            draperList.add(""+d.getInstanceNumber());
-        }
-        if(draperList!=null && draperList.size()>0){
-            Object[] objects = draperList.toArray();
-            String[] drapers = (String[]) draperList.toArray(new String[draperList.size()]);
-            mGroupOperationView.updateDraper(drapers);
-        }
+//        mRemoteDevices = localDevice.getRemoteDevices();
+//        List<String> draperList=new ArrayList<String>();
+//        for (RemoteDevice d:mRemoteDevices){
+//            draperList.add(""+d.getInstanceNumber());
+//        }
+//        if(draperList!=null && draperList.size()>0){
+//            Object[] objects = draperList.toArray();
+//            String[] drapers = (String[]) draperList.toArray(new String[draperList.size()]);
+//            mGroupOperationView.updateDraper(drapers);
+//        }
         announceListener = new AnnounceListener(localDevice, this, mGroupOperationView);
         localDevice.getEventHandler().addListener(announceListener);
+        AnnounceSubbutton();
     }
 
     @Override
@@ -238,34 +240,40 @@ public class GroupOperationPresenterImpl implements GroupOperationPresenter {
         if (mSequence.contains(parms)) {
             return;
         }
+        List<DeviceGroup> deviceGroupList=new ArrayList<>();
         mSequence.add(parms);
         Map<String, Encodable> values1 = parms.getValues();
         //获取draperID
         ObjectIdentifier draperID1 = (ObjectIdentifier) values1.get("draperID");
         int instanceNumber1 = draperID1.getInstanceNumber();
         //该draperID下的设备-组关系
-        DraperSubList deviceGroup1 = (DraperSubList) values1.get("ShadeGroup");
+        DraperSubList deviceGroup1 = (DraperSubList) values1.get("DeviceGroup");
         for (DraperSubItem item1 : deviceGroup1.getList()) {
             Map<Integer, List<Integer>> CdevGrpInf = null;
-            CdevGrpInf = mRelativeList.get(item1.getDevicID().getInstanceNumber());
+            int deviceId = item1.getDevicID().getInstanceNumber();
+            CdevGrpInf = mRelativeList.get(deviceId);
             if (CdevGrpInf == null) {
                 CdevGrpInf = new HashMap<Integer, List<Integer>>();
-                mRelativeList.put(item1.getDevicID().getInstanceNumber(), CdevGrpInf);
+                mRelativeList.put(deviceId, CdevGrpInf);
             }
-            if (!mDevicesIDList.contains(item1.getDevicID().getInstanceNumber())) {
-                mDevicesIDList.add(item1.getDevicID().getInstanceNumber());
+            if (!mDevicesIDList.contains(deviceId)) {
+                mDevicesIDList.add(deviceId);
             }
             List<Integer> devList = null;
-            devList = CdevGrpInf.get(item1.getGroupID().intValue());
+            int groupId = item1.getGroupID().intValue();
+            devList = CdevGrpInf.get(groupId);
             if (devList == null) {
                 devList = new LinkedList<Integer>();
-                CdevGrpInf.put(item1.getGroupID().intValue(), devList);
+                CdevGrpInf.put(groupId, devList);
             }
             if (!devList.contains(instanceNumber1)) {
                 devList.add(instanceNumber1);
             }
+            deviceGroupList.add(new DeviceGroup(deviceId,groupId));
         }
         MyLocalDevice.mRemoteUtils.setRelationMap(mRelativeList);
+        MyLocalDevice.mRemoteUtils.setDeviceGroupList(deviceGroupList);
+        mGroupOperationView.updateExistedGroup(mDevicesIDList.toArray());
         mGroupOperationView.updateDevice(mDevicesIDList.toArray());
     }
 }

@@ -1,8 +1,6 @@
-package GroupOperation.view;
+package groupOperation.view;
 
-import com.serotonin.bacnet4j.RemoteDevice;
-
-import java.util.List;
+import model.DeviceGroup;
 
 /**
  * Created by lenovo on 2017/1/19.
@@ -22,4 +20,8 @@ public interface GroupOperationView {
     void updateDevice(Object[] arr);
 
     void updateGroup(Object[] arr);
+
+    void updateExistedGroup(Object[] arr);
+
+    DeviceGroup getDeviceGroup();
 }

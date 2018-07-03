@@ -5,6 +5,7 @@ import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.service.acknowledgement.ReadPropertyAck;
 import com.serotonin.bacnet4j.service.confirmed.ReadPropertyRequest;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
+import model.DeviceGroup;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,9 +33,11 @@ public class RemoteUtils {
     private Map<Integer, RemoteDevice> mRemoteDevice = new HashMap<>();
 
     /**
-     * 关系列表
+     * device，group，draper 关系列表
      */
     private Map<Integer, Map<Integer, List<Integer>>> mMap=new HashMap<Integer, Map<Integer, List<Integer>>>();
+
+    private List<DeviceGroup> deviceGroupList=new ArrayList<>();
 
     private static Object lock=new Object();
     public RemoteUtils() {
@@ -55,6 +58,9 @@ public class RemoteUtils {
      * @param remoteDevice
      */
     public synchronized void addRemoteDevice(RemoteDevice remoteDevice){
+        if(isExist(remoteDevice)){
+            return;
+        }
         String modelName = Public.readModelName(remoteDevice);
         remoteDevice.setModelName(modelName);
         mRemoteDeviceIDList.add(remoteDevice.getInstanceNumber());
@@ -89,6 +95,16 @@ public class RemoteUtils {
     public synchronized void setRelationMap(Map<Integer, Map<Integer, List<Integer>>> map) {
         mMap.clear();
         mMap.putAll(map);
+    }
+
+    public List<DeviceGroup> getDeviceGroupList() {
+        return deviceGroupList;
+    }
+
+    public void setDeviceGroupList(List<DeviceGroup> deviceGroupList) {
+        List<DeviceGroup> dgList=new ArrayList<>();
+        deviceGroupList.clear();
+        deviceGroupList.addAll(dgList);
     }
 
     /**

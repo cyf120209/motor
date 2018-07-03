@@ -58,12 +58,6 @@ public class Listener extends DeviceEventAdapter {
         timer.start();
     }
 
-
-    @Override
-    public void iHaveReceived(final RemoteDevice d, final RemoteObject o) {
-
-    }
-
     @Override
     public void iAmReceived(final RemoteDevice d){
         Integer id = Integer.valueOf(d.getInstanceNumber());
@@ -76,11 +70,8 @@ public class Listener extends DeviceEventAdapter {
             @Override
             public void run() {
                 try {
-//                    MyLocalDevice.getObjectList(d);
                     MyLocalDevice.addRemoteDevice(d);
-//                    if(Public.matchString(d.getModelName(),"MC-AC")){
-                        mBoxLayoutView.AddItem(d);
-//                    }
+                    mBoxLayoutView.AddItem(d);
                 } catch (BACnetException e) {
                     e.printStackTrace();
                 }

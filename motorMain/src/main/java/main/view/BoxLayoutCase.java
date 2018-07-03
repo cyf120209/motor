@@ -1,16 +1,18 @@
 package main.view;
 
-import GroupOperation.view.GroupOperation;
+import groupOperation.view.GroupOperation;
 import com.serotonin.bacnet4j.RemoteDevice;
 import common.Common;
-import database.view.DataBase;
 import limitsAndStops.view.LimitsAndStops;
 import main.presenter.BoxLayoutCasePresenter;
 import main.presenter.BoxLayoutCasePresenterImpl;
 import schedule.view.ScheduleView;
+import setting.SettingView;
 import show.ShowAllDevice;
+import suntracking.view.SuntrackingView;
 import update.view.Update;
 import util.ComPortutils;
+import util.Public;
 import util.StyleUtils;
 
 import javax.swing.*;
@@ -18,6 +20,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.util.LinkedList;
 
 /**
@@ -30,7 +33,9 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
     public JButton startstopbt=new JButton("start");
     public JButton groupOperation=new JButton("groupOperation");
     public JButton update=new JButton("update");
-    public JButton database=new JButton("database");
+    public JButton sunTracking=new JButton("sunTracking");
+    public JButton setting=new JButton("setting");
+//    public JButton database=new JButton("database");
     public JButton schedule=new JButton("schedule");
     public JButton showAllDevice=new JButton("showAllDevice");
 
@@ -52,13 +57,13 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
 
     public JButton limitsSetting=new JButton("LimitsSetting");
 
-    private JButton exit=new JButton("退出");
+    private JButton exit=new JButton("关机");
 
     public JComboBox commType=new JComboBox();
 
     public BoxLayoutCase() throws HeadlessException {
         mBoxLayoutCasePresenter = new BoxLayoutCasePresenterImpl(this);
-        setTitle("BoxLayout");
+        setTitle("Draper");
         setSize(Common.SCREEN_WEIGHT,Common.SCREEN_HEIGHT);
 
         setLocationRelativeTo(this);
@@ -88,7 +93,8 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
         groupOperation.setBounds(new Rectangle(110,10,150,Common.HEIGHT));
         update.setBounds(new Rectangle(260,10,100,Common.HEIGHT));
         showAllDevice.setBounds(new Rectangle(360,10,120,Common.HEIGHT));
-        database.setBounds(new Rectangle(480,10,100,Common.HEIGHT));
+        sunTracking.setBounds(new Rectangle(480,10,100,Common.HEIGHT));
+        setting.setBounds(new Rectangle(480,30,100,Common.HEIGHT));
         schedule.setBounds(new Rectangle(580,10,100,Common.HEIGHT));
         comBox.setBounds(10,35,150, Common.HEIGHT);
         upComBox.setBounds(170,35,100,Common.HEIGHT);
@@ -117,7 +123,8 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
         StyleUtils.setBtnBg(groupOperation);
         StyleUtils.setBtnBg(update);
         StyleUtils.setBtnBg(showAllDevice);
-        StyleUtils.setBtnBg(database);
+        StyleUtils.setBtnBg(sunTracking);
+        StyleUtils.setBtnBg(setting);
         StyleUtils.setBtnBg(schedule);
         StyleUtils.setBtnBg(upComBox);
         StyleUtils.setBtnBg(upBt);
@@ -133,7 +140,8 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
         add(startstopbt);
         add(groupOperation);
         add(update);
-        add(database);
+        add(sunTracking);
+        add(setting);
         add(showAllDevice);
         add(schedule);
 
@@ -160,7 +168,8 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
 
         startstopbt.addActionListener(this);
         upComBox.addActionListener(this);
-        database.addActionListener(this);
+        sunTracking.addActionListener(this);
+        setting.addActionListener(this);
         showAllDevice.addActionListener(this);
         schedule.addActionListener(this);
 
@@ -222,10 +231,20 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
             Update update1 = new Update();
 //            update1.setLocationRelativeTo(null);
             update1.setVisible(true);
-        }else if(database.equals(e.getSource())){
-            DataBase dataBase = new DataBase();
-            dataBase.setLocationRelativeTo(null);
-            dataBase.setVisible(true);
+        }
+//        else if(database.equals(e.getSource())){
+//            DataBase dataBase = new DataBase();
+//            dataBase.setLocationRelativeTo(null);
+//            dataBase.setVisible(true);
+//        }
+        else if(sunTracking.equals(e.getSource())){
+            SuntrackingView suntrackingView = new SuntrackingView();
+            suntrackingView.setLocationRelativeTo(null);
+            suntrackingView.setVisible(true);
+        } else if(setting.equals(e.getSource())){
+            SettingView settingView = new SettingView();
+            settingView.setLocationRelativeTo(null);
+            settingView.setVisible(true);
         }else if( schedule.equals(e.getSource())){
             ScheduleView schedule = new ScheduleView();
             schedule.setLocationRelativeTo(null);
@@ -235,7 +254,14 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
             showAllDevice.setLocationRelativeTo(null);
             showAllDevice.setVisible(true);
         }else if(exit.equals(e.getSource())){
-            System.exit(1);
+            try {
+                Public.createShutdownScriptFile();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+//            System.exit(1);
         }
     }
 

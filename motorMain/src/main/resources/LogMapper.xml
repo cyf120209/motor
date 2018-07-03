@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.LogMapper">    <!-- 使用sql标签可以将公共的sql提取出来复用 -->
+
+    <sql id="queryFields">
+        id , datetime , source,frametype,destination,content,contentReal
+    </sql>
+
+    <select id="queryAll" resultType="entity.Log">
+        SELECT * FROM log
+    </select>
+
+    <select id="selectByLogId" parameterType="int" resultType="entity.Log">
+        SELECT * FROM log WHERE id=#{id}
+    </select>
+
+    <insert id="insert" parameterType="entity.Log" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO log (datetime,source,frametype,destination,content,contentReal) values (#{datetime},#{source},#{frametype},#{destination},#{content},#{contentReal})
+    </insert>
+
+    <update id="update" parameterType="entity.Shade" >
+        UPDATE log set shadeName=#{shadeName},shadePosition=#{shadePosition},shadePriority=#{shadePriority},shadeStatus=#{shadeStatus} WHERE shadeId=#{shadeId}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM log WHERE shadeId=#{shadeId}
+    </delete>
+
+</mapper>

@@ -54,7 +54,11 @@ public class Draper {
     public static ObjectIdentifier deviceid=new ObjectIdentifier(ObjectType.device,900900);
     public static final UnsignedInteger draperConfiguration=new UnsignedInteger(DRAPER_CONFIGURATION);
 
-    private static LocalDevice dev= MyLocalDevice.getInstance();
+    private static LocalDevice dev;
+
+    public static void updateLocalDevice(){
+        dev= MyLocalDevice.getInstance();
+    }
     
     private static int calcDataCRC(int dataValue, int crcValue) {
         int crcLow = (crcValue & 0xff) ^ dataValue; /* XOR C7..C0 with D7..D0 */
@@ -159,32 +163,44 @@ public class Draper {
 
     //6.1	SHADE COMMAND
     public static  void sendCmd( int cmd) throws Exception {
+        sendCmd(cmd,7);
+    }
+
+    public static  void sendCmd( int cmd,int priority) throws Exception {
         SequenceOf<Primitive> listParam= new SequenceOf<Primitive>();
         listParam.add(deviceid);
         listParam.add(new Unsigned8(0));
         listParam.add(new UnsignedInteger(cmd));
-        listParam.add(new Unsigned8(7));
+        listParam.add(new Unsigned8(priority));
         dev.sendGlobalBroadcast(new UnconfirmedPrivateTransferRequest(vendorID,cmdSer,listParam));
     }
 
     //6.1	SHADE COMMAND
     public static  void sendCmd(RemoteDevice remoteDevice, int cmd) throws Exception {
+        sendCmd(remoteDevice,cmd,7);
+    }
+
+    public static  void sendCmd(RemoteDevice remoteDevice, int cmd,int priority) throws Exception {
         SequenceOf<Primitive> listParam= new SequenceOf<Primitive>();
         listParam.add(deviceid);
         listParam.add(new Unsigned8(0));
         listParam.add(new UnsignedInteger(cmd));
-        listParam.add(new Unsigned8(7));
+        listParam.add(new Unsigned8(priority));
         System.out.println(cmd);
         dev.sendUnconfirmed(remoteDevice.getAddress(),remoteDevice.getLinkService(),new UnconfirmedPrivateTransferRequest(vendorID,cmdSer,listParam));
     }
 
     //6.1	SHADE COMMAND
     public static  void sendCmd( int deviceID,int groupID,int cmd) throws Exception {
+        sendCmd(deviceID,groupID,cmd,7);
+    }
+
+    public static  void sendCmd( int deviceID,int groupID,int cmd,int priority) throws Exception {
         SequenceOf<Primitive> listParam= new SequenceOf<Primitive>();
         listParam.add(deviceid);
         listParam.add(new Unsigned8(0));
         listParam.add(new UnsignedInteger(cmd));
-        listParam.add(new Unsigned8(7));
+        listParam.add(new Unsigned8(priority));
         listParam.add(new ObjectIdentifier(ObjectType.device,deviceID));
         listParam.add(new Unsigned16(groupID));
         dev.sendGlobalBroadcast(new UnconfirmedPrivateTransferRequest(vendorID,cmdSer,listParam));
@@ -192,10 +208,15 @@ public class Draper {
     }
 
     public static  void sendCmd( Address addr, int cmd) throws Exception {
+        sendCmd(addr,cmd,7);
+    }
+
+    public static  void sendCmd( Address addr, int cmd,int priority) throws Exception {
         SequenceOf<Primitive> listParam= new SequenceOf<Primitive>();
         listParam.add(deviceid);
+        listParam.add(new Unsigned8(0));
         listParam.add(new UnsignedInteger(cmd));
-        listParam.add(new Unsigned8(7));
+        listParam.add(new Unsigned8(priority));
         dev.sendUnconfirmed(addr,new UnconfirmedPrivateTransferRequest(vendorID,cmdSer,listParam));
 
     }
@@ -234,6 +255,7 @@ public class Draper {
         dev.sendUnconfirmed(peer.getAddress(),peer.getLinkService(),new UnconfirmedPrivateTransferRequest(vendorID,subscription,listParam));
 
     }
+
     public static void sendAnnounce() throws BACnetException {
         SequenceOf<Primitive> listParam= new SequenceOf<Primitive>();
         listParam.add(deviceid);

@@ -20,6 +20,8 @@ import java.util.*;
 
 public class DatabaseManager {
 
+    Map<Integer,Device> mLastDevices=new HashMap<>();
+
     public static void register(){
         //初始化数据库
         MyBatisUtils.init();
@@ -27,18 +29,24 @@ public class DatabaseManager {
         new Thread(new Runnable() {
             @Override
             public void run() {
-//                new DatabaseManager().updateDatabase();
+                new DatabaseManager().updateDatabase();
             }
         }).start();
     }
 
     private void updateDatabase() {
-        Jedis jedis = new Jedis("localhost");
-        jedis.auth("foobared");
-        System.out.println(jedis.ping());
-        Device device = new Device(10001, "", "", "", "");
+//        Jedis jedis = new Jedis("localhost");
+//        jedis.auth("foobared");
+//        System.out.println(jedis.ping());
+//        Device device = new Device(10001, "", "", "", "");
 //        jedis.set("device", device);
 
+        DeviceDao deviceDao = new DeviceDao();
+        List<Device> deviceList = deviceDao.queryAll();
+        for (Device device:deviceList){
+            mLastDevices.put(device.getDeviceId(),device);
+
+        }
         Timer timer = new Timer(15000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -67,21 +75,24 @@ public class DatabaseManager {
                 //
                 for (RemoteDevice remoteDevice:deviceList){
                     DeviceDao deviceDao = new DeviceDao();
-                    Device device = deviceDao.selectByDeviceId(remoteDevice.getInstanceNumber());
+                    Device device = mLastDevices.get(new Integer(remoteDevice.getInstanceNumber()));
                     int instanceNumber = remoteDevice.getInstanceNumber();
                     String mac = remoteDevice.getAddress().getMacAddress().toString();
                     String modelName = Public.readModelName(remoteDevice);
                     String version = Public.readVersion(remoteDevice);
                     String name = remoteDevice.getName();
-                    ShadeDao shadeDao = new ShadeDao();
                     if(device==null){
+                        mLastDevices.put(new Integer(instanceNumber),device);
                         deviceDao.insert(new Device(instanceNumber,name,mac,modelName,version));
-                        shadeDao.insert(new Shade(instanceNumber,name,0,0,"1"));
-                    }else {
-                        deviceDao.update(new Device(instanceNumber,name,mac,modelName,version));
-                        shadeDao.update(new Shade(instanceNumber,name,0,0,"1"));
+//                        shadeDao.insert(new Shade(instanceNumber,name,0,0,"1"));
                     }
+//                    else {
+//                        deviceDao.update(new Device(instanceNumber,name,mac,modelName,version));
+//                        shadeDao.update(new Shade(instanceNumber,name,0,0,"1"));
+//                    }
                 }
+
+
 
                 //更新关系列表
 

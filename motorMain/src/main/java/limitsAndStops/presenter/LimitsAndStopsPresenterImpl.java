@@ -35,7 +35,7 @@ public class LimitsAndStopsPresenterImpl implements LimitsAndStopsPresenter{
         localDevice = MyLocalDevice.getInstance();
         List<RemoteDevice> remoteDeviceList = MyLocalDevice.getRemoteDeviceList();
         for (RemoteDevice remoteDevice:remoteDeviceList){
-            if(Public.matchString(remoteDevice.getModelName(),"MC-AC")){
+            if(Public.matchString(remoteDevice.getModelName(),"AC")){
                 mRemoteDevices.add(remoteDevice);
             }
         }

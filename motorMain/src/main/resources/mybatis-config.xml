@@ -29,5 +29,7 @@
         <mapper resource="GroupMapper.xml"/>
         <mapper resource="BookMapper.xml" />
         <mapper resource="CategoryMapper.xml" />
+        <mapper resource="LogMapper.xml" />
+        <mapper resource="ScheduleMapper.xml" />
     </mappers>
 </configuration>

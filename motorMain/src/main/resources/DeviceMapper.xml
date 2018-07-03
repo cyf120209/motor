@@ -28,11 +28,11 @@
     </resultMap>
 
     <select id="queryAll" resultMap="deviceMap">
-        SELECT * FROM device
+        SELECT * FROM device WHERE isShow=1
     </select>
 
     <select id="selectByDeviceId" parameterType="int" resultMap="deviceMap">
-        SELECT * FROM device WHERE deviceId=#{id}
+        SELECT * FROM device WHERE deviceId=#{id} and isShow=1
     </select>
     
     <select id="selectById" parameterType="int" resultType="entity.ShadeGroup">
@@ -63,6 +63,8 @@
     </update>
 
     <delete id="delete" parameterType="int">
-        DELETE FROM device WHERE deviceId=#{deviceId}
+        UPDATE device
+         set isShow=0
+         WHERE deviceId=#{deviceId}
     </delete>
 </mapper>

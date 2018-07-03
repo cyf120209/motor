@@ -1,15 +1,13 @@
 package util;
 
+import com.pi4j.wiringpi.Gpio;
 import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.service.acknowledgement.ReadPropertyAck;
 import com.serotonin.bacnet4j.service.confirmed.ReadPropertyRequest;
 import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
@@ -158,5 +156,204 @@ public class Public {
         int crc = (crcValue >> 8) ^ (crcLow << 8) ^ (crcLow << 3) ^ (crcLow << 12) ^ (crcLow >> 4) ^ (crcLow & 0x0f)
                 ^ ((crcLow & 0x0f) << 7);
         return crc & 0xffff;
+    }
+
+    /**
+     *
+     * @param day 一年之中的第几天
+     * @param lat 纬度 （度）
+     * @param hour 时间（小时）
+     * @return 太阳高度角 单位 弧度
+     */
+    public static double solarElevationAngle (int day, double lat, double hour) {
+        if (hour >= 12){
+            hour -= 12;
+        }
+        else{
+            hour += 12;
+        }
+        double pi=3.1415926;
+        double b=2*pi*(day-1)/365;
+        double radLat=Math.toRadians(lat);   //观测点纬度（单位rad）
+        double radTime=Math.toRadians(hour*15); //时角（单位rad）= 时间*15度
+        double sDec=0.006918-0.399912*Math.cos(b)+0.070257*Math.sin(b)-0.006758*Math.cos(2*b)+
+                0.000907* Math.sin(2*b)-0.002697*Math.cos(3*b)+0.00148*Math.sin(3*b);
+        double sh=Math.sin(radLat)*Math.sin(sDec)+Math.cos(radLat)*Math.cos(sDec)*Math.cos(radTime);
+
+//        System.out.println("radTime: "+radLat);
+//        System.out.println("sDec: "+sDec);
+//        System.out.println("hs: "+Math.toDegrees(Math.asin(sh)));
+        return Math.asin(sh);
+    }
+
+    /**
+     *
+     * @param hour 当前时间
+     * @param day 一年中的第几天
+     * @param lat 当地纬度
+     * @param sh 太阳高度角 （弧度）
+     * @return 太阳方位角 （度）
+     */
+    public static double solarAzimuth(double hour, int day, double lat,double sh) {
+        double pi=3.1415926;
+        double b=2*pi*(day-1)/365;
+        double radLat=Math.toRadians(lat);   //观测点纬度（单位rad）
+        double sDec=0.006918-0.399912*Math.cos(b)+0.070257*Math.sin(b)-0.006758*Math.cos(2*b)+
+                0.000907* Math.sin(2*b)-0.002697*Math.cos(3*b)+0.00148*Math.sin(3*b);
+        double solarAzimuth = (Math.sin(sDec) - Math.sin(sh) * Math.sin(radLat)) / (Math.cos(sh) * Math.cos(radLat));
+        if(hour>12){
+            return 2*3.1415926-Math.acos(solarAzimuth);
+        }else {
+            return Math.acos(solarAzimuth);
+        }
+//        return (-Math.sin(0)*Math.cos(0.409))/(Math.cos(pi/2));
+        //Math.sin(0)*Math.sin(0.409)+Math.sin(0)/(Math.cos(0)*Math.cos(0.409));
+    }
+
+    /**
+     *
+     * @param day
+     * @param hour （小时）
+     * @param sh 太阳高度角 （弧度）
+     * @return 太阳方位角 （弧度）
+     */
+    public static double solarAzimuthAsin(int day,double hour,double sh) {
+        double pi=3.1415926;
+        double b=2*pi*(day-1)/365;
+        if (hour >= 12){
+            hour -= 12;
+        }
+        else{
+            hour += 12;
+        }
+        double radTime=Math.toRadians(hour*15); //时角（单位rad）= 时间*15度
+//        double radLat=Math.toRadians(lat);   //观测点纬度（单位rad）
+        double sDec=0.006918-0.399912*Math.cos(b)+0.070257*Math.sin(b)-0.006758*Math.cos(2*b)+
+                0.000907* Math.sin(2*b)-0.002697*Math.cos(3*b)+0.00148*Math.sin(3*b);
+
+        return (-Math.sin(radTime)*Math.cos(sDec))/(Math.cos(sh));
+    }
+
+
+    /** Script file */
+    private static final File TIME_SCRIPT_FILE = new File(
+            System.getProperty("user.home"),"time-config-script");
+    private static final File DATE_SCRIPT_FILE = new File(
+            System.getProperty("user.home"),"date-config-script");
+    private static final File SHUTDOWN_SCRIPT_FILE = new File(
+            System.getProperty("user.home"),"shutdown");
+
+    public static void createTimerScriptFile(String time) throws IOException {
+        try (BufferedWriter bw = new BufferedWriter(
+                new FileWriter(TIME_SCRIPT_FILE))) {
+            bw.write("#!/bin/bash");
+            bw.newLine();
+            bw.write("sudo date -s "+time);
+            bw.newLine();
+            bw.write("echo time-script complete!");
+            bw.newLine();
+        }
+        TIME_SCRIPT_FILE.setExecutable(true);
+        TIME_SCRIPT_FILE.deleteOnExit();
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        ProcessBuilder pb = new ProcessBuilder(System.getProperty("user.home")+"/time-config-script");
+        pb.redirectErrorStream();
+        Process p = pb.start();
+        final InputStream is = p.getInputStream();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int c;
+                try {
+                    while ((c = is.read()) != -1)
+                        System.out.print((char)c);
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    public static void createDateScriptFile(String date) throws IOException {
+        try (BufferedWriter bw = new BufferedWriter(
+                new FileWriter(DATE_SCRIPT_FILE))) {
+            bw.write("#!/bin/bash");
+            bw.newLine();
+            bw.write("sudo date -s "+date);
+            bw.newLine();
+            bw.write("echo time-script complete!");
+            bw.newLine();
+        }
+        DATE_SCRIPT_FILE.setExecutable(true);
+        DATE_SCRIPT_FILE.deleteOnExit();
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        ProcessBuilder pb = new ProcessBuilder(System.getProperty("user.home")+"/date-config-script");
+        pb.redirectErrorStream();
+        Process p = pb.start();
+        final InputStream is = p.getInputStream();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int c;
+                try {
+                    while ((c = is.read()) != -1)
+                        System.out.print((char)c);
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    public static void createShutdownScriptFile() throws IOException, InterruptedException {
+        for (int i = 0; i < 10; i++) {
+            Gpio.digitalWrite(1, Gpio.LOW);
+            Thread.sleep(30);
+            Gpio.digitalWrite(1, Gpio.HIGH);
+            Thread.sleep(30);
+        }
+        try (BufferedWriter bw = new BufferedWriter(
+                new FileWriter(SHUTDOWN_SCRIPT_FILE))) {
+            bw.write("#!/bin/bash");
+            bw.newLine();
+            bw.write("sudo shutdown -h now");
+            bw.newLine();
+            bw.write("echo time-script complete!");
+            bw.newLine();
+        }
+        SHUTDOWN_SCRIPT_FILE.setExecutable(true);
+        SHUTDOWN_SCRIPT_FILE.deleteOnExit();
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        ProcessBuilder pb = new ProcessBuilder(System.getProperty("user.home")+"/shutdown");
+        pb.redirectErrorStream();
+        Process p = pb.start();
+//        final InputStream is = p.getInputStream();
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                int c;
+//                try {
+//                    while ((c = is.read()) != -1)
+//                        System.out.print((char)c);
+//                } catch (IOException ioe) {
+//                    ioe.printStackTrace();
+//                }
+//            }
+//        }).start();
     }
 }
