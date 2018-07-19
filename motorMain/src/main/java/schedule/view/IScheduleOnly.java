@@ -5,11 +5,7 @@ import model.DeviceGroup;
 
 import java.util.List;
 
-public interface IScheduleView {
-
-    void updateExistedGroup(Object[] arr);
-
-    DeviceGroup getDeviceGroup();
+public interface IScheduleOnly {
 
     void showSchedule(List<Schedule> scheduleList);
 }

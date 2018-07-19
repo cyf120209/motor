@@ -31,5 +31,6 @@
         <mapper resource="CategoryMapper.xml" />
         <mapper resource="LogMapper.xml" />
         <mapper resource="ScheduleMapper.xml" />
+        <mapper resource="GeocoderMapper.xml" />
     </mappers>
 </configuration>

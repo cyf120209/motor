@@ -2,7 +2,6 @@ package suntracking.view;
 
 import com.qt.datapicker.DatePicker;
 import com.serotonin.bacnet4j.RemoteDevice;
-import com.serotonin.bacnet4j.exception.BACnetException;
 import common.Common;
 import groupOperation.IGroupCallback;
 import groupOperation.view.GroupOperation;
@@ -12,16 +11,11 @@ import model.ShutterParameter;
 import pojo.City;
 import pojo.LngLat;
 import pojo.States;
-import schedule.view.ScheduleView;
 import suntracking.presenter.SuntrackingPresenter;
 import suntracking.presenter.SuntrackingPresenterImpl;
 import util.*;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

@@ -22,15 +22,18 @@ public class Schedule {
 
     private JPanel jPanel;
 
-    public Schedule(int hour, int min, int percent) {
-        this(hour,min,percent,new ArrayList<String>());
+    private String scheduleName;
+
+    public Schedule(int hour, int min, int percent,String scheduleName) {
+        this(hour,min,percent,scheduleName,new ArrayList<String>());
     }
 
-    public Schedule(int hour, int min, int percent, List<String> week) {
+    public Schedule(int hour, int min, int percent,String scheduleName, List<String> week) {
         this.hour = hour;
         this.min = min;
         this.percent = percent;
         this.week = week;
+        this.scheduleName=scheduleName;
         initialize();
     }
 
@@ -107,6 +110,14 @@ public class Schedule {
 
     public void setGroupName(String groupName) {
         this.groupName = groupName;
+    }
+
+    public String getScheduleName() {
+        return scheduleName;
+    }
+
+    public void setScheduleName(String scheduleName) {
+        this.scheduleName = scheduleName;
     }
 
     public String getWeekString(){

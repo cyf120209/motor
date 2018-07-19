@@ -46,12 +46,7 @@ public class InformationListener extends DeviceEventAdapter {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    MyLocalDevice.addRemoteDevice(d);
                     mShowAllDevice.showDevice(d);
-                } catch (BACnetException e) {
-                    e.printStackTrace();
-                }
             }
         }).start();
     }

@@ -67,4 +67,24 @@ public class ShadeGroup implements Serializable{
     public void setShades(List<Shade> shades) {
         this.shades = shades;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null ) return false;
+
+        ShadeGroup that = (ShadeGroup) o;
+
+        if (groupId != null ? !groupId.equals(that.groupId) : that.groupId != null) return false;
+        if (deviceId != null ? !deviceId.equals(that.deviceId) : that.deviceId != null) return false;
+        return groupName != null ? groupName.equals(that.groupName) : that.groupName == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = groupId != null ? groupId.hashCode() : 0;
+        result = 31 * result + (deviceId != null ? deviceId.hashCode() : 0);
+        result = 31 * result + (groupName != null ? groupName.hashCode() : 0);
+        return result;
+    }
 }

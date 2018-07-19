@@ -2,6 +2,7 @@ package mapper;
 
 import entity.Log;
 import entity.Schedule;
+import entity.ScheduleGroupRelation;
 
 import java.util.List;
 
@@ -9,13 +10,19 @@ public interface ScheduleMapper {
 
     List<Schedule> queryAll();
 
-    Schedule selectByScheduleId(int scheduleId);
+    Schedule selectById(int scheduleId);
 
-    void insert(Schedule schedule);
+    long insert(Schedule schedule);
 
-    void update(Schedule schedule);
+    int update(Schedule schedule);
 
-    void delete(int scheduleId);
+    int delete(int scheduleId);
 
-    void deleteAll();
+    int deleteAll();
+
+    int deleteRelation(ScheduleGroupRelation relation);
+
+    int insertRelation(List<ScheduleGroupRelation> scheduleGroupRelationList);
+
+    int deleteRelation(List<ScheduleGroupRelation> scheduleGroupRelationList);
 }

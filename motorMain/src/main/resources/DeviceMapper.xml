@@ -32,12 +32,16 @@
     </select>
 
     <select id="selectByDeviceId" parameterType="int" resultMap="deviceMap">
-        SELECT * FROM device WHERE deviceId=#{id} and isShow=1
+        SELECT * FROM device WHERE deviceId=#{id}
     </select>
     
-    <select id="selectById" parameterType="int" resultType="entity.ShadeGroup">
-        SELECT * FROM devicegrouprelation r INNER JOIN  devicegroup g on r.deviceGroupId=g.groupId
-      WHERE r.deviceId=#{id}
+    <!--<select id="selectById" parameterType="int" resultType="entity.ShadeGroup">-->
+        <!--SELECT * FROM devicegrouprelation r INNER JOIN  devicegroup g on r.deviceGroupId=g.groupId-->
+      <!--WHERE r.deviceId=#{id}-->
+    <!--</select>-->
+
+    <select id="selectById" parameterType="int" resultType="entity.Device">
+        SELECT * FROM device WHERE deviceId=#{id}
     </select>
 
     <!--<insert id="insert" parameterType="entity.Device" useGeneratedKeys="true" keyProperty="id">-->
@@ -49,9 +53,25 @@
         values (#{deviceId},#{deviceName},#{mac},#{modelName},#{version},#{remarks})
     </insert>
 
-    <!--<update id="update" parameterType="entity.Device" >-->
-        <!--UPDATE device set deviceName=#{deviceName},devicePosition=#{devicePosition},devicePriority=#{devicePriority},deviceStatus=#{deviceStatus} WHERE deviceId=#{deviceId}-->
-    <!--</update>-->
+    <insert id="batchInsert" parameterType="java.util.List">
+        <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO device (deviceId,deviceName,mac,modelName,version,remarks)
+        values
+        <foreach collection="list" item="device" index="index" separator=",">
+            (#{device.deviceId},#{device.deviceName},#{device.mac},#{device.modelName},#{device.version},#{device.remarks})
+        </foreach>
+    </insert>
+
+    <!--<insert id="batchInsert" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">-->
+        <!--INSERT INTO device (deviceId,deviceName,mac,modelName,version,remarks)-->
+        <!--values-->
+        <!--<foreach collection="list" item="device" index="index" separator=",">-->
+            <!--(#{device.deviceId},#{device.deviceName},#{device.mac},#{device.modelName},#{device.version},#{device.remarks})-->
+        <!--</foreach>-->
+    <!--</insert>-->
+
 
     <update id="update" parameterType="entity.Device" >
         UPDATE device
@@ -59,6 +79,10 @@
         mac=#{mac},
         modelName=#{modelName},
         version=#{version}
+        <if test="isShow!=null">
+            ,isShow=#{isShow}
+        </if>
+
         WHERE deviceId=#{deviceId}
     </update>
 

@@ -6,7 +6,7 @@ import common.Common;
 import limitsAndStops.view.LimitsAndStops;
 import main.presenter.BoxLayoutCasePresenter;
 import main.presenter.BoxLayoutCasePresenterImpl;
-import schedule.view.ScheduleView;
+import schedule.view.ScheduleOnly;
 import setting.SettingView;
 import show.ShowAllDevice;
 import suntracking.view.SuntrackingView;
@@ -74,10 +74,10 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
         //不能改变大小
         setResizable(false);
         //最大化
-//        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         //不要边框 需放置在组件添加之前，否则不生效
-//        setUndecorated(true);
+        setUndecorated(true);
 
         // 把背景图片显示在一个标签里面
         JLabel label = new JLabel(StyleUtils.getFormBg());
@@ -246,7 +246,10 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
             settingView.setLocationRelativeTo(null);
             settingView.setVisible(true);
         }else if( schedule.equals(e.getSource())){
-            ScheduleView schedule = new ScheduleView();
+//            ScheduleView schedule = new ScheduleView();
+//            schedule.setLocationRelativeTo(null);
+//            schedule.setVisible(true);
+            ScheduleOnly schedule = new ScheduleOnly();
             schedule.setLocationRelativeTo(null);
             schedule.setVisible(true);
         }else if(showAllDevice.equals(e.getSource())){

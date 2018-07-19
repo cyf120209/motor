@@ -356,4 +356,24 @@ public class Public {
 //            }
 //        }).start();
     }
+
+    public static int week2Int(String week){
+        if(week.equals("Sun")){
+            return 1;
+        }else if(week.equals("Mon")){
+            return 2;
+        }else if(week.equals("Tue")){
+            return 3;
+        }else if(week.equals("Wed")){
+            return 4;
+        }else if(week.equals("Thu")){
+            return 5;
+        }else if(week.equals("Fri")){
+            return 6;
+        }else if(week.equals("Sat")){
+            return 7;
+        }else {
+            return -1;
+        }
+    }
 }

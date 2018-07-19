@@ -16,6 +16,8 @@ public class Schedule {
 
     private String weeks;
 
+    private String scheduleName;
+
     /**
      * 默认值为 1
      * 1 启用
@@ -28,14 +30,15 @@ public class Schedule {
     public Schedule() {
     }
 
-    public Schedule(int hour, int min, int percent) {
-        this(hour,min,percent,"");
+    public Schedule(int hour, int min, int percent,String scheduleName) {
+        this(hour,min,percent,"",scheduleName);
     }
 
-    public Schedule(int hour, int min, int percent, String weeks) {
+    public Schedule(int hour, int min, int percent,String weeks,String scheduleName) {
         this.hour = hour;
         this.min = min;
         this.percent = percent;
+        this.scheduleName=scheduleName;
         this.weeks = weeks;
         this.isEnabled=1;
     }
@@ -94,5 +97,13 @@ public class Schedule {
 
     public void setShadeGroups(List<ShadeGroup> shadeGroups) {
         this.shadeGroups = shadeGroups;
+    }
+
+    public String getScheduleName() {
+        return scheduleName;
+    }
+
+    public void setScheduleName(String scheduleName) {
+        this.scheduleName = scheduleName;
     }
 }

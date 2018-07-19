@@ -2,16 +2,15 @@ package manager.impl;
 
 import com.serotonin.bacnet4j.RemoteDevice;
 import dao.DeviceDao;
+import dao.GeocoderDao;
 import dao.GroupDao;
 import dao.ShadeDao;
-import entity.Device;
-import entity.Shade;
-import entity.ShadeGroup;
-import entity.ShadeGroupRelation;
+import entity.*;
 import redis.clients.jedis.Jedis;
 import util.MyBatisUtils;
 import util.MyLocalDevice;
 import util.Public;
+import util.RemoteUtils;
 
 import javax.swing.Timer;
 import java.awt.event.ActionEvent;
@@ -20,7 +19,7 @@ import java.util.*;
 
 public class DatabaseManager {
 
-    Map<Integer,Device> mLastDevices=new HashMap<>();
+    Map<Integer,Device> mLastDeviceMap=new HashMap<>();
 
     public static void register(){
         //初始化数据库
@@ -35,19 +34,21 @@ public class DatabaseManager {
     }
 
     private void updateDatabase() {
+//        GeocoderDao geocoderDao = new GeocoderDao();
+//        List<State> stateList = geocoderDao.queryAll();
+//        System.out.println(""+stateList.size());
 //        Jedis jedis = new Jedis("localhost");
 //        jedis.auth("foobared");
 //        System.out.println(jedis.ping());
 //        Device device = new Device(10001, "", "", "", "");
 //        jedis.set("device", device);
 
-        DeviceDao deviceDao = new DeviceDao();
-        List<Device> deviceList = deviceDao.queryAll();
-        for (Device device:deviceList){
-            mLastDevices.put(device.getDeviceId(),device);
-
-        }
-        Timer timer = new Timer(15000, new ActionListener() {
+//        DeviceDao deviceDao = new DeviceDao();
+//        List<Device> deviceList = deviceDao.queryAll();
+//        for (Device device:deviceList){
+//            mLastDevices.put(device.getDeviceId(),device);
+//        }
+        Timer timer = new Timer(30000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
@@ -65,37 +66,19 @@ public class DatabaseManager {
 //                toDelRelationList1.add(new ShadeGroupRelation(1,10002));
 //                groupDao1.deleteRelation(toDelRelationList1);
 
-                //更新电机
-                List<RemoteDevice> deviceList = MyLocalDevice.getRemoteDeviceList();
-                //
-//                deviceList.add(new RemoteDevice(10001,new Address(1,(byte) 01),null));
-//                deviceList.add(new RemoteDevice(10002,new Address(2,(byte) 02),null));
-//                String modelName="123";
-//                String version="321";
-                //
-                for (RemoteDevice remoteDevice:deviceList){
-                    DeviceDao deviceDao = new DeviceDao();
-                    Device device = mLastDevices.get(new Integer(remoteDevice.getInstanceNumber()));
-                    int instanceNumber = remoteDevice.getInstanceNumber();
-                    String mac = remoteDevice.getAddress().getMacAddress().toString();
-                    String modelName = Public.readModelName(remoteDevice);
-                    String version = Public.readVersion(remoteDevice);
-                    String name = remoteDevice.getName();
-                    if(device==null){
-                        mLastDevices.put(new Integer(instanceNumber),device);
-                        deviceDao.insert(new Device(instanceNumber,name,mac,modelName,version));
-//                        shadeDao.insert(new Shade(instanceNumber,name,0,0,"1"));
-                    }
-//                    else {
-//                        deviceDao.update(new Device(instanceNumber,name,mac,modelName,version));
-//                        shadeDao.update(new Shade(instanceNumber,name,0,0,"1"));
-//                    }
-                }
+                long lastTime=System.nanoTime();
 
+                RemoteUtils mRemoteUtils = MyLocalDevice.mRemoteUtils;
+                if(mRemoteUtils==null){
+                    return;
+                }
+                updateDevice(mRemoteUtils);
+
+                long currentTime=System.nanoTime();
+                System.out.println("----device--------time----------- "+(currentTime-lastTime)/1000000);
 
 
                 //更新关系列表
-
                 //从数据库中取出数据，整理成map
                 GroupDao groupDao = new GroupDao();
                 List<ShadeGroup> shadeGroupList = groupDao.queryAll();
@@ -128,14 +111,14 @@ public class DatabaseManager {
                 Map<Integer, Map<Integer, List<Integer>>> relationMap = MyLocalDevice.getRelationMap();
 
                 //模拟缓存中的map
-                List<Integer> integerList = new ArrayList<>();
-                integerList.add(new Integer(10001));
-                integerList.add(new Integer(10002));
-                Map<Integer,List<Integer>> mmm=new HashMap<>();
-                mmm.put(new Integer(111),integerList);
-                mmm.put(new Integer(222),integerList);
-                mmm.put(new Integer(444),integerList);
-                relationMap.put(new Integer(1),mmm);
+//                List<Integer> integerList = new ArrayList<>();
+//                integerList.add(new Integer(10001));
+//                integerList.add(new Integer(10002));
+//                Map<Integer,List<Integer>> mmm=new HashMap<>();
+//                mmm.put(new Integer(111),integerList);
+//                mmm.put(new Integer(222),integerList);
+//                mmm.put(new Integer(444),integerList);
+//                relationMap.put(new Integer(1),mmm);
 
                 // 遍历缓存中map，若数据库中没有这个组，则添加
                 Iterator<Map.Entry<Integer, Map<Integer, List<Integer>>>> iterator = relationMap.entrySet().iterator();
@@ -209,9 +192,84 @@ public class DatabaseManager {
                     }
                 }
 //                Iterator<Map.Entry<Integer, Map<Integer, List<Integer>>>> iterator1 = rMap.entrySet().iterator();
-
             }
         });
 //        timer.start();
+    }
+
+    private void updateDevice(RemoteUtils mRemoteUtils) {
+        Queue<Integer> remoteDeviceIdDbAdd = mRemoteUtils.getRemoteDeviceIdDbAdd();
+        Queue<Integer> remoteDeviceIdDbDelete = mRemoteUtils.getRemoteDeviceIdDbDelete();
+        List<Device> deviceListAdd=new ArrayList<>();
+
+        DeviceDao deviceDao = new DeviceDao();
+        List<Device> deviceDbList = deviceDao.queryAll();
+        List<RemoteDevice> deviceList = MyLocalDevice.getRemoteDeviceList();
+        Map<Integer, RemoteDevice> remoteDeviceMap = mRemoteUtils.getRemoteDeviceMap();
+
+//                System.out.println("+++++add++++++++++"+remoteDeviceIdDbAdd.size());
+//                System.out.println("+++++del++++++++++"+remoteDeviceIdDbDelete.size());
+        //增加
+        while (!remoteDeviceIdDbAdd.isEmpty()){
+            boolean isAdd=true;
+            Integer id = remoteDeviceIdDbAdd.poll();
+            for (int j = 0; j < deviceDbList.size(); j++) {
+                Device device = deviceDbList.get(j);
+                Integer deviceId = device.getDeviceId();
+                if(id.intValue() == deviceId.intValue()){
+                    isAdd=false;
+                    break;
+                }
+            }
+            if(!isAdd){
+                continue;
+            }
+            System.out.println("add++++++"+id);
+            //插入数据库
+            RemoteDevice remoteDevice = remoteDeviceMap.get(id);
+            int instanceNumber = remoteDevice.getInstanceNumber();
+            String mac = remoteDevice.getAddress().getMacAddress().toString();
+            String modelName = Public.readModelName(remoteDevice);
+            String version = Public.readVersion(remoteDevice);
+            String name = remoteDevice.getName();
+            name=(name==null)?"":name;
+            Device d = new Device(instanceNumber, name, mac, modelName, version);
+            deviceListAdd.add(d);
+            //单条插入
+            deviceDao.insert(d);
+        }
+        //批量插入
+//                if(deviceListAdd.size()>0){
+//                    deviceDao.batchInsert(deviceListAdd);
+//                }
+        //删除设备
+        while (!remoteDeviceIdDbDelete.isEmpty()){
+            Integer deviceId = remoteDeviceIdDbDelete.poll();
+            for (int j = 0; j < deviceDbList.size(); j++) {
+                Device device = deviceDbList.get(j);
+                if(deviceId.intValue() == device.getDeviceId().intValue()){
+                    //删除记录
+                    System.out.println("del++++++"+deviceId);
+                    deviceDao.delete(deviceId);
+                    break;
+                }
+            }
+        }
+        //更新设备
+        for (RemoteDevice remoteDevice:deviceList){
+            if(remoteDeviceIdDbDelete.contains(new Integer(remoteDevice.getInstanceNumber()))){
+                continue;
+            }
+            int instanceNumber = remoteDevice.getInstanceNumber();
+            String mac = remoteDevice.getAddress().getMacAddress().toString();
+            String modelName = Public.readModelName(remoteDevice);
+            String version = Public.readVersion(remoteDevice);
+            String name = remoteDevice.getName();
+            name=(name==null)?"":name;
+            Device d = new Device(instanceNumber, name, mac, modelName, version);
+            if(!deviceDbList.contains(d)){
+                deviceDao.update(d);
+            }
+        }
     }
 }

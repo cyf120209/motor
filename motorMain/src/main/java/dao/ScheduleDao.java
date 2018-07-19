@@ -1,6 +1,7 @@
 package dao;
 
 import entity.Schedule;
+import entity.ScheduleGroupRelation;
 import mapper.ScheduleMapper;
 import org.apache.ibatis.session.SqlSession;
 import util.MyBatisUtils;
@@ -19,6 +20,7 @@ public class ScheduleDao implements ScheduleMapper {
         try {
             ScheduleMapper mapper = session.getMapper(ScheduleMapper.class);
             shadeList = mapper.queryAll();
+            session.commit();
         }finally {
             session.close();
         }
@@ -26,12 +28,13 @@ public class ScheduleDao implements ScheduleMapper {
     }
 
     @Override
-    public Schedule selectByScheduleId(int id) {
+    public Schedule selectById(int id) {
         SqlSession session = MyBatisUtils.getSession();
         Schedule device =null;
         try {
             ScheduleMapper mapper = session.getMapper(ScheduleMapper.class);
-            device = mapper.selectByScheduleId(id);
+            device = mapper.selectById(id);
+            session.commit();
         }finally {
             session.close();
         }
@@ -39,48 +42,97 @@ public class ScheduleDao implements ScheduleMapper {
     }
 
     @Override
-    public void insert(Schedule schedule) {
+    public long insert(Schedule schedule) {
         SqlSession session = MyBatisUtils.getSession();
         try {
             ScheduleMapper mapper = session.getMapper(ScheduleMapper.class);
-            mapper.insert(schedule);
+            long insert = mapper.insert(schedule);
             session.commit();
+            return schedule.getId();
+        }finally {
+            session.close();
+        }
+    }
+
+
+
+    @Override
+    public int insertRelation(List<ScheduleGroupRelation> scheduleGroupRelationList) {
+        SqlSession session = MyBatisUtils.getSession();
+        try {
+            ScheduleMapper mapper = session.getMapper(ScheduleMapper.class);
+            int i = mapper.insertRelation(scheduleGroupRelationList);
+            session.commit();
+            return i;
         }finally {
             session.close();
         }
     }
 
     @Override
-    public void update(Schedule schedule) {
+    public int update(Schedule schedule) {
         SqlSession session = MyBatisUtils.getSession();
         try {
             ScheduleMapper mapper = session.getMapper(ScheduleMapper.class);
-            mapper.update(schedule);
+            int update = mapper.update(schedule);
             session.commit();
+            return update;
         }finally {
             session.close();
         }
     }
 
     @Override
-    public void delete(int scheduleId) {
+    public int delete(int scheduleId) {
         SqlSession session = MyBatisUtils.getSession();
         try {
             ScheduleMapper mapper = session.getMapper(ScheduleMapper.class);
-            mapper.delete(scheduleId);
+            int delete = mapper.delete(scheduleId);
             session.commit();
+            return delete;
         }finally {
             session.close();
         }
     }
 
     @Override
-    public void deleteAll() {
+    public int deleteRelation(ScheduleGroupRelation relation) {
         SqlSession session = MyBatisUtils.getSession();
         try {
             ScheduleMapper mapper = session.getMapper(ScheduleMapper.class);
-            mapper.deleteAll();
+            int delete = mapper.deleteRelation(relation);
             session.commit();
+            return delete;
+        }finally {
+            session.close();
+        }
+    }
+
+    @Override
+    public int deleteRelation(List<ScheduleGroupRelation> scheduleGroupRelationList) {
+        SqlSession session = MyBatisUtils.getSession();
+        try {
+            int sum=0;
+            ScheduleMapper mapper = session.getMapper(ScheduleMapper.class);
+            for (ScheduleGroupRelation relation:scheduleGroupRelationList){
+                int delete = mapper.deleteRelation(relation);
+                sum+=delete;
+            }
+            session.commit();
+            return sum;
+        }finally {
+            session.close();
+        }
+    }
+
+    @Override
+    public int deleteAll() {
+        SqlSession session = MyBatisUtils.getSession();
+        try {
+            ScheduleMapper mapper = session.getMapper(ScheduleMapper.class);
+            int i = mapper.deleteAll();
+            session.commit();
+            return i;
         }finally {
             session.close();
         }

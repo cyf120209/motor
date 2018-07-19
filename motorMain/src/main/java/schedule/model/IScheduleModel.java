@@ -1,16 +1,21 @@
 package schedule.model;
 
 import entity.Schedule;
+import entity.ScheduleGroupRelation;
+import model.DeviceGroup;
 
 import java.util.List;
 
 public interface IScheduleModel {
 
-    void insert(Schedule schedule);
+    long insert(Schedule schedule);
 
-    void update(Schedule schedule);
+    int update(Schedule schedule);
 
-    void delete(List<Integer> idList);
+    int delete(int id);
 
-    void deleteAll();
+    int delete(List<ScheduleGroupRelation> relationList);
+
+    int deleteAll();
+
 }

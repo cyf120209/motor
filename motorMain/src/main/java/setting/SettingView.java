@@ -30,13 +30,13 @@ public class SettingView extends JFrame implements ActionListener {
     private final java.util.List<String> LINES = new ArrayList<>();
 
     /** eth0 address field */
-    private final JTextField eth0AddressField;
+    private JTextField eth0AddressField;
 
     /** eth0 routers field */
-    private final JTextField eth0RoutersField;
+    private JTextField eth0RoutersField;
 
     /** eth0 domain name servers field */
-    private final JTextField eth0NameServersField;
+    private JTextField eth0NameServersField;
 
     /** wlan0 address field */
     private final JTextField wlan0AddressField;
@@ -84,7 +84,7 @@ public class SettingView extends JFrame implements ActionListener {
 
         Panel ipPanel = new Panel();
         ipPanel.setLayout(new GridBagLayout());
-        ipPanel.setBackground(Color.cyan);
+//        ipPanel.setBackground(Color.cyan);
 //        ipPanel.setSize(600,400);
         ipPanel.setBounds(0,0,300,200);
 
@@ -93,32 +93,33 @@ public class SettingView extends JFrame implements ActionListener {
         c.gridx = c.gridy = 0;
         c.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel l = new JLabel("eth0",JLabel.CENTER);
-        ipPanel.add(l,c);
-
-        ++c.gridy; c.gridwidth = 1;  c.anchor = GridBagConstraints.WEST;
-        l = new JLabel("IP Address");
-        ipPanel.add(l,c);
-
-        ++c.gridx;
-        eth0AddressField = new JTextField(15);
-        ipPanel.add(eth0AddressField,c);
-
-        c.gridx = 0;  ++c.gridy;
-        l = new JLabel("Gateway");
-        ipPanel.add(l,c);
-
-        ++c.gridx;
-        eth0RoutersField = new JTextField(15);
-        ipPanel.add(eth0RoutersField,c);
-
-        c.gridx = 0;  ++c.gridy;
-        l = new JLabel("Name Servers");
-        ipPanel.add(l,c);
-
-        ++c.gridx;
-        eth0NameServersField = new JTextField(15);
-        ipPanel.add(eth0NameServersField,c);
+        JLabel l = new JLabel("",JLabel.CENTER);
+//        JLabel l = new JLabel("eth0",JLabel.CENTER);
+//        ipPanel.add(l,c);
+//
+//        ++c.gridy; c.gridwidth = 1;  c.anchor = GridBagConstraints.WEST;
+//        l = new JLabel("IP Address");
+//        ipPanel.add(l,c);
+//
+//        ++c.gridx;
+//        eth0AddressField = new JTextField(15);
+//        ipPanel.add(eth0AddressField,c);
+//
+//        c.gridx = 0;  ++c.gridy;
+//        l = new JLabel("Gateway");
+//        ipPanel.add(l,c);
+//
+//        ++c.gridx;
+//        eth0RoutersField = new JTextField(15);
+//        ipPanel.add(eth0RoutersField,c);
+//
+//        c.gridx = 0;  ++c.gridy;
+//        l = new JLabel("Name Servers");
+//        ipPanel.add(l,c);
+//
+//        ++c.gridx;
+//        eth0NameServersField = new JTextField(15);
+//        ipPanel.add(eth0NameServersField,c);
 
         c.gridx = 0;  ++c.gridy;
         c.gridwidth = 2;  c.anchor = GridBagConstraints.CENTER;

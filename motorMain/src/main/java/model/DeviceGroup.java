@@ -9,7 +9,7 @@ public class DeviceGroup {
 
     private Integer groupId;
 
-    private String groupName;
+    private String groupName="";
 
 
     List<Integer> shadeList =new ArrayList<>();

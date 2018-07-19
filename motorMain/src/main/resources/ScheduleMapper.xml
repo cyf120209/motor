@@ -17,7 +17,7 @@
         <result property="weeks" column="weeks" />
         <result property="isEnabled" column="isEnabled" />
         <association property="shadeGroups" javaType="java.util.List"
-                     select="selectById" column="scheduleId">
+                     select="selectByRelationId" column="id">
 
         </association>
         <!--<collection property="shadeGroups" ofType="entity.shadeGroup">-->
@@ -31,21 +31,22 @@
         SELECT * FROM schedule
     </select>
 
-    <select id="selectByScheduleId" parameterType="int" resultMap="scheduleMap">
+    <select id="selectById" parameterType="int" resultMap="scheduleMap">
         SELECT * FROM schedule WHERE id=#{id}
     </select>
     
-    <select id="selectById" parameterType="int" resultType="entity.ShadeGroup">
-        SELECT * FROM schedulegrouprelation r INNER JOIN  shadegroup g on r.scheduleGroupId=g.groupId
+    <select id="selectByRelationId" parameterType="int" resultType="entity.ShadeGroup">
+        SELECT * FROM schedulegrouprelation r INNER JOIN  shadegroup g
+        on r.scheduleGroupId=g.id
       WHERE r.scheduleId=#{scheduleId}
     </select>
 
     <insert id="insert" parameterType="entity.Schedule" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO schedule (hour,min,percent,weeks,isEnabled) values (#{hour},#{min},#{percent},#{weeks},#{isEnabled})
+        INSERT INTO schedule (hour,min,percent,weeks,scheduleName,isEnabled) values (#{hour},#{min},#{percent},#{weeks},#{scheduleName},#{isEnabled})
     </insert>
 
     <update id="update" parameterType="entity.Schedule" >
-        UPDATE schedule set shadeName=#{shadeName},shadePosition=#{shadePosition},shadePriority=#{shadePriority},shadeStatus=#{shadeStatus} WHERE shadeId=#{shadeId}
+        UPDATE schedule set hour=#{hour},min=#{min},percent=#{percent},weeks=#{weeks},scheduleName=#{scheduleName} WHERE id=#{id}
     </update>
 
     <delete id="delete" parameterType="int">
@@ -54,5 +55,17 @@
 
     <delete id="deleteAll">
         DELETE FROM schedule
+    </delete>
+
+    <insert id="insertRelation" parameterType="java.util.List">
+        INSERT INTO schedulegrouprelation (scheduleGroupId,scheduleId)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.scheduleGroupId},#{item.scheduleId})
+        </foreach>
+    </insert>
+
+    <delete id="deleteRelation" parameterType="entity.ScheduleGroupRelation">
+        DELETE FROM schedulegrouprelation WHERE scheduleId=#{scheduleId} AND scheduleGroupId=#{scheduleGroupId}
     </delete>
 </mapper>

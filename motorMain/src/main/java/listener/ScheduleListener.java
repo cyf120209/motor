@@ -7,6 +7,7 @@ import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.Sequence;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
 import schedule.presenter.ISchedulePresenter;
+import schedule.presenter.IScheduleRelationPresenter;
 import suntracking.presenter.SuntrackingPresenter;
 import util.MyLocalDevice;
 import util.Public;
@@ -16,37 +17,18 @@ import java.util.List;
 
 public class ScheduleListener extends DeviceEventAdapter {
 
-    private ISchedulePresenter mSchedulePresenter;
+    private IScheduleRelationPresenter mSchedulePresenter;
     /**
      * 去重处理
      */
     private List<Integer> remoteDeviceIDList=new ArrayList<>();
 
-    public ScheduleListener(ISchedulePresenter suntrackingPresenter) {
+    public ScheduleListener(IScheduleRelationPresenter suntrackingPresenter) {
         this.mSchedulePresenter=suntrackingPresenter;
     }
 
     @Override
     public void iAmReceived(final RemoteDevice d) {
-        Integer id = Integer.valueOf(d.getInstanceNumber());
-        boolean exist = remoteDeviceIDList.contains(id);
-        if (exist) {
-            return;
-        }
-        remoteDeviceIDList.add(id);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    MyLocalDevice.addRemoteDevice(d);
-                    if (Public.matchString(d.getModelName(), "MC-AC")) {
-//                    mBoxLayoutView.AddItem(d);
-                    }
-                } catch (BACnetException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
     }
 
     @Override

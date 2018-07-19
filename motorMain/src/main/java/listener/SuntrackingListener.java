@@ -27,25 +27,6 @@ public class SuntrackingListener extends DeviceEventAdapter {
 
     @Override
     public void iAmReceived(final RemoteDevice d) {
-        Integer id = Integer.valueOf(d.getInstanceNumber());
-        boolean exist = remoteDeviceIDList.contains(id);
-        if (exist) {
-            return;
-        }
-        remoteDeviceIDList.add(id);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    MyLocalDevice.addRemoteDevice(d);
-                    if (Public.matchString(d.getModelName(), "MC-AC")) {
-//                    mBoxLayoutView.AddItem(d);
-                    }
-                } catch (BACnetException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
     }
 
     @Override

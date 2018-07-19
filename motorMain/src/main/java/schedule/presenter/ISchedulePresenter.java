@@ -9,17 +9,13 @@ import java.util.List;
 
 public interface ISchedulePresenter {
 
-    DeviceGroup getDeviceGroup();
+    long insert(Schedule schedule);
 
-    void paraseServiceParameter(UnsignedInteger serviceNumber, Sequence serviceParameters);
+    int update(int index,Schedule schedule);
 
-    void sendAnnounce();
+    int delete(List<Integer> idList);
 
-    void insert(Schedule schedule);
+    int delete(int index);
 
-    void update(Schedule schedule);
-
-    void delete(List<Integer> idList);
-
-    void deleteAll();
+    int deleteAll();
 }

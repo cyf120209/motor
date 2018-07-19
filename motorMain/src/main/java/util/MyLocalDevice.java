@@ -7,10 +7,7 @@ import com.serotonin.bacnet4j.exception.BACnetException;
 import com.serotonin.bacnet4j.exception.BACnetRuntimeException;
 import com.serotonin.bacnet4j.exception.BACnetServiceException;
 import com.serotonin.bacnet4j.npdu.ip.IpNetwork;
-import com.serotonin.bacnet4j.npdu.mstp.Frame;
-import com.serotonin.bacnet4j.npdu.mstp.LogCallbackListener;
-import com.serotonin.bacnet4j.npdu.mstp.MasterNode;
-import com.serotonin.bacnet4j.npdu.mstp.MstpNetwork;
+import com.serotonin.bacnet4j.npdu.mstp.*;
 import com.serotonin.bacnet4j.npdu.uart.Spi2Uart;
 import com.serotonin.bacnet4j.npdu.uart.UART;
 import com.serotonin.bacnet4j.obj.BACnetObject;
@@ -35,6 +32,7 @@ import com.serotonin.bacnet4j.util.RequestUtils;
 import common.Common;
 import dao.LogDao;
 import entity.Log;
+import listener.BaseListener;
 import org.free.bacnet4j.util.SerialParameters;
 import org.free.bacnet4j.util.SerialPortException;
 import rx.*;
@@ -52,23 +50,11 @@ public class MyLocalDevice {
     public static SerialParameters serialParams = new SerialParameters();
     private static LocalDevice localDevice;
 
-    public static IpNetwork ipnetwork;
-    public static Transport iptransport;
     public static MstpNetwork network;
-
-//    /**
-//     * 远程设备列表
-//     */
-//    private static List<RemoteDevice> mRemoteDeviceList=new ArrayList<>();
-//
-//    /**
-//     * 远程设备列表
-//     */
-//    private static Map<Integer, RemoteDevice> mRemoteDevice = new HashMap<>();
 
     private static MasterNode node;
     private static Transport transport;
-    //    private static LocalDevice ipLocalDevice;
+
     public static RemoteUtils mRemoteUtils;
 
     public static LocalDevice getInstance() {
@@ -87,6 +73,7 @@ public class MyLocalDevice {
                         initUART();
                     }
                     localDevice = new LocalDevice(900, 900900, transport);
+                    localDevice.getEventHandler().addListener(new BaseListener());
                     mRemoteUtils = new RemoteUtils();
                     Draper.updateLocalDevice();
                     init();
@@ -126,6 +113,7 @@ public class MyLocalDevice {
         serialParams.setBaudRate(Common.BAUDRATE);
         node = new MasterNode(serialParams, (byte) 2, 2);
         node.setLogCallbackListener(logCallbackListener);
+        node.setRemoteDeviceListener(remoteDeviceListener);
         network = new MstpNetwork(node);
         transport = new Transport(network);
     }
@@ -133,12 +121,6 @@ public class MyLocalDevice {
     private  static LogCallbackListener logCallbackListener=new LogCallbackListener() {
         @Override
         public void onFrameSend(final Frame frame) {
-//            if(frame.getData()!=null && frame.getData().length>0){
-//                System.out.println("---------------------id: "+frame.getFrameType().id+
-//                        "  src: "+ Byte2IntUtils.byteToHexString(frame.getSourceAddress())+
-//                        "  dec: "+Byte2IntUtils.byteToHexString(frame.getDestinationAddress())+
-//                        "  data: "+Byte2IntUtils.bytesToHexString(frame.getData()));
-//            }
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -154,6 +136,18 @@ public class MyLocalDevice {
                     logDao.insert(log);
                 }
             }).start();
+        }
+    };
+
+    private static RemoteDeviceListener remoteDeviceListener=new RemoteDeviceListener() {
+        @Override
+        public void remoteDeviceAdd(byte addr) {
+            mRemoteUtils.addRemoteDeviceAddr(addr);
+        }
+
+        @Override
+        public void remoteDeviceDelete(byte addr) {
+            mRemoteUtils.deleteRemoteDeviceAddr(addr);
         }
     };
 
@@ -181,7 +175,6 @@ public class MyLocalDevice {
         ConfirmedPrivateTransferAck.vendorServiceResolutions.put(new VendorServiceKey(new UnsignedInteger(900),
                 new UnsignedInteger(8)), def4);
 
-
         //路由功能
 //        LinkedList<Integer> myNet=new LinkedList<>();
 //        myNet.add(1);
@@ -190,8 +183,6 @@ public class MyLocalDevice {
             localDevice.initialize();
             Thread.sleep(1000);
             localDevice.sendGlobalBroadcast(localDevice.getIAm());
-//            Thread.sleep(100);
-//            localDevice.sendGlobalBroadcast(new WhoIsRequest());
         } catch (BACnetException e) {
             e.printStackTrace();
             if (localDevice != null) {
@@ -214,24 +205,13 @@ public class MyLocalDevice {
     }
 
     /**
-     * 判断设备是否已添加
-     *
-     * @param remoteDevice
-     * @return
-     */
-    public static boolean isExist(RemoteDevice remoteDevice) {
-        return mRemoteUtils.isExist(remoteDevice);
-//        return mRemoteDeviceList.contains(remoteDevice);
-    }
-
-    /**
      * 添加远程设备
      *
      * @param remoteDevice
      */
     public static void addRemoteDevice(RemoteDevice remoteDevice) throws BACnetException {
         //getObjectList(remoteDevice);
-        mRemoteUtils.addRemoteDevice(remoteDevice);
+//        mRemoteUtils.addRemoteDevice(remoteDevice);
 
 //        mRemoteDeviceList.add(remoteDevice);
 //        mRemoteDevice.put(remoteDevice.getInstanceNumber(),remoteDevice);

@@ -13,6 +13,7 @@ import util.StyleUtils;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -84,86 +85,23 @@ public class GroupOperation extends JFrame implements ActionListener,GroupOperat
         add(devicePanel);
         add(existedGroup);
         addMotor();
+        DefaultMutableTreeNode node1 = new DefaultMutableTreeNode("软件部");
+        node1.add(new DefaultMutableTreeNode("小花"));
+        node1.add(new DefaultMutableTreeNode("小虎"));
+        node1.add(new DefaultMutableTreeNode("小龙"));
 
+        DefaultMutableTreeNode node2 = new DefaultMutableTreeNode("销售部");
+        node2.add(new DefaultMutableTreeNode("小叶"));
+        node2.add(new DefaultMutableTreeNode("小雯"));
+        node2.add(new DefaultMutableTreeNode("小夏"));
+
+        DefaultMutableTreeNode top = new DefaultMutableTreeNode("职员管理");
+
+        top.add(new DefaultMutableTreeNode("总经理"));
+        top.add(node1);
+        top.add(node2);
+        final JTree tree = new JTree(top);
         initData();
-//        AnnounceSubbutton.setBounds(10,10,100,20 );
-//        devBox.setBounds(130,10,300,20);
-//        groupText.setBounds(10,40,100,20 );
-//        groupEdit.setBounds(100,40,100,20);
-//        deviceText.setBounds(10,60,100,20 );
-//        deviceEdit.setBounds(100,60,100,20);
-//        addSelGroup.setBounds(10,100,120,20 );
-//        addAllGroup.setBounds(10,120,120,20 );
-//        delSelGroup.setBounds(130,100,120,20 );
-//        delAllGroup.setBounds(130,120,120,20 );
-//
-//        deviceSP.setBounds(10,150,100,200);
-//        groupSP.setBounds(120,150,100,200);
-//        draperSP.setBounds(240,150,100,200);
-//
-//        upBt.setBounds(new Rectangle(270, 40, 100, Common.HEIGHT));
-//        downbt.setBounds(new Rectangle(270, 60, 100, Common.HEIGHT));
-//        stopButton.setBounds(new Rectangle(270, 80, 100, Common.HEIGHT));
-//
-//        add(AnnounceSubbutton);
-//        add(devBox);
-//        add(addAllGroup);
-//        add(delAllGroup);
-//        add(addSelGroup);
-//        add(delSelGroup);
-//        add(groupText);
-//        add(deviceText);
-//        add(groupEdit);
-//        add(deviceEdit);
-//
-//        add(deviceSP);
-//        add(groupSP);
-//        add(draperSP);
-//
-//        add(upBt);
-//        add(downbt);
-//        add(stopButton);
-//
-//        AnnounceSubbutton.addActionListener(this);
-//        addSelGroup.addActionListener(this);
-//        addAllGroup.addActionListener(this);
-//        delSelGroup.addActionListener(this);
-//        delAllGroup.addActionListener(this);
-//
-//        upBt.addActionListener(this);
-//        stopButton.addActionListener(this);
-//        downbt.addActionListener(this);
-//
-//        deviceList.addListSelectionListener(new ListSelectionListener() {
-//            @Override
-//            public void valueChanged(ListSelectionEvent e) {
-//                boolean valueIsAdjusting = e.getValueIsAdjusting();
-//                if(!valueIsAdjusting){
-//                    return;
-//                }
-//                JList deviceSource = (JList)e.getSource();
-//                int selectedIndex = deviceSource.getSelectedIndex();
-//                String[] groups = mGroupOperationPresenter.getGroups(selectedIndex);
-//                updateGroup(groups);
-//                deviceEdit.setText(""+deviceList.getSelectedValue());
-//
-//            }
-//        });
-//        groupList.addListSelectionListener(new ListSelectionListener() {
-//            @Override
-//            public void valueChanged(ListSelectionEvent e) {
-//                boolean valueIsAdjusting = e.getValueIsAdjusting();
-//                if(!valueIsAdjusting){
-//                    return;
-//                }
-//                System.out.println(""+valueIsAdjusting);
-//                JList groupSource = (JList)e.getSource();
-//                int selectedIndex = groupSource.getSelectedIndex();
-//                String[] drapers = mGroupOperationPresenter.getDrapers(selectedIndex);
-//                updateDraperList(drapers);
-//                groupEdit.setText(""+groupList.getSelectedValue());
-//            }
-//        });
 
         // 把背景图片显示在一个标签里面
         JLabel label = new JLabel(StyleUtils.getFormBg());
@@ -188,8 +126,8 @@ public class GroupOperation extends JFrame implements ActionListener,GroupOperat
     }
 
     private void initData() {
-        List<Integer> remoteDeviceIDList = MyLocalDevice.mRemoteUtils.getRemoteDeviceIDList();
-        JCheckBox[] cbDeviceList=new JCheckBox[remoteDeviceIDList.size()];
+//        List<Integer> remoteDeviceIDList = MyLocalDevice.mRemoteUtils.getRemoteDeviceIDList();
+//        JCheckBox[] cbDeviceList=new JCheckBox[remoteDeviceIDList.size()];
 
     }
 
@@ -396,7 +334,7 @@ public class GroupOperation extends JFrame implements ActionListener,GroupOperat
         List<RemoteDevice> remoteDeviceList = MyLocalDevice.getRemoteDeviceList();
 
         for (RemoteDevice remoteDevice : remoteDeviceList) {
-            if (Public.matchString(remoteDevice.getModelName(), "MC-AC")) {
+            if (Public.matchString(Public.readModelName(remoteDevice), "MC-AC")) {
                 idMotorList.add(remoteDevice.getInstanceNumber());
             }
         }

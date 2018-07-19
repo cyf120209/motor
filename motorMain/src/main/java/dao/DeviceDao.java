@@ -41,7 +41,25 @@ public class DeviceDao implements DeviceMapper {
         SqlSession session = MyBatisUtils.getSession();
         try {
             DeviceMapper mapper = session.getMapper(DeviceMapper.class);
-            mapper.insert(device);
+            Device d = mapper.selectByDeviceId(device.getDeviceId());
+            if(d==null){
+                mapper.insert(device);
+            }else {
+                d.setIsShow(1);
+                mapper.update(d);
+            }
+            session.commit();
+        }finally {
+            session.close();
+        }
+    }
+
+    @Override
+    public void batchInsert(List<Device> deviceList) {
+        SqlSession session = MyBatisUtils.getSession();
+        try {
+            DeviceMapper mapper = session.getMapper(DeviceMapper.class);
+            mapper.batchInsert(deviceList);
             session.commit();
         }finally {
             session.close();

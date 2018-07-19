@@ -2,6 +2,8 @@ package schedule.model;
 
 import dao.ScheduleDao;
 import entity.Schedule;
+import entity.ScheduleGroupRelation;
+import model.DeviceGroup;
 
 import java.util.List;
 
@@ -14,24 +16,35 @@ public class ScheduleModelImpl implements IScheduleModel {
     }
 
     @Override
-    public void insert(Schedule schedule) {
-        scheduleDao.insert(schedule);
+    public long insert(Schedule schedule) {
+        return scheduleDao.insert(schedule);
     }
 
     @Override
-    public void update(Schedule schedule) {
+    public int update(Schedule schedule) {
+        return scheduleDao.update(schedule);
 
     }
 
     @Override
-    public void delete(List<Integer> idList) {
-        for (Integer i:idList){
-            scheduleDao.delete(i);
+    public int delete(int id) {
+        return scheduleDao.delete(id);
+    }
+
+    @Override
+    public int delete(List<ScheduleGroupRelation> relationList) {
+        int num=0;
+        for (ScheduleGroupRelation relation:relationList){
+            int delete = scheduleDao.deleteRelation(relation);
+            num+=delete;
         }
+        return num;
     }
 
     @Override
-    public void deleteAll() {
-        scheduleDao.deleteAll();
+    public int deleteAll() {
+        return scheduleDao.deleteAll();
     }
+
+
 }

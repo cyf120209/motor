@@ -40,23 +40,9 @@ public class MyJList extends JFrame {
         setSize(260, 240);
         getContentPane().setLayout(new FlowLayout());
 
-        InstallData[] options = {new InstallData("Program executable", 118),
-                new InstallData("Help files", 52),
-                new InstallData("Help files", 52),
-                new InstallData("Help files", 52),
-                new InstallData("Help files", 52),
-                new InstallData("Help files", 52),
-                new InstallData("Help files", 52),
-                new InstallData("Help files", 52),
-                new InstallData("Help files", 52),
-                new InstallData("Help files", 52),
-                new InstallData("Help files", 52),
-                new InstallData("Help files", 52),
-                new InstallData("Help files", 52),
-                new InstallData("Tools and converters", 83),
-                new InstallData("Source code", 133)};
 
-        m_list = new JList(options);
+
+        m_list = new JList();
         CheckListCellRenderer renderer = new CheckListCellRenderer();
         m_list.setCellRenderer(renderer);
         m_list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -88,6 +74,23 @@ public class MyJList extends JFrame {
         setVisible(true);
 
         recalcTotal();
+
+        InstallData[] options = {new InstallData("Program executable", 118),
+                new InstallData("Help files", 52),
+                new InstallData("Help files", 52),
+                new InstallData("Help files", 52),
+                new InstallData("Help files", 52),
+                new InstallData("Help files", 52),
+                new InstallData("Help files", 52),
+                new InstallData("Help files", 52),
+                new InstallData("Help files", 52),
+                new InstallData("Help files", 52),
+                new InstallData("Help files", 52),
+                new InstallData("Help files", 52),
+                new InstallData("Help files", 52),
+                new InstallData("Tools and converters", 83),
+                new InstallData("Source code", 133)};
+        m_list.setListData(options);
     }
 
     public void recalcTotal() {

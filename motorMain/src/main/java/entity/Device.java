@@ -23,6 +23,8 @@ public class Device implements Serializable {
 
     private String remarks;
 
+    private Integer isShow;
+
 //    private Set shadeGroups=new HashSet();
     private List<ShadeGroup> shadeGroups =new ArrayList<ShadeGroup>();
 
@@ -31,7 +33,12 @@ public class Device implements Serializable {
         super();
     }
 
-    public Device(Integer deviceId, String deviceName, String mac, String modelName,String version) {
+    public Device(Integer deviceId, String mac) {
+        this.deviceId = deviceId;
+        this.mac = mac;
+    }
+
+    public Device(Integer deviceId, String deviceName, String mac, String modelName, String version) {
         this.deviceId = deviceId;
         this.deviceName = deviceName;
         this.mac = mac;
@@ -103,6 +110,14 @@ public class Device implements Serializable {
         this.remarks = remarks;
     }
 
+    public Integer getIsShow() {
+        return isShow;
+    }
+
+    public void setIsShow(Integer isShow) {
+        this.isShow = isShow;
+    }
+
     //    public Set getShadeGroups() {
 //        return shadeGroups;
 //    }
@@ -110,4 +125,29 @@ public class Device implements Serializable {
 //    public void setShadeGroups(Set shadeGroups) {
 //        this.shadeGroups = shadeGroups;
 //    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null ) return false;
+
+        Device device = (Device) o;
+
+        if (deviceId != null ? !deviceId.equals(device.deviceId) : device.deviceId != null) return false;
+        if (deviceName != null ? !deviceName.equals(device.deviceName) : device.deviceName != null) return false;
+        if (mac != null ? !mac.equals(device.mac) : device.mac != null) return false;
+        if (modelName != null ? !modelName.equals(device.modelName) : device.modelName != null) return false;
+        return version != null ? version.equals(device.version) : device.version == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = deviceId != null ? deviceId.hashCode() : 0;
+        result = 31 * result + (deviceName != null ? deviceName.hashCode() : 0);
+        result = 31 * result + (mac != null ? mac.hashCode() : 0);
+        result = 31 * result + (modelName != null ? modelName.hashCode() : 0);
+        result = 31 * result + (version != null ? version.hashCode() : 0);
+        return result;
+    }
 }

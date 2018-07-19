@@ -38,8 +38,4 @@ public class MyBatisUtils {
     public static SqlSession getSession(){
         return sessionFactory.openSession();
     }
-
-    public static void closeSession(SqlSession session){
-        session.close();
-    }
 }

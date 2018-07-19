@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.GeocoderMapper">    <!-- 使用sql标签可以将公共的sql提取出来复用 -->
+
+    <sql id="queryFields">
+        id , deviceId , deviceName
+    </sql>
+    <!--<select id="selectByID" parameterType="int" resultType="Shade">select-->
+        <!--<include refid="queryFields"/>-->
+        <!--from `device` where id = #{id}-->
+    <!--</select>-->
+    <resultMap id="geocoderMap" type="entity.State">
+        <id property="stateId" column="stateId" />
+        <result property="stateName" column="stateName" />
+        <result property="cStateName" column="cStateName" />
+        <result property="fs" column="fs" />
+        <result property="country" column="country" />
+        <collection property="cities" ofType="entity.City">
+            <id property="id" column="id" />
+            <result property="stateId" column="stateId" />
+            <result property="cityName" column="cityName" />
+            <result property="cCityName" column="cCityName" />
+            <result property="lng" column="lng" />
+            <result property="lat" column="lat" />
+        </collection>
+        <!--<collection property="shadeGroups" ofType="entity.shadeGroup">-->
+            <!--<id property="groupId" column="groupId" />-->
+            <!--&lt;!&ndash;<result property="groupId" column="groupId" />&ndash;&gt;-->
+            <!--<result property="groupName" column="groupName" />-->
+        <!--</collection>-->
+    </resultMap>
+
+    <select id="queryAll" resultMap="geocoderMap">
+        SELECT * FROM state s,city c WHERE s.stateId = c.stateId
+    </select>
+
+    <select id="selectById" parameterType="int" resultMap="geocoderMap">
+        SELECT * FROM state WHERE stateId=#{id}
+    </select>
+
+    <insert id="insert" parameterType="entity.State" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO state (stateId,stateName,cStateName,fs,country) values (#{stateId},#{stateName},#{cStateName},#{fs},#{country})
+    </insert>
+
+    <update id="update" parameterType="entity.State" >
+        UPDATE state set stateName=#{stateName},cStateName=#{cStateName},fs=#{fs},country=#{country} WHERE stateId=#{stateId}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM state WHERE stateId=#{stateId}
+    </delete>
+</mapper>

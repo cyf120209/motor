@@ -69,12 +69,7 @@ public class Listener extends DeviceEventAdapter {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    MyLocalDevice.addRemoteDevice(d);
-                    mBoxLayoutView.AddItem(d);
-                } catch (BACnetException e) {
-                    e.printStackTrace();
-                }
+                mBoxLayoutView.AddItem(d);
             }
         }).start();
 //        new Thread(new Runnable() {

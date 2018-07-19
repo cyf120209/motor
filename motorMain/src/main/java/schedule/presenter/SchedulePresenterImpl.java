@@ -6,13 +6,16 @@ import com.serotonin.bacnet4j.type.Encodable;
 import com.serotonin.bacnet4j.type.constructed.Sequence;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
+import dao.GroupDao;
 import dao.ScheduleDao;
 import entity.Schedule;
+import entity.ScheduleGroupRelation;
+import entity.ShadeGroup;
 import listener.ScheduleListener;
 import model.DeviceGroup;
 import schedule.model.IScheduleModel;
 import schedule.model.ScheduleModelImpl;
-import schedule.view.IScheduleView;
+import schedule.view.IScheduleOnly;
 import util.Draper;
 import util.DraperSubItem;
 import util.DraperSubList;
@@ -22,11 +25,12 @@ import java.util.*;
 
 public class SchedulePresenterImpl implements ISchedulePresenter{
 
-    private final ScheduleListener mScheduleListener;
+//    private final ScheduleListener mScheduleListener;
     private final IScheduleModel mScheduleModel;
+    private final List<Schedule> schedules;
     private LocalDevice localDevice;
 //    private SuntrackingListener mSuntrackingListener;
-    private IScheduleView mScheduleView;
+    private IScheduleOnly mScheduleView;
 
     /**
      * 设备和组和电机的关系列表
@@ -38,114 +42,14 @@ public class SchedulePresenterImpl implements ISchedulePresenter{
      */
     private List<Integer> mDevicesIDList = new ArrayList<>();
 
-    public SchedulePresenterImpl(IScheduleView scheduleView) {
+    public SchedulePresenterImpl(IScheduleOnly scheduleView) {
         this.mScheduleView = scheduleView;
         localDevice = MyLocalDevice.getInstance();
         mScheduleModel = new ScheduleModelImpl();
-        mScheduleListener = new ScheduleListener(this);
-        localDevice.getEventHandler().addListener(mScheduleListener);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(1000);
-                    sendAnnounce();
-                    mSequence.clear();
-                    mRelativeList.clear();
-                    mDevicesIDList.clear();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+
         ScheduleDao scheduleDao = new ScheduleDao();
-        List<Schedule> schedules = scheduleDao.queryAll();
+        schedules = scheduleDao.queryAll();
         mScheduleView.showSchedule(schedules);
-    }
-
-    @Override
-    public DeviceGroup getDeviceGroup() {
-        return null;
-    }
-
-    /**
-     * announce类型 1：代表全部，2：代表组
-     */
-    private int mAnnounceType = 1;
-
-    @Override
-    public synchronized void paraseServiceParameter(UnsignedInteger serviceNumber, Sequence serviceParameters) {
-        Sequence parms = serviceParameters;
-
-        if (serviceNumber.intValue() == 7) {
-            if (mAnnounceType == 1) {
-                deviceAnnounce(parms);
-            } else {
-                groupAnnounce(parms);
-            }
-        }
-    }
-
-    private void groupAnnounce(Sequence parms) {
-        Map<String, Encodable> values1 = parms.getValues();
-        ObjectIdentifier draperID1 = (ObjectIdentifier) values1.get("draperID");
-        int instanceNumber1 = draperID1.getInstanceNumber();
-        List<Integer> list = new ArrayList<>();
-        list.add(instanceNumber1);
-    }
-
-    /**
-     * serviceParameters参数列表，主要防止重复添加
-     */
-    private List<Sequence> mSequence = new ArrayList<>();
-
-    private void deviceAnnounce(Sequence parms) {
-        //parms 去重处理
-        if (mSequence.contains(parms)) {
-            return;
-        }
-        mSequence.add(parms);
-        Map<String, Encodable> values1 = parms.getValues();
-        //获取draperID
-        ObjectIdentifier draperID1 = (ObjectIdentifier) values1.get("draperID");
-        int instanceNumber1 = draperID1.getInstanceNumber();
-        //该draperID下的设备-组关系
-        DraperSubList deviceGroup1 = (DraperSubList) values1.get("DeviceGroup");
-        for (DraperSubItem item1 : deviceGroup1.getList()) {
-            Map<Integer, List<Integer>> CdevGrpInf = null;
-            CdevGrpInf = mRelativeList.get(item1.getDevicID().getInstanceNumber());
-            if (CdevGrpInf == null) {
-                CdevGrpInf = new HashMap<Integer, List<Integer>>();
-                mRelativeList.put(item1.getDevicID().getInstanceNumber(), CdevGrpInf);
-            }
-            if (!mDevicesIDList.contains(item1.getDevicID().getInstanceNumber())) {
-                mDevicesIDList.add(item1.getDevicID().getInstanceNumber());
-            }
-            List<Integer> devList = null;
-            devList = CdevGrpInf.get(item1.getGroupID().intValue());
-            if (devList == null) {
-                devList = new LinkedList<Integer>();
-                CdevGrpInf.put(item1.getGroupID().intValue(), devList);
-            }
-            if (!devList.contains(instanceNumber1)) {
-                devList.add(instanceNumber1);
-            }
-        }
-        MyLocalDevice.mRemoteUtils.setRelationMap(mRelativeList);
-        mScheduleView.updateExistedGroup(mDevicesIDList.toArray());
-    }
-
-    @Override
-    public void sendAnnounce() {
-        try {
-            Draper.sendAnnounce();
-            mSequence.clear();
-            mRelativeList.clear();
-            mDevicesIDList.clear();
-            System.out.println("send Anounce");
-        } catch (BACnetException e) {
-            e.printStackTrace();
-        }
     }
 
     private Schedule viewSchedule2entitySchedule(view.Schedule schedule) {
@@ -157,27 +61,54 @@ public class SchedulePresenterImpl implements ISchedulePresenter{
         return new Schedule(schedule.getHour(),
                 schedule.getMin(),
                 schedule.getPercent(),
-                str);
+                str,
+                schedule.getScheduleName());
     }
 
     @Override
-    public void insert(view.Schedule schedule) {
+    public long insert(view.Schedule schedule) {
         Schedule schedule1 = viewSchedule2entitySchedule(schedule);
-        mScheduleModel.insert(schedule1);
+        long insert = mScheduleModel.insert(schedule1);
+        schedules.add(schedule1);
+        return insert;
     }
 
     @Override
-    public void update(view.Schedule schedule) {
-        mScheduleModel.update(viewSchedule2entitySchedule(schedule));
+    public int update(int index,view.Schedule schedule) {
+        Schedule schedule2Update = viewSchedule2entitySchedule(schedule);
+        Schedule scheduleOrigin = schedules.get(index);
+        schedule2Update.setId(scheduleOrigin.getId());
+        int update = mScheduleModel.update(schedule2Update);
+        if(update>0){
+            schedules.set(index,schedule2Update);
+        }
+        return update;
     }
 
     @Override
-    public void delete(List<Integer> idList) {
-        mScheduleModel.delete(idList);
+    public int delete(int index) {
+        int delete = mScheduleModel.delete(schedules.get(index).getId());
+        if(delete>0){
+            schedules.remove(index);
+        }
+        return delete;
     }
 
     @Override
-    public void deleteAll() {
-        mScheduleModel.deleteAll();
+    public int delete(List<Integer> idList) {
+//        List<Integer> delId=new ArrayList<>();
+//        for (int i = 0; i < idList.size(); i++) {
+//            Schedule schedule = schedules.get(i);
+//            int id = schedule.getId();
+//            delId.add(id);
+//        }
+//        return mScheduleModel.delete(delId);
+        return 0;
     }
+
+    @Override
+    public int deleteAll() {
+        return mScheduleModel.deleteAll();
+    }
+
 }
