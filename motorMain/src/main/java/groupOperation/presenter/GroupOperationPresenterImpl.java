@@ -139,46 +139,46 @@ public class GroupOperationPresenterImpl implements GroupOperationPresenter {
 
     @Override
     public void addSelGroup() {
-        if(localDevice!=null){
-            try {
-                Draper.sendGroupSubscriptionToSelect(mRemoteDevices.get(mGroupOperationView.getdevBoxSelectedItem()),false,mGroupOperationView.getDeviceNum(),mGroupOperationView.getGroupNum());
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
-        }
+//        if(localDevice!=null){
+//            try {
+//                Draper.sendGroupSubscriptionToSelect(mRemoteDevices.get(mGroupOperationView.getdevBoxSelectedItem()),false,mGroupOperationView.getDeviceNum(),mGroupOperationView.getGroupNum());
+//            } catch (Exception e1) {
+//                e1.printStackTrace();
+//            }
+//        }
     }
 
     @Override
     public void addAllGroup() {
-        if(localDevice!=null){
-            try {
-                Draper.sendGroupSubscription(false,mGroupOperationView.getDeviceNum(),mGroupOperationView.getGroupNum());
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
-        }
+//        if(localDevice!=null){
+//            try {
+//                Draper.sendGroupSubscription(false,mGroupOperationView.getDeviceNum(),mGroupOperationView.getGroupNum());
+//            } catch (Exception e1) {
+//                e1.printStackTrace();
+//            }
+//        }
     }
 
     @Override
     public void delSelGroup() {
-        if(localDevice!=null){
-            try {
-                Draper.sendGroupSubscriptionToSelect(mRemoteDevices.get(mGroupOperationView.getdevBoxSelectedItem()),true,mGroupOperationView.getDeviceNum(),mGroupOperationView.getGroupNum());
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
-        }
+//        if(localDevice!=null){
+//            try {
+//                Draper.sendGroupSubscriptionToSelect(mRemoteDevices.get(mGroupOperationView.getdevBoxSelectedItem()),true,mGroupOperationView.getDeviceNum(),mGroupOperationView.getGroupNum());
+//            } catch (Exception e1) {
+//                e1.printStackTrace();
+//            }
+//        }
     }
 
     @Override
     public void delAllGroup() {
-        if(localDevice!=null){
-            try {
-                Draper.sendGroupSubscription(true,mGroupOperationView.getDeviceNum(),mGroupOperationView.getGroupNum());
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
-        }
+//        if(localDevice!=null){
+//            try {
+//                Draper.sendGroupSubscription(true,mGroupOperationView.getDeviceNum(),mGroupOperationView.getGroupNum());
+//            } catch (Exception e1) {
+//                e1.printStackTrace();
+//            }
+//        }
     }
 
     @Override

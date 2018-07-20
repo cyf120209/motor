@@ -52,7 +52,7 @@ public class ScheduleOnly extends JFrame implements IScheduleOnly,ActionListener
 
     public ScheduleOnly() throws HeadlessException {
         setTitle("Schedule");
-//        setSize(Common.SCREEN_WEIGHT,Common.SCREEN_HEIGHT);
+        setSize(Common.SCREEN_WEIGHT,Common.SCREEN_HEIGHT);
 
         setLocationRelativeTo(this);
 

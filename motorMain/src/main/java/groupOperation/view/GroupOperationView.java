@@ -7,15 +7,15 @@ import model.DeviceGroup;
  */
 public interface GroupOperationView {
 
-    int getDeviceNum();
+//    int getDeviceNum();
 
-    int getGroupNum();
+//    int getGroupNum();
 
-    void updateDraper(String[] drapers);
+//    void updateDraper(String[] drapers);
 
-    int getdevBoxSelectedItem();
+//    int getdevBoxSelectedItem();
 
-    int getdevBoxSelectedIndex();
+//    int getdevBoxSelectedIndex();
 
     void updateDevice(Object[] arr);
 

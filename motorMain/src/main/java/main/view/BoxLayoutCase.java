@@ -74,7 +74,7 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
         //不能改变大小
         setResizable(false);
         //最大化
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+//        setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         //不要边框 需放置在组件添加之前，否则不生效
         setUndecorated(true);

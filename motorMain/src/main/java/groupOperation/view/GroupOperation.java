@@ -1,5 +1,6 @@
 package groupOperation.view;
 
+import entity.Device;
 import groupOperation.IGroupCallback;
 import groupOperation.presenter.GroupOperationPresenter;
 import groupOperation.presenter.GroupOperationPresenterImpl;
@@ -13,16 +14,18 @@ import util.StyleUtils;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by lenovo on 2017/1/19.
@@ -30,17 +33,8 @@ import java.util.Map;
 public class GroupOperation extends JFrame implements ActionListener,GroupOperationView,ListSelectionListener{
 
     private GroupOperationPresenter mGroupOperationPresenter;
-    public JLabel groupText=new JLabel("Group Num:");
-    public JLabel deviceText=new JLabel("Device Num:");
-    public JTextField groupEdit=new JTextField(10);
-    public JTextField deviceEdit=new JTextField(10);
 
     public JButton AnnounceSubbutton=new JButton("Announce");
-    public JComboBox devBox=new JComboBox();
-    public JButton addSelGroup=new JButton("AddSelGroup");
-    public JButton delSelGroup=new JButton("DelSelGroup");
-    public JButton addAllGroup=new JButton("AddALLGroup");
-    public JButton delAllGroup=new JButton("DelALLGroup");
 
     public JButton upBt=new JButton("up");
     public JButton downbt=new JButton("down");
@@ -56,13 +50,10 @@ public class GroupOperation extends JFrame implements ActionListener,GroupOperat
 
     JCheckBox[] jcbGroup;
     java.util.List<Integer> idGroupList = new ArrayList<>();
-    List<DeviceGroup> deviceGroupList=new ArrayList<>();
-
-    Panel devicePanel = new Panel();
-
-    Panel existedGroup = new Panel();
+    List<DeviceGroup> mDeviceGroupList=new ArrayList<>();
 
     IGroupCallback callback;
+    private int selectedIndex=-1;
 
     public GroupOperation(IGroupCallback callback) throws HeadlessException{
         this.callback=callback;
@@ -79,28 +70,13 @@ public class GroupOperation extends JFrame implements ActionListener,GroupOperat
         setLayout(null);
         setSize(600,400);
 
-        devicePanel.setBounds(5, 5, 100, 300);
-        existedGroup.setBounds(110, 5, 300, 150);
+//        devicePanel.setBounds(5, 5, 100, 300);
+        groupSP.setBounds(110, 5, 300, 150);
 
-        add(devicePanel);
-        add(existedGroup);
+//        add(devicePanel);
+        add(groupSP);
         addMotor();
-        DefaultMutableTreeNode node1 = new DefaultMutableTreeNode("软件部");
-        node1.add(new DefaultMutableTreeNode("小花"));
-        node1.add(new DefaultMutableTreeNode("小虎"));
-        node1.add(new DefaultMutableTreeNode("小龙"));
 
-        DefaultMutableTreeNode node2 = new DefaultMutableTreeNode("销售部");
-        node2.add(new DefaultMutableTreeNode("小叶"));
-        node2.add(new DefaultMutableTreeNode("小雯"));
-        node2.add(new DefaultMutableTreeNode("小夏"));
-
-        DefaultMutableTreeNode top = new DefaultMutableTreeNode("职员管理");
-
-        top.add(new DefaultMutableTreeNode("总经理"));
-        top.add(node1);
-        top.add(node2);
-        final JTree tree = new JTree(top);
         initData();
 
         // 把背景图片显示在一个标签里面
@@ -118,7 +94,7 @@ public class GroupOperation extends JFrame implements ActionListener,GroupOperat
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
                 mGroupOperationPresenter.cancelListener();
-                if(callback!=null && deviceEdit!=null){
+                if(callback!=null){
                     callback.updateExistedGroup(list);
                 }
             }
@@ -126,23 +102,49 @@ public class GroupOperation extends JFrame implements ActionListener,GroupOperat
     }
 
     private void initData() {
-//        List<Integer> remoteDeviceIDList = MyLocalDevice.mRemoteUtils.getRemoteDeviceIDList();
-//        JCheckBox[] cbDeviceList=new JCheckBox[remoteDeviceIDList.size()];
-
+        groupList.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                selectedIndex = groupList.getSelectedIndex();
+                if(selectedIndex==-1){
+                    return;
+                }
+                mDeviceGroup = mDeviceGroupList.get(selectedIndex);
+                List<Integer> shadeList = mDeviceGroup.getShadeList();
+                if(shadeList==null || shadeList.size()==0) return;
+                System.out.println("deviceList size: "+shadeList.size());
+                checkedList.clear();
+                for (int j = 0; j < idMotorList.size(); j++) {
+                    Integer id = idMotorList.get(j);
+                    for (int k = 0; k < shadeList.size(); k++) {
+                        Integer il = shadeList.get(k);
+                        if (id.intValue() == il.intValue()) {
+                            checkedList.add(id);
+                            break;
+                        }
+                    }
+                }
+                System.out.println("checked"+checkedList.size());
+                showChecked();
+//                int checked = -1;
+//                for (int i = 0; i < jcbGroup.length; i++) {
+//                    if (e.getSource().equals(jcbGroup[i]) && jcbGroup[i].isSelected()) {
+//                        checked=1;
+//                    }
+//                }
+//                if(checked==-1){
+//                    Map<Integer, Map<Integer, List<Integer>>> relationMap = MyLocalDevice.mRemoteUtils.getRelationMap();
+//                    Map<Integer, List<Integer>> integerListMap = relationMap.get(900900);
+//                    deviceGroup=new DeviceGroup(900900,integerListMap.size()+1);
+//                }
+            }
+        });
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if(AnnounceSubbutton.equals(e.getSource())){
             mGroupOperationPresenter.AnnounceSubbutton();
-        }else if(addSelGroup.equals(e.getSource())){
-            mGroupOperationPresenter.addSelGroup();
-        }else if(addAllGroup.equals(e.getSource())){
-            mGroupOperationPresenter.addAllGroup();
-        }else if(delSelGroup.equals(e.getSource())){
-            mGroupOperationPresenter.delSelGroup();
-        }else if(delAllGroup.equals(e.getSource())){
-            mGroupOperationPresenter.delAllGroup();
         }else if(upBt.equals(e.getSource())){
             mGroupOperationPresenter.upBt();
         }else if(stopButton.equals(e.getSource())){
@@ -160,17 +162,32 @@ public class GroupOperation extends JFrame implements ActionListener,GroupOperat
     }
 
     private void addGroup() {
+        if(selectedIndex==-1){
+            boolean isSet= false;
+            for (int i = 1; i < mDeviceGroupList.size()+1; i++) {
+                DeviceGroup deviceGroup = mDeviceGroupList.get(i-1);
+                Integer groupId = deviceGroup.getGroupId();
+                if(groupId.intValue()!=i){
+                    mDeviceGroup.setGroupId(i);
+                    isSet=true;
+                    break;
+                }
+            }
+            if(!isSet){
+                mDeviceGroup.setGroupId(mDeviceGroupList.size()+1);
+            }
+        }
         Map<Integer, RemoteDevice> remoteDeviceMap = MyLocalDevice.getRemoteDeviceMap();
         boolean success = true;
         String errorId = "";
         for (int i = 0; i < jcbMotor.length; i++) {
             Integer id = idMotorList.get(i);
-            int groupID = deviceGroup.getGroupId();
+            int groupID = mDeviceGroup.getGroupId();
             try {
                 if (jcbMotor[i].isSelected()) {
-                    Draper.sendGroupSubscriptionToSelect(remoteDeviceMap.get(id), false, deviceGroup.getDeviceId(), groupID);
+                    Draper.sendGroupSubscriptionToSelect(remoteDeviceMap.get(id), false, mDeviceGroup.getDeviceId(), groupID);
                 } else {
-                    Draper.sendGroupSubscriptionToSelect(remoteDeviceMap.get(id), true, deviceGroup.getDeviceId(), groupID);
+                    Draper.sendGroupSubscriptionToSelect(remoteDeviceMap.get(id), true, mDeviceGroup.getDeviceId(), groupID);
                 }
                 Thread.sleep(500);
             } catch (Exception e1) {
@@ -209,7 +226,7 @@ public class GroupOperation extends JFrame implements ActionListener,GroupOperat
 
 
     List<Integer> checkedList = new ArrayList<>();
-    DeviceGroup deviceGroup=new DeviceGroup(10000,1);
+    DeviceGroup mDeviceGroup=new DeviceGroup(900900,1);
 
     ActionListener jcbGroupListener = new ActionListener() {
         @Override
@@ -217,37 +234,12 @@ public class GroupOperation extends JFrame implements ActionListener,GroupOperat
 
             for (int i = 0; i < jcbGroup.length; i++) {
                 if (e.getSource().equals(jcbGroup[i]) && jcbGroup[i].isSelected()) {
-                    deviceGroup = deviceGroupList.get(i);
-                    List<Integer> shadeList = deviceGroup.getShadeList();
-                    if(shadeList==null || shadeList.size()==0) return;
-                    System.out.println("deviceList size: "+shadeList.size());
-                    checkedList.clear();
-                    for (int j = 0; j < idMotorList.size(); j++) {
-                        Integer id = idMotorList.get(j);
-                        for (int k = 0; k < shadeList.size(); k++) {
-                            Integer il = shadeList.get(k);
-                            if (id.intValue() == il.intValue()) {
-                                checkedList.add(id);
-                                break;
-                            }
-                        }
-                    }
-                    System.out.println("checked"+checkedList.size());
-                    showChecked();
+                    mDeviceGroup = mDeviceGroupList.get(i);
+                    List<Integer> shadeList = mDeviceGroup.getShadeList();
+
                 } else {
                     jcbGroup[i].setSelected(false);
                 }
-            }
-            int checked = -1;
-            for (int i = 0; i < jcbGroup.length; i++) {
-                if (e.getSource().equals(jcbGroup[i]) && jcbGroup[i].isSelected()) {
-                    checked=1;
-                }
-            }
-            if(checked==-1){
-                Map<Integer, Map<Integer, List<Integer>>> relationMap = MyLocalDevice.mRemoteUtils.getRelationMap();
-                Map<Integer, List<Integer>> integerListMap = relationMap.get(10000);
-                deviceGroup=new DeviceGroup(10000,integerListMap.size()+1);
             }
         }
     };
@@ -262,41 +254,62 @@ public class GroupOperation extends JFrame implements ActionListener,GroupOperat
     }
 
     Object[] list;
+
+    /**
+     *  只显示自己（900900）的组
+     * @param deviceList
+     */
     @Override
     public void updateExistedGroup(Object[] deviceList) {
-        deviceGroupList.clear();
-        existedGroup.removeAll();
+        mDeviceGroupList.clear();
         this.list=deviceList;
         Map<Integer, Map<Integer, List<Integer>>> relationMap = MyLocalDevice.mRemoteUtils.getRelationMap();
         for(Object o:deviceList){
             Integer deviceId = Integer.valueOf(String.valueOf(o));
-            Map<Integer, List<Integer>> groupListMap = relationMap.get(deviceId);
-            Iterator<Map.Entry<Integer, List<Integer>>> iterator = groupListMap.entrySet().iterator();
-            while (iterator.hasNext()){
-                Map.Entry<Integer, List<Integer>> group = iterator.next();
-                Integer groupId = group.getKey();
-                List<Integer> shadeList = group.getValue();
-                deviceGroupList.add(new DeviceGroup(deviceId,groupId,shadeList));
+            if(deviceId.intValue()==900900) {
+                Map<Integer, List<Integer>> groupListMap = relationMap.get(deviceId);
+                Iterator<Map.Entry<Integer, List<Integer>>> iterator = groupListMap.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    Map.Entry<Integer, List<Integer>> group = iterator.next();
+                    Integer groupId = group.getKey();
+                    List<Integer> shadeList = group.getValue();
+                    mDeviceGroupList.add(new DeviceGroup(deviceId, groupId, shadeList));
+                }
             }
         }
-        jcbGroup = new JCheckBox[deviceGroupList.size()];
-        for (int i = 0; i < deviceGroupList.size(); i++) {
-            jcbGroup[i] = new JCheckBox(deviceGroupList.get(i).toString());
-//            idGroupList.add(Integer.valueOf(String.valueOf(arr[i])));
-            jcbGroup[i].addActionListener(jcbGroupListener);
+        showGroupList(mDeviceGroupList);
+    }
+
+    /**
+     * 只显示自己（900900）的组
+     * @param list
+     */
+    private void showGroupList(List<DeviceGroup> list) {
+        String[] groupArr=new String[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            groupArr[i] = list.get(i).toString();
         }
-        existedGroup.setLayout(new BoxLayout(existedGroup, BoxLayout.Y_AXIS));
-        for (int i = 0; i < deviceGroupList.size(); i++) {
-            existedGroup.add(jcbGroup[i]);
-        }
-//        existedGroup.invalidate();
-        existedGroup.validate();
-        existedGroup.repaint();
+        updateGroup(groupArr);
+    }
+
+    private void showGroupInfo(DeviceGroup dg) {
+//        existedGroup.removeAll();
+//        JLabel jLabel = new JLabel(dg.toString());
+//        existedGroup.setLayout(new BoxLayout(existedGroup, BoxLayout.Y_AXIS));
+//        existedGroup.add(jLabel);
+//        existedGroup.validate();
+//        existedGroup.repaint();
+//        String[] groupArr=new String[list.size()];
+//        for (int i = 0; i < list.size(); i++) {
+//            groupArr[i] = list.get(i).toString();
+//        }
+//        updateGroup(groupArr);
+//        showMotor();
     }
 
     @Override
     public DeviceGroup getDeviceGroup() {
-        return deviceGroup;
+        return mDeviceGroup;
     }
 
     Panel allMotor = new Panel();
@@ -381,14 +394,6 @@ public class GroupOperation extends JFrame implements ActionListener,GroupOperat
     }
 
     @Override
-    public void updateDraper(String[] drapers) {
-        devBox.removeAllItems();
-        for (String s:drapers){
-            devBox.addItem(s);
-        }
-    }
-
-    @Override
     public void updateDevice(Object[] arr) {
         deviceList.setListData(arr);
     }
@@ -396,27 +401,6 @@ public class GroupOperation extends JFrame implements ActionListener,GroupOperat
     @Override
     public void updateGroup(Object[] arr) {
         groupList.setListData(arr);
-    }
-
-    @Override
-    public int getdevBoxSelectedItem() {
-        return devBox.getSelectedIndex();
-    }
-
-    @Override
-    public int getdevBoxSelectedIndex() {
-        return devBox.getSelectedIndex();
-    }
-
-    @Override
-    public int getDeviceNum(){
-        return Integer.parseInt(deviceEdit.getText().trim());
-    }
-
-    @Override
-    public int getGroupNum(){
-        return Integer.parseInt(groupEdit.getText().trim());
-
     }
 
     public void showError(String str) {
