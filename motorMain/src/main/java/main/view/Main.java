@@ -16,11 +16,14 @@ public class Main{
 
 
     public static void main(String[] args) throws Exception {
-//        try {
-//            initWritingPi();
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
+        String os = System.getProperty("os.name");
+        if(!os.toLowerCase().startsWith("win")){
+            try {
+                initWritingPi();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
         final Main main = new Main();
         main.guiInit();
         MyManager manager = new MyManager();

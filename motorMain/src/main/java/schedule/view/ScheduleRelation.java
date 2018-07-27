@@ -21,9 +21,9 @@ import java.util.List;
 public class ScheduleRelation extends JFrame implements IScheduleRelation,ActionListener{
 
     protected JList jlScheduleList;
+    protected JList jlGroupList;
+
     private ScheduleRelationPresenterImpl mScheduleRelationPresenter;
-    Panel existedGroup = new Panel();
-    JScrollPane jspGroup=new JScrollPane(existedGroup, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     JButton btnEditGroup =new JButton("edit group");
     JButton jbIdentify=new JButton("identify select");
     JButton jbAdd=new JButton("save");
@@ -64,7 +64,6 @@ public class ScheduleRelation extends JFrame implements IScheduleRelation,Action
         // 把背景图片添加到分层窗格的最底层作为背景
         this.getLayeredPane().add(label, new Integer(Integer.MIN_VALUE));
 
-        jspGroup.setBounds(300, 10, 200, 300);
 
         jbIdentify.setBounds(400,350,120,30);
         btnEditGroup.setBounds(300,350,100,30);
@@ -72,7 +71,6 @@ public class ScheduleRelation extends JFrame implements IScheduleRelation,Action
 
         StyleUtils.setBtnBg(btnEditGroup);
         StyleUtils.setBtnBg(jbIdentify);
-        add(jspGroup);
         add(btnEditGroup);
         add(jbIdentify);
         add(jbAdd);
@@ -84,9 +82,6 @@ public class ScheduleRelation extends JFrame implements IScheduleRelation,Action
         jbAdd.addActionListener(this);
 
         mScheduleRelationPresenter = new ScheduleRelationPresenterImpl(this);
-
-        existedGroup.setLayout(new BoxLayout(existedGroup, BoxLayout.Y_AXIS));
-
     }
 
     private void initView() {
@@ -104,6 +99,25 @@ public class ScheduleRelation extends JFrame implements IScheduleRelation,Action
         ps.setBounds(10,10,200,300);
         ps.getViewport().add(jlScheduleList);
         add(ps);
+
+        // group 列表
+        jlGroupList = new JList();
+        CheckListGroupCellRenderer groupRenderer = new CheckListGroupCellRenderer();
+        jlGroupList.setCellRenderer(groupRenderer);
+        jlGroupList.setSelectionModel(new DefaultListSelectionModel() {
+            @Override
+            public void setSelectionInterval(int index0, int index1) {
+                if (super.isSelectedIndex(index0)) {
+                    super.removeSelectionInterval(index0, index1);
+                } else {
+                    super.addSelectionInterval(index0, index1);
+                }
+            }
+        });
+        JScrollPane groupJsp = new JScrollPane();
+        groupJsp.setBounds(250,10,250,300);
+        groupJsp.getViewport().add(jlGroupList);
+        add(groupJsp);
     }
 
     @Override
@@ -122,15 +136,15 @@ public class ScheduleRelation extends JFrame implements IScheduleRelation,Action
     }
 
     private void identify() {
-        for (int i = 0; i < jcbGroup.length; i++) {
-            if (jcbGroup[i].isSelected()) {
-                DeviceGroup deviceGroup = deviceGroupList.get(i);
-                try {
-                    Draper.sendCmd(deviceGroup.getDeviceId(),deviceGroup.getGroupId(), 1602);
-                    Thread.sleep(1500);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        int[] selectedIndices = jlGroupList.getSelectedIndices();
+        for (int i=0;i<selectedIndices.length;i++) {
+            try {
+                int selectedIndex = selectedIndices[i];
+                DeviceGroup deviceGroup = deviceGroupList.get(selectedIndex);
+                Draper.sendCmd(deviceGroup.getDeviceId(), deviceGroup.getGroupId(), 1602);
+//                Thread.sleep(1500);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
@@ -147,13 +161,11 @@ public class ScheduleRelation extends JFrame implements IScheduleRelation,Action
     }
 
 
-    JCheckBox[] jcbGroup;
-    List<Integer> idGroupList = new ArrayList<>();
+//    JCheckBox[] jcbGroup;
 
     //更新组列表
     public void updateExistedGroup(Object[] groupList) {
         deviceGroupList.clear();
-        existedGroup.removeAll();
         Map<Integer, Map<Integer, List<Integer>>> relationMap = MyLocalDevice.mRemoteUtils.getRelationMap();
         for(Object o:groupList){
             Integer deviceId = Integer.valueOf(String.valueOf(o));
@@ -167,26 +179,17 @@ public class ScheduleRelation extends JFrame implements IScheduleRelation,Action
                 deviceGroupList.add(new DeviceGroup(deviceId,groupId));
             }
         }
-        jcbGroup = new JCheckBox[deviceGroupList.size()];
+        GroupData[] groupData=new GroupData[deviceGroupList.size()];
         for (int i = 0; i < deviceGroupList.size(); i++) {
-            jcbGroup[i] = new JCheckBox(deviceGroupList.get(i).toString());
-//            idGroupList.add(Integer.valueOf(String.valueOf(arr[i])));
-//            jcbGroup[i].addActionListener(jcbGroupListener);
+            groupData[i] = new GroupData(deviceGroupList.get(i).toString());
         }
-        for (int i = 0; i < deviceGroupList.size(); i++) {
-            existedGroup.add(jcbGroup[i]);
-        }
-//        existedGroup.invalidate();
-        existedGroup.validate();
-//        existedGroup.repaint();
+        jlGroupList.setListData(groupData);
     }
 
     @Override
     public DeviceGroup getDeviceGroup() {
         return null;
     }
-
-    JCheckBox[] jcbSchedule;
 
     @Override
     public void showSchedule(List<Schedule> scheduleList) {
@@ -207,11 +210,10 @@ public class ScheduleRelation extends JFrame implements IScheduleRelation,Action
         Schedule schedule = mScheduleRelationPresenter.getGroupListByScheduleId(scd.getId());
         List<ShadeGroup> shadeGroupList = schedule.getShadeGroups();
         showCheckedGroup(shadeGroupList);
-
     }
 
     private void showCheckedGroup(List<ShadeGroup> shadeGroupList) {
-        List<Integer> checkedList=new ArrayList<>();
+        Set<Integer> checkedList=new HashSet<>();
         for(ShadeGroup shadeGroup:shadeGroupList){
             for (int i = 0; i < deviceGroupList.size(); i++) {
                 DeviceGroup deviceGroup = deviceGroupList.get(i);
@@ -221,31 +223,36 @@ public class ScheduleRelation extends JFrame implements IScheduleRelation,Action
                 }
             }
         }
-        for (int i = 0; i < jcbGroup.length; i++) {
-            if(checkedList.contains(new Integer(i))){
-                jcbGroup[i].setSelected(true);
-            }else {
-                jcbGroup[i].setSelected(false);
-            }
+        if (checkedList.size()==0){
+            return;
         }
-//        if(checkedList.size()>0){
-//            for(Integer i:checkedList){
-//            }
-//        }
-        existedGroup.validate();
+        Iterator<Integer> iterator = checkedList.iterator();
+        int[] selectList = new int[checkedList.size()];
+        int k=0;
+        while (iterator.hasNext()){
+            selectList[k++]=iterator.next().intValue();
+        }
+        jlGroupList.setSelectedIndices(selectList);
     }
 
     private void addScheduleGroup(){
-        if(toAddIndex==-1 || jcbGroup==null){
+        int[] selectedIndices = jlGroupList.getSelectedIndices();
+        if(toAddIndex==-1 || selectedIndices.length==0){
             return;
         }
         List<DeviceGroup> toAddGroupList=new ArrayList<>();
         List<DeviceGroup> toDelGroupList=new ArrayList<>();
-        for (int i = 0; i < jcbGroup.length; i++) {
-            if(jcbGroup[i].isSelected()){
-                DeviceGroup deviceGroup = deviceGroupList.get(i);
-                toAddGroupList.add(deviceGroup);
-            }else {
+        for (int i = 0; i < deviceGroupList.size(); i++) {
+            boolean checked=false;
+            for (int j = 0; j < selectedIndices.length; j++) {
+                if(i==selectedIndices[j]){
+                    DeviceGroup deviceGroup = deviceGroupList.get(i);
+                    toAddGroupList.add(deviceGroup);
+                    checked=true;
+                    break;
+                }
+            }
+            if(!checked) {
                 DeviceGroup deviceGroup = deviceGroupList.get(i);
                 toDelGroupList.add(deviceGroup);
             }

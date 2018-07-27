@@ -4,7 +4,7 @@
     <settings>
         <setting name="lazyLoadingEnabled" value="true"/>
         <setting name="aggressiveLazyLoading" value="false"/>
-        <setting name="logImpl" value="LOG4J"/>
+        <!--<setting name="logImpl" value="LOG4J"/>-->
     </settings>
     <typeAliases>
         <typeAlias alias="User" type="entity.User"/>
