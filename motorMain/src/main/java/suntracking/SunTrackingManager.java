@@ -104,7 +104,7 @@ public class SunTrackingManager {
         try {
             for (DeviceGroup deviceGroup:deviceGroupList) {
                 Draper.sendCmd(deviceGroup.getDeviceId(), deviceGroup.getGroupId(), cmd, priority);
-                Thread.sleep(100);
+//                Thread.sleep(100);
             }
         } catch (Exception e) {
             e.printStackTrace();

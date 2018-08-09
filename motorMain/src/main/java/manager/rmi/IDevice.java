@@ -20,4 +20,6 @@ public interface IDevice extends Remote {
     public List<Device> getDeviceList() throws RemoteException;
 
     public Device getByDeviceId(int deviceId) throws RemoteException;
+
+    public Boolean updateDevice(Device device) throws RemoteException;
 }

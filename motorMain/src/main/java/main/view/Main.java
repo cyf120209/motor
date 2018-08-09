@@ -91,6 +91,8 @@ public class Main{
 
 
     private void guiInit() throws ParseException {
-        mBoxLayoutCase = new BoxLayoutCase();
+        if(mBoxLayoutCase==null){
+            mBoxLayoutCase = new BoxLayoutCase();
+        }
     }
 }

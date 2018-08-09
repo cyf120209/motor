@@ -17,7 +17,7 @@ public interface DeviceMapper {
 
     void batchInsert(List<Device> deviceList);
 
-    void update(Device device);
+    int update(Device device);
 
-    void delete(int shadeId);
+    int delete(int shadeId);
 }

@@ -52,20 +52,6 @@ public class DatabaseManager {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-//                GroupDao groupDao1 = new GroupDao();
-//                ShadeGroup shadeGroup1 = new ShadeGroup(3, 2);
-//                groupDao1.insert(shadeGroup1);
-//                List<ShadeGroupRelation> relationList1=new ArrayList<>();
-//                for (int i=0;i<6;i++){
-//                    relationList1.add(new ShadeGroupRelation(shadeGroup1.getId(), i));
-//                }
-//                groupDao1.insertRelation(relationList1);
-
-//                List<ShadeGroupRelation> toDelRelationList1=new ArrayList<>();
-//                toDelRelationList1.add(new ShadeGroupRelation(1,10001));
-//                toDelRelationList1.add(new ShadeGroupRelation(1,10002));
-//                groupDao1.deleteRelation(toDelRelationList1);
-
                 long lastTime=System.nanoTime();
 
                 RemoteUtils mRemoteUtils = MyLocalDevice.mRemoteUtils;
@@ -73,44 +59,62 @@ public class DatabaseManager {
                     return;
                 }
                 updateDevice(mRemoteUtils);
-
+                updateShades();
                 long currentTime=System.nanoTime();
                 System.out.println("----device--------time----------- "+(currentTime-lastTime)/1000000);
+                updateGroup();
 
 
-                //更新关系列表
-                //从数据库中取出数据，整理成map
-                GroupDao groupDao = new GroupDao();
-                List<ShadeGroup> shadeGroupList = groupDao.queryAll();
-                Map<Integer, Map<Integer, List<Integer>>> rMap=new HashMap<>();
-                for (ShadeGroup shadeGroup:shadeGroupList){
-                    Integer deviceId = shadeGroup.getDeviceId();
-                    Map<Integer, List<Integer>> shadeGroupMap = rMap.get(deviceId);
-                    if(shadeGroupMap==null){
-                        shadeGroupMap=new HashMap<>();
-                        rMap.put(deviceId,shadeGroupMap);
-                    }
-                    Integer groupId = shadeGroup.getGroupId();
-                    List<Integer> shadeList = shadeGroupMap.get(groupId);
-                    if(shadeList==null){
-                        shadeList=new ArrayList<>();
-                        shadeGroupMap.put(groupId,shadeList);
-                    }
-                    List<Shade> list = shadeGroup.getShades();
-                    for (Shade shade:list) {
-                        if(shade==null){
-                            continue;
-                        }
-                        Integer shadeId = shade.getShadeId();
-                        if (!shadeList.contains(shadeId)) {
-                            shadeList.add(shadeId);
-                        }
-                    }
+//                Iterator<Map.Entry<Integer, Map<Integer, List<Integer>>>> iterator1 = rMap.entrySet().iterator();
+            }
+        });
+        timer.start();
+    }
+
+    private void updateShades() {
+        DeviceDao deviceDao = new DeviceDao();
+        List<Device> deviceList = deviceDao.queryAll();
+        for (Device device:deviceList){
+            if(Public.matchString(device.getModelName(),"-AC-")){
+
+            }
+        }
+    }
+
+    private void updateGroup() {
+        //更新关系列表
+        //从数据库中取出数据，整理成map
+        GroupDao groupDao = new GroupDao();
+        List<ShadeGroup> shadeGroupList = groupDao.queryAll();
+        Map<Integer, Map<Integer, List<Integer>>> rMap=new HashMap<>();
+        for (ShadeGroup shadeGroup:shadeGroupList){
+            Integer deviceId = shadeGroup.getDeviceId();
+            Map<Integer, List<Integer>> shadeGroupMap = rMap.get(deviceId);
+            if(shadeGroupMap==null){
+                shadeGroupMap=new HashMap<>();
+                rMap.put(deviceId,shadeGroupMap);
+            }
+            Integer groupId = shadeGroup.getGroupId();
+            List<Integer> shadeList = shadeGroupMap.get(groupId);
+            if(shadeList==null){
+                shadeList=new ArrayList<>();
+                shadeGroupMap.put(groupId,shadeList);
+            }
+            List<Shade> list = shadeGroup.getShades();
+            for (Shade shade:list) {
+                if(shade==null){
+                    continue;
                 }
-                //取出缓存中的数据
-                Map<Integer, Map<Integer, List<Integer>>> relationMap = MyLocalDevice.getRelationMap();
+                Integer shadeId = shade.getShadeId();
+                if (!shadeList.contains(shadeId)) {
+                    shadeList.add(shadeId);
+                }
+            }
+        }
+        //取出缓存中的数据
+        Map<Integer, Map<Integer, List<Integer>>> relationMap = MyLocalDevice.getRelationMap();
 
-                //模拟缓存中的map
+        //模拟缓存中的map
 //                List<Integer> integerList = new ArrayList<>();
 //                integerList.add(new Integer(10001));
 //                integerList.add(new Integer(10002));
@@ -120,81 +124,77 @@ public class DatabaseManager {
 //                mmm.put(new Integer(444),integerList);
 //                relationMap.put(new Integer(1),mmm);
 
-                // 遍历缓存中map，若数据库中没有这个组，则添加
-                Iterator<Map.Entry<Integer, Map<Integer, List<Integer>>>> iterator = relationMap.entrySet().iterator();
-                while (iterator.hasNext()){
-                    Map.Entry<Integer, Map<Integer, List<Integer>>> entry = iterator.next();
-                    Integer deviceId = entry.getKey();
-                    Map<Integer, List<Integer>> sg = entry.getValue();
-                    Map<Integer, List<Integer>> gMap = rMap.remove(deviceId);
-                    if(gMap==null){
-                        gMap=new HashMap<>();
-                    }
+        // 遍历缓存中map，若数据库中没有这个组，则添加
+        Iterator<Map.Entry<Integer, Map<Integer, List<Integer>>>> iterator = relationMap.entrySet().iterator();
+        while (iterator.hasNext()){
+            Map.Entry<Integer, Map<Integer, List<Integer>>> entry = iterator.next();
+            Integer deviceId = entry.getKey();
+            Map<Integer, List<Integer>> sg = entry.getValue();
+            Map<Integer, List<Integer>> gMap = rMap.remove(deviceId);
+            if(gMap==null){
+                gMap=new HashMap<>();
+            }
 
-                    Iterator<Map.Entry<Integer, List<Integer>>> iterator1 = sg.entrySet().iterator();
-                    while (iterator1.hasNext()){
-                        Map.Entry<Integer, List<Integer>> shadeGroupRelation = iterator1.next();
-                        Integer groupId = shadeGroupRelation.getKey();
-                        List<Integer> shadeList = shadeGroupRelation.getValue();
-                        List<Integer> sDeviceIdList = gMap.remove(groupId);
-                        if(sDeviceIdList==null){
-                            sDeviceIdList=new ArrayList<>();
-                        }
-                        ShadeGroup sGroup = new ShadeGroup(groupId, deviceId);
-                        ShadeGroup shadeGroup = groupDao.selectByGroupOther(sGroup);
-                        if(shadeGroup==null){
-                            groupDao.insert(sGroup);
-                            shadeGroup=sGroup;
-                        }
-                        List<ShadeGroupRelation> relationList=new ArrayList<>();
-                        List<ShadeGroupRelation> toDelRelationList=new ArrayList<>();
-                        //缓存-〉数据库
-                        //遍历缓存中的电机列表，若数据库中无此电机，则添加
-                        if(shadeList!=null){
-                            for (Integer i:shadeList){
-                                if(!sDeviceIdList.contains(i)){
-                                    relationList.add(new ShadeGroupRelation(shadeGroup.getId(), i));
-                                }
-                            }
-                            if(relationList!=null && relationList.size()!=0){
-                                groupDao.insertRelation(relationList);
-                            }
-                        }
-                        //数据库-〉缓存
-                        //遍历数据库中的电机列表，若缓存中无此电机，则删除
-                        if(sDeviceIdList!=null){
-                            for (Integer j:sDeviceIdList){
-                                if(!shadeList.contains(j)){
-                                    toDelRelationList.add(new ShadeGroupRelation(shadeGroup.getId(), j));
-                                }
-                            }
-                            if(toDelRelationList!=null && toDelRelationList.size()!=0){
-                                groupDao.deleteRelation(toDelRelationList);
-                            }
+            Iterator<Map.Entry<Integer, List<Integer>>> iterator1 = sg.entrySet().iterator();
+            while (iterator1.hasNext()){
+                Map.Entry<Integer, List<Integer>> shadeGroupRelation = iterator1.next();
+                Integer groupId = shadeGroupRelation.getKey();
+                List<Integer> shadeList = shadeGroupRelation.getValue();
+                List<Integer> sDeviceIdList = gMap.remove(groupId);
+                if(sDeviceIdList==null){
+                    sDeviceIdList=new ArrayList<>();
+                }
+                ShadeGroup sGroup = new ShadeGroup(groupId, deviceId);
+                ShadeGroup shadeGroup = groupDao.selectByGroupOther(sGroup);
+                if(shadeGroup==null){
+                    groupDao.insert(sGroup);
+                    shadeGroup=sGroup;
+                }
+                List<ShadeGroupRelation> relationList=new ArrayList<>();
+                List<ShadeGroupRelation> toDelRelationList=new ArrayList<>();
+                //缓存-〉数据库
+                //遍历缓存中的电机列表，若数据库中无此电机，则添加
+                if(shadeList!=null){
+                    for (Integer i:shadeList){
+                        if(!sDeviceIdList.contains(i)){
+                            relationList.add(new ShadeGroupRelation(shadeGroup.getId(), i));
                         }
                     }
-                    if(gMap==null){
-                        continue;
-                    }
-                    Iterator<Map.Entry<Integer, List<Integer>>> iterator2 = gMap.entrySet().iterator();
-                    if(iterator2.hasNext()){
-                        Map.Entry<Integer, List<Integer>> next = iterator2.next();
-                        Integer key = next.getKey();
-                        if(next.getValue()==null || next.getValue().size()==0){
-                            continue;
-                        }
-                        for (ShadeGroup _sg:shadeGroupList){
-                            if(_sg.getGroupId().intValue()==key.intValue() && _sg.getDeviceId().intValue()==deviceId.intValue()){
-                                groupDao.deleteRelationById(_sg.getId());
-                                break;
-                            }
-                        }
+                    if(relationList!=null && relationList.size()!=0){
+                        groupDao.insertRelation(relationList);
                     }
                 }
-//                Iterator<Map.Entry<Integer, Map<Integer, List<Integer>>>> iterator1 = rMap.entrySet().iterator();
+                //数据库-〉缓存
+                //遍历数据库中的电机列表，若缓存中无此电机，则删除
+                if(sDeviceIdList!=null){
+                    for (Integer j:sDeviceIdList){
+                        if(!shadeList.contains(j)){
+                            toDelRelationList.add(new ShadeGroupRelation(shadeGroup.getId(), j));
+                        }
+                    }
+                    if(toDelRelationList!=null && toDelRelationList.size()!=0){
+                        groupDao.deleteRelation(toDelRelationList);
+                    }
+                }
             }
-        });
-//        timer.start();
+            if(gMap==null){
+                continue;
+            }
+            Iterator<Map.Entry<Integer, List<Integer>>> iterator2 = gMap.entrySet().iterator();
+            if(iterator2.hasNext()){
+                Map.Entry<Integer, List<Integer>> next = iterator2.next();
+                Integer key = next.getKey();
+                if(next.getValue()==null || next.getValue().size()==0){
+                    continue;
+                }
+                for (ShadeGroup _sg:shadeGroupList){
+                    if(_sg.getGroupId().intValue()==key.intValue() && _sg.getDeviceId().intValue()==deviceId.intValue()){
+                        groupDao.deleteRelationById(_sg.getId());
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     private void updateDevice(RemoteUtils mRemoteUtils) {
@@ -232,8 +232,8 @@ public class DatabaseManager {
             String modelName = Public.readModelName(remoteDevice);
             String version = Public.readVersion(remoteDevice);
             String name = remoteDevice.getName();
-            name=(name==null)?"":name;
-            Device d = new Device(instanceNumber, name, mac, modelName, version);
+            name=(name==null || "".equals(name))? version+"_"+instanceNumber : name;
+            Device d = new Device(instanceNumber, name, mac, modelName, version,"");
             deviceListAdd.add(d);
             //单条插入
             deviceDao.insert(d);
@@ -242,6 +242,10 @@ public class DatabaseManager {
 //                if(deviceListAdd.size()>0){
 //                    deviceDao.batchInsert(deviceListAdd);
 //                }
+
+        if(deviceDbList.size()==0){
+            return;
+        }
         //删除设备
         while (!remoteDeviceIdDbDelete.isEmpty()){
             Integer deviceId = remoteDeviceIdDbDelete.poll();
@@ -255,6 +259,7 @@ public class DatabaseManager {
                 }
             }
         }
+
         //更新设备
         for (RemoteDevice remoteDevice:deviceList){
             if(remoteDeviceIdDbDelete.contains(new Integer(remoteDevice.getInstanceNumber()))){
@@ -264,12 +269,19 @@ public class DatabaseManager {
             String mac = remoteDevice.getAddress().getMacAddress().toString();
             String modelName = Public.readModelName(remoteDevice);
             String version = Public.readVersion(remoteDevice);
-            String name = remoteDevice.getName();
-            name=(name==null)?"":name;
-            Device d = new Device(instanceNumber, name, mac, modelName, version);
-            if(!deviceDbList.contains(d)){
+            Device d = new Device(instanceNumber, mac, modelName, version);
+            if(!isInList(deviceDbList,d)){
                 deviceDao.update(d);
             }
         }
+    }
+
+    private boolean isInList(List<Device> deviceDbList,Device d){
+        for (Device device:deviceDbList){
+            if(device.equals(d)){
+                return true;
+            }
+        }
+        return false;
     }
 }

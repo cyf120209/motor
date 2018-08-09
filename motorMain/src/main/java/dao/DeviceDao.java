@@ -67,26 +67,30 @@ public class DeviceDao implements DeviceMapper {
     }
 
     @Override
-    public void update(Device device) {
+    public int update(Device device) {
         SqlSession session = MyBatisUtils.getSession();
+        int update=0;
         try {
             DeviceMapper mapper = session.getMapper(DeviceMapper.class);
-            mapper.update(device);
+            update = mapper.update(device);
             session.commit();
         }finally {
             session.close();
+            return update;
         }
     }
 
     @Override
-    public void delete(int shadeId) {
+    public int delete(int shadeId) {
         SqlSession session = MyBatisUtils.getSession();
+        int delete=0;
         try {
             DeviceMapper mapper = session.getMapper(DeviceMapper.class);
-            mapper.delete(shadeId);
+            delete=mapper.delete(shadeId);
             session.commit();
         }finally {
             session.close();
+            return delete;
         }
     }
 }

@@ -4,9 +4,7 @@ import com.serotonin.bacnet4j.LocalDevice;
 import com.serotonin.bacnet4j.RemoteDevice;
 import com.serotonin.bacnet4j.exception.BACnetException;
 import limitsAndStops.view.LimitsAndStopsView;
-import model.DraperInformation;
-import rx.Observable;
-import rx.functions.Func1;
+import entity.DraperInformation;
 import util.MyLocalDevice;
 import util.Draper;
 import util.Public;
@@ -35,7 +33,7 @@ public class LimitsAndStopsPresenterImpl implements LimitsAndStopsPresenter{
         localDevice = MyLocalDevice.getInstance();
         List<RemoteDevice> remoteDeviceList = MyLocalDevice.getRemoteDeviceList();
         for (RemoteDevice remoteDevice:remoteDeviceList){
-            if(Public.matchString(remoteDevice.getModelName(),"AC")){
+            if(Public.matchString(Public.readModelName(remoteDevice),"AC")){
                 mRemoteDevices.add(remoteDevice);
             }
         }
@@ -48,7 +46,7 @@ public class LimitsAndStopsPresenterImpl implements LimitsAndStopsPresenter{
     @Override
     public void extended() {
         try {
-            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),4);
+            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),4,7,11);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -57,7 +55,7 @@ public class LimitsAndStopsPresenterImpl implements LimitsAndStopsPresenter{
     @Override
     public void stop() {
         try {
-            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),1);
+            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),1,7,11);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -66,7 +64,7 @@ public class LimitsAndStopsPresenterImpl implements LimitsAndStopsPresenter{
     @Override
     public void retracted() {
         try {
-            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),3);
+            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),3,7,11);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -75,7 +73,7 @@ public class LimitsAndStopsPresenterImpl implements LimitsAndStopsPresenter{
     @Override
     public void JOpen() {
         try {
-            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),7);
+            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),7,7,11);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -84,7 +82,7 @@ public class LimitsAndStopsPresenterImpl implements LimitsAndStopsPresenter{
     @Override
     public void JClose() {
         try {
-            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),8);
+            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),8,7,11);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -93,7 +91,7 @@ public class LimitsAndStopsPresenterImpl implements LimitsAndStopsPresenter{
     @Override
     public void upperLimit() {
         try {
-            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),2000);
+            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),2000,7,11);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -102,7 +100,7 @@ public class LimitsAndStopsPresenterImpl implements LimitsAndStopsPresenter{
     @Override
     public void lowerLimit() {
         try {
-            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),2001);
+            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),2001,7,11);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -111,7 +109,7 @@ public class LimitsAndStopsPresenterImpl implements LimitsAndStopsPresenter{
     @Override
     public void preStop() {
         try {
-            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),5);
+            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),5,7,11);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -120,7 +118,7 @@ public class LimitsAndStopsPresenterImpl implements LimitsAndStopsPresenter{
     @Override
     public void nextStop() {
         try {
-            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),6);
+            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),6,7,11);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -129,7 +127,7 @@ public class LimitsAndStopsPresenterImpl implements LimitsAndStopsPresenter{
     @Override
     public void addStop() {
         try {
-            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),2004);
+            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),2004,7,11);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -138,7 +136,7 @@ public class LimitsAndStopsPresenterImpl implements LimitsAndStopsPresenter{
     @Override
     public void remoteStop() {
         try {
-            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),2005);
+            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),2005,7,11);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -147,7 +145,7 @@ public class LimitsAndStopsPresenterImpl implements LimitsAndStopsPresenter{
     @Override
     public void remoteAllStop() {
         try {
-            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),2006);
+            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),2006,7,11);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -156,7 +154,7 @@ public class LimitsAndStopsPresenterImpl implements LimitsAndStopsPresenter{
     @Override
     public void reverse() {
         try {
-            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),2007);
+            Draper.sendCmd(mLimitsAndStopsView.getSelectedItem(),2007,7,11);
         } catch (Exception e) {
             e.printStackTrace();
         }

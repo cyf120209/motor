@@ -1,5 +1,6 @@
 package manager.rmi;
 
+import entity.DraperInformation;
 import entity.Shade;
 
 import java.rmi.Remote;
@@ -20,4 +21,16 @@ public interface IShade extends Remote {
     public List<Shade> getShadeList() throws RemoteException;
 
     public Shade getByShadeId(int shadeId) throws RemoteException;
+
+    public void identify(Integer id) throws RemoteException;
+
+    public void move(Integer id, Integer cmd) throws RemoteException;
+
+    public void move(Integer id, Integer cmd, Integer cmdService) throws RemoteException;
+
+    public DraperInformation limitAndStopOperation(Integer id, Integer cmd) throws RemoteException;
+
+    public DraperInformation limitAndStopOperation(Integer id, Integer cmd, Integer cmdService) throws RemoteException;
+
+    public DraperInformation getDraperInformation(Integer id) throws RemoteException;
 }

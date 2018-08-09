@@ -14,11 +14,12 @@ import com.serotonin.bacnet4j.type.constructed.SequenceOf;
 import com.serotonin.bacnet4j.type.enumerated.ObjectType;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.*;
-import model.DraperInformation;
+import entity.DraperInformation;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +54,7 @@ public class Draper {
     public static UnsignedInteger announceDraperInformation=new UnsignedInteger(ANNOUNCE_DRAPER_INFORMATION);
     public static ObjectIdentifier deviceid=new ObjectIdentifier(ObjectType.device,900900);
     public static final UnsignedInteger draperConfiguration=new UnsignedInteger(DRAPER_CONFIGURATION);
+    public static final UnsignedInteger cmdAbsoluteSer=new UnsignedInteger(11);
 
     private static LocalDevice dev;
 
@@ -167,27 +169,59 @@ public class Draper {
     }
 
     public static  void sendCmd( int cmd,int priority) throws Exception {
+        sendCmd(cmd,priority,false);
+    }
+
+    public static  void sendCmd( int cmd,boolean absolute) throws Exception {
+        sendCmd(cmd,7,absolute);
+    }
+
+    public static  void sendCmd( int cmd,int priority,boolean absolute) throws Exception {
         SequenceOf<Primitive> listParam= new SequenceOf<Primitive>();
         listParam.add(deviceid);
         listParam.add(new Unsigned8(0));
         listParam.add(new UnsignedInteger(cmd));
         listParam.add(new Unsigned8(priority));
-        dev.sendGlobalBroadcast(new UnconfirmedPrivateTransferRequest(vendorID,cmdSer,listParam));
+        if(absolute){
+            dev.sendGlobalBroadcast(new UnconfirmedPrivateTransferRequest(vendorID,cmdAbsoluteSer,listParam));
+        }else {
+            dev.sendGlobalBroadcast(new UnconfirmedPrivateTransferRequest(vendorID, cmdSer, listParam));
+        }
     }
 
     //6.1	SHADE COMMAND
-    public static  void sendCmd(RemoteDevice remoteDevice, int cmd) throws Exception {
+    public static  void sendCmd(RemoteDevice remoteDevice, int cmd) throws BACnetException {
         sendCmd(remoteDevice,cmd,7);
     }
 
-    public static  void sendCmd(RemoteDevice remoteDevice, int cmd,int priority) throws Exception {
+    public static  void sendCmd(RemoteDevice remoteDevice, int cmd,int priority) throws BACnetException {
+        sendCmd(remoteDevice,cmd,priority,1);
+    }
+
+    public static  void sendCmd(int cmd,int cmdService,RemoteDevice remoteDevice) throws BACnetException {
+        sendCmd(remoteDevice,cmd,7,cmdService);
+    }
+
+    public static  void sendCmd(RemoteDevice remoteDevice, int cmd,int priority,int cmdService) throws BACnetException {
+        sendCmd(remoteDevice,0,cmd,priority,cmdService);
+    }
+
+    /**
+     *
+     * @param remoteDevice
+     * @param i 0：全部  （四合一1： 第一台电机 2：第二天电机 3：第三台电机 4：第四台电机）
+     * @param cmd 命令
+     * @param priority 优先级
+     * @param cmdService 命令等级
+     * @throws BACnetException
+     */
+    public static  void sendCmd(RemoteDevice remoteDevice, int i,int cmd,int priority,int cmdService) throws BACnetException {
         SequenceOf<Primitive> listParam= new SequenceOf<Primitive>();
         listParam.add(deviceid);
-        listParam.add(new Unsigned8(0));
+        listParam.add(new Unsigned8(i));
         listParam.add(new UnsignedInteger(cmd));
         listParam.add(new Unsigned8(priority));
-        System.out.println(cmd);
-        dev.sendUnconfirmed(remoteDevice.getAddress(),remoteDevice.getLinkService(),new UnconfirmedPrivateTransferRequest(vendorID,cmdSer,listParam));
+        dev.sendUnconfirmed(remoteDevice.getAddress(),remoteDevice.getLinkService(),new UnconfirmedPrivateTransferRequest(vendorID,new UnsignedInteger(cmdService),listParam));
     }
 
     //6.1	SHADE COMMAND
@@ -277,8 +311,12 @@ public class Draper {
         SignedInteger curPos = encodable.getCurPos();
         SignedInteger upLimit = encodable.getUpLimit();
         SignedInteger lowLimit = encodable.getLowLimit();
-        List<SignedInteger> persetStopList = encodable.getPersetStop();
-        DraperInformation draperInformation = new DraperInformation(id,isReverse, curPos, upLimit, lowLimit, persetStopList);
+        List<SignedInteger> presetStopList = encodable.getPersetStop();
+        List<Integer> list=new ArrayList<>();
+        for (SignedInteger signedInteger:presetStopList){
+            list.add(new Integer(signedInteger.intValue()));
+        }
+        DraperInformation draperInformation = new DraperInformation(peer.getInstanceNumber(),isReverse.booleanValue(), curPos.intValue(), upLimit.intValue(), lowLimit.intValue(), list);
         RxBus.getDefault().post(draperInformation);
     }
 
@@ -297,8 +335,12 @@ public class Draper {
         SignedInteger curPos = encodable.getCurPos();
         SignedInteger upLimit = encodable.getUpLimit();
         SignedInteger lowLimit = encodable.getLowLimit();
-        List<SignedInteger> persetStopList = encodable.getPersetStop();
-        return new DraperInformation(id,isReverse, curPos, upLimit, lowLimit, persetStopList);
+        List<SignedInteger> presetStopList = encodable.getPersetStop();
+        List<Integer> list=new ArrayList<>();
+        for (SignedInteger signedInteger:presetStopList){
+            list.add(new Integer(signedInteger.intValue()));
+        }
+        return new DraperInformation(peer.getInstanceNumber(),isReverse.booleanValue(), curPos.intValue(), upLimit.intValue(), lowLimit.intValue(), list);
     }
 
     /**

@@ -29,11 +29,11 @@ public class SunTrackingManager {
 //    };
 
     private void start(){
-        caculate();
+//        caculate();
         new Timer(10000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-//                caculate();
+                caculate();
 
             }
         }).start();

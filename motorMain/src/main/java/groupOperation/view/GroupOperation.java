@@ -212,7 +212,7 @@ public class GroupOperation extends JFrame implements ActionListener,GroupOperat
                 RemoteDevice remoteDevice = remoteDeviceMap.get(id);
                 try {
                     Draper.sendCmd(remoteDevice, 1602);
-                    Thread.sleep(1500);
+//                    Thread.sleep(1500);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

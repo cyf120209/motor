@@ -77,7 +77,7 @@ public class BoxLayoutCase extends JFrame implements ActionListener,BoxLayoutVie
 //        setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         //不要边框 需放置在组件添加之前，否则不生效
-        setUndecorated(true);
+//        setUndecorated(true);
 
         // 把背景图片显示在一个标签里面
         JLabel label = new JLabel(StyleUtils.getFormBg());

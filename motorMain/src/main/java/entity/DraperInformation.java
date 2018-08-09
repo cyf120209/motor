@@ -1,22 +1,19 @@
-package model;
+package entity;
 
-import com.serotonin.bacnet4j.type.primitive.Boolean;
-import com.serotonin.bacnet4j.type.primitive.SignedInteger;
 
-import java.text.SimpleDateFormat;
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
  * Created by lenovo on 2017/2/13.
  */
-public class DraperInformation {
+public class DraperInformation implements Serializable{
 
     /**
      * 电机的编号 id=1,2,3,4
      */
-    private SignedInteger id;
+    private Integer id;
 
     /**
      * 方向
@@ -26,24 +23,24 @@ public class DraperInformation {
     /**
      * 当前位置
      */
-    private SignedInteger curPosition;
+    private Integer curPosition;
 
     /**
      * 上限位
      */
-    private SignedInteger upperLimit;
+    private Integer upperLimit;
 
     /**
      * 下限位
      */
-    private SignedInteger lowerLimit;
+    private Integer lowerLimit;
 
     /**
      * 预设点
      */
-    private List<SignedInteger> stopList=new ArrayList<>();
+    private List<Integer> stopList=new ArrayList<>();
 
-    public DraperInformation(SignedInteger id, Boolean reverse, SignedInteger curPosition, SignedInteger upperLimit, SignedInteger lowerLimit, List<SignedInteger> stopList) {
+    public DraperInformation(int id, Boolean reverse, int curPosition, int upperLimit, int lowerLimit, List<Integer> stopList) {
         this.id=id;
         this.reverse = reverse;
         this.curPosition = curPosition;
@@ -52,7 +49,7 @@ public class DraperInformation {
         this.stopList = stopList;
     }
 
-    public SignedInteger getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -60,19 +57,19 @@ public class DraperInformation {
         return reverse;
     }
 
-    public SignedInteger getCurPosition() {
+    public Integer getCurPosition() {
         return curPosition;
     }
 
-    public SignedInteger getUpperLimit() {
+    public Integer getUpperLimit() {
         return upperLimit;
     }
 
-    public SignedInteger getLowerLimit() {
+    public Integer getLowerLimit() {
         return lowerLimit;
     }
 
-    public List<SignedInteger> getStopList() {
+    public List<Integer> getStopList() {
         return stopList;
     }
 

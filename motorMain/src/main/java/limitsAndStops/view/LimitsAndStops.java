@@ -5,7 +5,7 @@ import com.serotonin.bacnet4j.type.primitive.SignedInteger;
 import common.Common;
 import limitsAndStops.presenter.LimitsAndStopsPresenter;
 import limitsAndStops.presenter.LimitsAndStopsPresenterImpl;
-import model.DraperInformation;
+import entity.DraperInformation;
 import rx.functions.Action1;
 import util.Draper;
 import util.RxBus;
@@ -355,8 +355,8 @@ public class LimitsAndStops extends JFrame implements ActionListener,LimitsAndSt
         curPositionLabel.setText(""+draperInformation.getCurPosition());
         upLimitLabel.setText(""+draperInformation.getUpperLimit());
         lowLimitLabel.setText(""+draperInformation.getLowerLimit());
-        List<SignedInteger> stop = draperInformation.getStopList();
-        SignedInteger[] drapers=new SignedInteger[stop.size()];
+        List<Integer> stop = draperInformation.getStopList();
+        Integer[] drapers=new Integer[stop.size()];
         for (int i = 0; i < stop.size(); i++) {
             drapers[i]=stop.get(i);
         }
