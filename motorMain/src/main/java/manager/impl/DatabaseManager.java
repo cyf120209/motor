@@ -114,22 +114,14 @@ public class DatabaseManager {
         //取出缓存中的数据
         Map<Integer, Map<Integer, List<Integer>>> relationMap = MyLocalDevice.getRelationMap();
 
-        //模拟缓存中的map
-//                List<Integer> integerList = new ArrayList<>();
-//                integerList.add(new Integer(10001));
-//                integerList.add(new Integer(10002));
-//                Map<Integer,List<Integer>> mmm=new HashMap<>();
-//                mmm.put(new Integer(111),integerList);
-//                mmm.put(new Integer(222),integerList);
-//                mmm.put(new Integer(444),integerList);
-//                relationMap.put(new Integer(1),mmm);
-
         // 遍历缓存中map，若数据库中没有这个组，则添加
         Iterator<Map.Entry<Integer, Map<Integer, List<Integer>>>> iterator = relationMap.entrySet().iterator();
         while (iterator.hasNext()){
             Map.Entry<Integer, Map<Integer, List<Integer>>> entry = iterator.next();
             Integer deviceId = entry.getKey();
+            // 缓存  组 - 电机列表 map
             Map<Integer, List<Integer>> sg = entry.getValue();
+            // 数据库  组 - 电机列表 map
             Map<Integer, List<Integer>> gMap = rMap.remove(deviceId);
             if(gMap==null){
                 gMap=new HashMap<>();
@@ -139,12 +131,15 @@ public class DatabaseManager {
             while (iterator1.hasNext()){
                 Map.Entry<Integer, List<Integer>> shadeGroupRelation = iterator1.next();
                 Integer groupId = shadeGroupRelation.getKey();
+                //缓存 电机列表
                 List<Integer> shadeList = shadeGroupRelation.getValue();
+                // 数据库 电机列表
                 List<Integer> sDeviceIdList = gMap.remove(groupId);
                 if(sDeviceIdList==null){
                     sDeviceIdList=new ArrayList<>();
                 }
                 ShadeGroup sGroup = new ShadeGroup(groupId, deviceId);
+                //查询组是否存在，若不存在则添加
                 ShadeGroup shadeGroup = groupDao.selectByGroupOther(sGroup);
                 if(shadeGroup==null){
                     groupDao.insert(sGroup);
@@ -158,6 +153,8 @@ public class DatabaseManager {
                     for (Integer i:shadeList){
                         if(!sDeviceIdList.contains(i)){
                             relationList.add(new ShadeGroupRelation(shadeGroup.getId(), i));
+                            System.out.println("size: "+shadeList.size());
+                            System.out.println("add   shadeGroupId: "+ shadeGroup.getId()+" shade: "+i);
                         }
                     }
                     if(relationList!=null && relationList.size()!=0){
@@ -170,6 +167,7 @@ public class DatabaseManager {
                     for (Integer j:sDeviceIdList){
                         if(!shadeList.contains(j)){
                             toDelRelationList.add(new ShadeGroupRelation(shadeGroup.getId(), j));
+                            System.out.println("delete   shadeGroupId: "+ shadeGroup.getId()+" shade: "+j);
                         }
                     }
                     if(toDelRelationList!=null && toDelRelationList.size()!=0){
@@ -185,16 +183,61 @@ public class DatabaseManager {
                 Map.Entry<Integer, List<Integer>> next = iterator2.next();
                 Integer key = next.getKey();
                 if(next.getValue()==null || next.getValue().size()==0){
+                    ShadeGroup shadeGroup = new ShadeGroup(key,deviceId);
+                    groupDao.deleteByShadeGroup(shadeGroup);
+                    System.out.println("delete   deviceId: "+ deviceId+" groupId"+key);
                     continue;
                 }
+                //删除关系列表
                 for (ShadeGroup _sg:shadeGroupList){
                     if(_sg.getGroupId().intValue()==key.intValue() && _sg.getDeviceId().intValue()==deviceId.intValue()){
                         groupDao.deleteRelationById(_sg.getId());
+                        System.out.println("delete   shadeGroupId: "+ _sg.getId());
                         break;
                     }
                 }
+                //删除组
+                ShadeGroup shadeGroup = new ShadeGroup(key,deviceId);
+                groupDao.deleteByShadeGroup(shadeGroup);
+                System.out.println("delete   deviceId: "+ deviceId+" groupId"+key);
             }
+
         }
+        //剩下的数据库rMap 为要删除的数据
+        Iterator<Map.Entry<Integer, Map<Integer, List<Integer>>>> toDeleteMapMap = rMap.entrySet().iterator();
+        while (toDeleteMapMap.hasNext()){
+            Map.Entry<Integer, Map<Integer, List<Integer>>> _toDeleteMapMap = toDeleteMapMap.next();
+            Integer deviceId = _toDeleteMapMap.getKey();
+            Map<Integer, List<Integer>> toDeleteMap = _toDeleteMapMap.getValue();
+            Iterator<Map.Entry<Integer, List<Integer>>> _toDeleteMap = toDeleteMap.entrySet().iterator();
+            while (_toDeleteMap.hasNext()){
+                Map.Entry<Integer, List<Integer>> toDelete = _toDeleteMap.next();
+                Integer groupId = toDelete.getKey();
+                List<Integer> shadeList = toDelete.getValue();
+                //查询待删除的组的id
+                ShadeGroup sGroup = new ShadeGroup(groupId, deviceId);
+                ShadeGroup shadeGroup = groupDao.selectByGroupOther(sGroup);
+                //遍历数据库中的电机列表，全部删除
+                List<ShadeGroupRelation> toDelRelationList=new ArrayList<>();
+                if(shadeList!=null){
+                    for (Integer j:shadeList){
+                        toDelRelationList.add(new ShadeGroupRelation(shadeGroup.getId(), j));
+                        System.out.println("delete   shadeGroupId: "+ shadeGroup.getId()+" shade: "+j);
+                    }
+                    if(toDelRelationList!=null && toDelRelationList.size()!=0){
+                        groupDao.deleteRelation(toDelRelationList);
+                    }
+                }
+                //删除组
+                groupDao.deleteByShadeGroup(shadeGroup);
+                System.out.println("delete   shadeGroupId: "+ shadeGroup.getId());
+            }
+
+        }
+    }
+
+    public static void updateGroupThread(){
+        new DatabaseManager().updateGroup();
     }
 
     private void updateDevice(RemoteUtils mRemoteUtils) {
@@ -232,7 +275,7 @@ public class DatabaseManager {
             String modelName = Public.readModelName(remoteDevice);
             String version = Public.readVersion(remoteDevice);
             String name = remoteDevice.getName();
-            name=(name==null || "".equals(name))? version+"_"+instanceNumber : name;
+            name=(name==null || "".equals(name))? instanceNumber+"_"+modelName : name;
             Device d = new Device(instanceNumber, name, mac, modelName, version,"");
             deviceListAdd.add(d);
             //单条插入

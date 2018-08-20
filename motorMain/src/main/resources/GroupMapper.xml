@@ -27,7 +27,7 @@
     </select>
 
     <select id="selectByGroupOther" parameterType="entity.ShadeGroup" resultType="entity.ShadeGroup">
-        SELECT * FROM shadegroup WHERE groupId=#{groupId} and deviceId=#{deviceId}
+        SELECT * FROM shadegroup WHERE groupId=#{groupId} and deviceId=#{deviceId} limit 1
     </select>
 
     <select id="selectById" parameterType="int" resultType="entity.Shade">
@@ -55,6 +55,10 @@
 
     <delete id="delete" parameterType="int">
         DELETE FROM shadegroup WHERE id=#{id}
+    </delete>
+
+    <delete id="deleteByShadeGroup" parameterType="entity.ShadeGroup">
+        DELETE FROM shadegroup WHERE deviceId=#{deviceId} AND groupId=#{groupId}
     </delete>
 
     <delete id="deleteRelation" parameterType="java.util.List">

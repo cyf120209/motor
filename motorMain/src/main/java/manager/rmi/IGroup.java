@@ -12,4 +12,6 @@ public interface IGroup extends Remote{
 
     ShadeGroup getByGroupId(int id) throws RemoteException;
 
+    Boolean groupSubscriptionToSelect(Integer id,Boolean remove,Integer deviceId,Integer groupId) throws RemoteException;
+
 }

@@ -40,11 +40,13 @@ public class GroupDao implements GroupMapper {
     @Override
     public ShadeGroup selectByGroupOther(ShadeGroup shadeGroup) {
         SqlSession session = MyBatisUtils.getSession();
-        ShadeGroup sg;
+        ShadeGroup sg=null;
         try {
             GroupMapper mapper = session.getMapper(GroupMapper.class);
             sg = mapper.selectByGroupOther(shadeGroup);
-        } finally {
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
             session.close();
         }
         return sg;
@@ -94,6 +96,18 @@ public class GroupDao implements GroupMapper {
         try {
             GroupMapper mapper = session.getMapper(GroupMapper.class);
             mapper.delete(id);
+            session.commit();
+        } finally {
+            session.close();
+        }
+    }
+
+    @Override
+    public void deleteByShadeGroup(ShadeGroup shadeGroup) {
+        SqlSession session = MyBatisUtils.getSession();
+        try {
+            GroupMapper mapper = session.getMapper(GroupMapper.class);
+            mapper.deleteByShadeGroup(shadeGroup);
             session.commit();
         } finally {
             session.close();

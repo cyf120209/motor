@@ -21,6 +21,7 @@ import java.util.*;
  */
 public class GroupOperationPresenterImpl implements GroupOperationPresenter {
 
+    private static GroupOperationPresenterImpl groupOperationPresenterImpl;
     private AnnounceListener announceListener;
     private GroupOperationView mGroupOperationView;
     private LocalDevice localDevice;
@@ -58,8 +59,11 @@ public class GroupOperationPresenterImpl implements GroupOperationPresenter {
     private Integer mDeviceID;
     private Integer mGroupIndex;
 
+    public GroupOperationPresenterImpl() {
+    }
 
     public GroupOperationPresenterImpl(GroupOperationView mGroupOperationView) {
+        groupOperationPresenterImpl=this;
         this.mGroupOperationView = mGroupOperationView;
         localDevice= MyLocalDevice.getInstance();
 //        mRemoteDevices = localDevice.getRemoteDevices();
@@ -75,6 +79,10 @@ public class GroupOperationPresenterImpl implements GroupOperationPresenter {
         announceListener = new AnnounceListener(localDevice, this, mGroupOperationView);
         localDevice.getEventHandler().addListener(announceListener);
         AnnounceSubbutton();
+    }
+
+    public static void announce(){
+        groupOperationPresenterImpl.AnnounceSubbutton();
     }
 
     @Override

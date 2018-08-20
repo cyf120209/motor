@@ -24,6 +24,8 @@ public interface GroupMapper {
 
     void delete(int id);
 
+    void deleteByShadeGroup(ShadeGroup shadeGroup);
+
     void deleteRelation(List<ShadeGroupRelation> shadeGroupRelationList);
 
     void deleteRelationById(int id);

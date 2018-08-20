@@ -112,7 +112,7 @@ public class GroupOperation extends JFrame implements ActionListener,GroupOperat
                 mDeviceGroup = mDeviceGroupList.get(selectedIndex);
                 List<Integer> shadeList = mDeviceGroup.getShadeList();
                 if(shadeList==null || shadeList.size()==0) return;
-                System.out.println("deviceList size: "+shadeList.size());
+//                System.out.println("deviceList size: "+shadeList.size());
                 checkedList.clear();
                 for (int j = 0; j < idMotorList.size(); j++) {
                     Integer id = idMotorList.get(j);
@@ -124,7 +124,8 @@ public class GroupOperation extends JFrame implements ActionListener,GroupOperat
                         }
                     }
                 }
-                System.out.println("checked"+checkedList.size());
+
+//                System.out.println("checked"+checkedList.size());
                 showChecked();
 //                int checked = -1;
 //                for (int i = 0; i < jcbGroup.length; i++) {
@@ -266,7 +267,7 @@ public class GroupOperation extends JFrame implements ActionListener,GroupOperat
         Map<Integer, Map<Integer, List<Integer>>> relationMap = MyLocalDevice.mRemoteUtils.getRelationMap();
         for(Object o:deviceList){
             Integer deviceId = Integer.valueOf(String.valueOf(o));
-            if(deviceId.intValue()==900900) {
+//            if(deviceId.intValue()==900900) {
                 Map<Integer, List<Integer>> groupListMap = relationMap.get(deviceId);
                 Iterator<Map.Entry<Integer, List<Integer>>> iterator = groupListMap.entrySet().iterator();
                 while (iterator.hasNext()) {
@@ -275,7 +276,7 @@ public class GroupOperation extends JFrame implements ActionListener,GroupOperat
                     List<Integer> shadeList = group.getValue();
                     mDeviceGroupList.add(new DeviceGroup(deviceId, groupId, shadeList));
                 }
-            }
+//            }
         }
         showGroupList(mDeviceGroupList);
     }
