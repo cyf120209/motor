@@ -166,7 +166,7 @@ public class DeviceEventHandler {
             						final Encodable serviceParameters) {
         for (DeviceEventListener l : listeners) {
             try {
-                System.out.println("firePrivateTransfer");
+//                System.out.println("firePrivateTransfer");
                 l.privateTransferReceived(vendorId, serviceNumber, serviceParameters);
             }
             catch (Throwable e) {

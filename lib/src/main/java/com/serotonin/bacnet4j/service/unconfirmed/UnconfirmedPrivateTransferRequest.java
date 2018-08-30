@@ -58,7 +58,7 @@ public class UnconfirmedPrivateTransferRequest extends UnconfirmedRequestService
 
     @Override
     public void handle(LocalDevice localDevice, Address from, OctetString linkService) {
-        System.out.println("handle");
+//        System.out.println("handle");
         localDevice.getEventHandler().firePrivateTransfer(vendorId, serviceNumber, serviceParameters);
     }
 

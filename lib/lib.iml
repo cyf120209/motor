@@ -16,6 +16,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="pi4j-core" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.0" level="project" />
     <orderEntry type="library" name="Maven: log4j:log4j:1.2.17" level="project" />
     <orderEntry type="library" name="Maven: io.reactivex:rxjava:1.2.6" level="project" />
@@ -37,6 +38,5 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-core:2.5.4" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-web:2.5.4" level="project" />
     <orderEntry type="library" name="Maven: javax.servlet:servlet-api:2.4" level="project" />
-    <orderEntry type="library" name="pi4j-core" level="project" />
   </component>
 </module>

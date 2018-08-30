@@ -78,9 +78,14 @@ abstract public class MstpNode implements Runnable {
     private String lastWriteError;
 
     private LogCallbackListener logCallbackListener;
+    private RemoteDeviceListener remoteDeviceListener;
 
     public void setLogCallbackListener(LogCallbackListener logCallbackListener) {
         this.logCallbackListener = logCallbackListener;
+    }
+
+    public void setRemoteDeviceListener(RemoteDeviceListener remoteDeviceListener) {
+        this.remoteDeviceListener = remoteDeviceListener;
     }
 
     public MstpNode(SerialParameters serialParams, byte thisStation) {
@@ -426,7 +431,9 @@ abstract public class MstpNode implements Runnable {
             state = ReadFrameState.idle;
         }
         else {
-            addressList(frame.getSourceAddress());
+            if(remoteDeviceListener!=null){
+                addressList(frame.getSourceAddress());
+            }
             if (!frame.forStationOrBroadcast(thisStation))
                 // NotForUs
                 state = ReadFrameState.idle;
@@ -682,29 +689,42 @@ abstract public class MstpNode implements Runnable {
         if(!addressList.contains(sourceAddress)){
             addressList.add(sourceAddress);
             addressMap.put(sourceAddress,1);
+            remoteDeviceListener.remoteDeviceAdd(sourceAddress);
             System.out.println("----------------------"+sourceAddress);
         }else {
             Integer integer = addressMap.get(sourceAddress);
             addressMap.put(sourceAddress,(integer==null)?0:integer+1);
         }
         if(timer==null) {
-            timer = new Timer(5 * 1000, new ActionListener() {
+            timer = new Timer(10 * 1000, new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     if(addressMap.size()==0){
                         return;
                     }
-                    List<Byte> cacheList=new ArrayList<>();
+                    List<Byte> removeList=new ArrayList<>();
+//                    List<Byte> cacheList=new ArrayList<>();
                     Iterator<Map.Entry<Byte, Integer>> iterator = addressMap.entrySet().iterator();
                     while (iterator.hasNext()){
                         Map.Entry<Byte, Integer> next = iterator.next();
+                        Integer value = next.getValue();
                         Byte souraddr = next.getKey();
-                        cacheList.add(souraddr);
+                        if(value==0){
+                            // 删除
+                            removeList.add(souraddr);
+                            remoteDeviceListener.remoteDeviceDelete(souraddr);
+                        }
+                        addressMap.put(souraddr,0);
+//                        cacheList.add(souraddr);
                     }
-                    addressList.clear();
-                    addressList.addAll(cacheList);
-                    addressMap.clear();
+                    for (Byte b:removeList){
+                        addressMap.remove(b);
+                        addressList.remove(b);
+                    }
+//                    addressList.clear();
+//                    addressList.addAll(cacheList);
+//                    addressMap.clear();
                     System.out.println("////////////////////////////////////////////////"+addressList.size());
                 }
             });
