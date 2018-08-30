@@ -5,7 +5,7 @@ import entity.Log;
 
 public class MyManager {
 
-    private boolean router=false;
+    private boolean router=true;
 
     public void init(){
         DatabaseManager.register();
